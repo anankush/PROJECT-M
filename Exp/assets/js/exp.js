@@ -364,6 +364,11 @@
             const rBtnM = document.getElementById('refreshBtnMobile');
             if (rBtnM) rBtnM.classList.add('show');
             renderTabs();
+            
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('appSidebar');
+                if (sidebar && sidebar.classList.contains('open')) toggleSidebar();
+            }
 
             const table = document.getElementById('dataTable');
             const emptyState = document.getElementById('emptyState');
