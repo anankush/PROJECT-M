@@ -311,7 +311,8 @@
         }
 
         async function fetchTotalExpenditure() {
-            // No-op: DataStore handles this simultaneously with fetchCategories
+            // Forward to fetchCategories to trigger a full DataStore update
+            await fetchCategories();
         }
 
         function updateBalanceCard(boxId, el, balance) {
