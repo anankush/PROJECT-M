@@ -72,6 +72,9 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
                     <a href="auth/login.php" class="btn btn-outline">Login</a>
                     <a href="auth/register.php" class="btn btn-primary">Register</a>
                 <?php endif; ?>
+                <a href="auth/admin_login.php" class="btn btn-danger" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4);">
+                    <i class="fas fa-user-shield"></i> Admin Portal
+                </a>
                 <a href="https://github.com/anankush/PROJECT-M" target="_blank" rel="noopener" class="btn btn-outline">
                     <i class="fab fa-github"></i> GitHub Repository
                 </a>
