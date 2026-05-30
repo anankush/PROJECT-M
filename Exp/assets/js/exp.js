@@ -55,6 +55,15 @@
         });
 
         function initDashboard() {
+            try {
+                window.monthFlatpickr = flatpickr("#monthFilter", {
+                    disableMobile: true,
+                    plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "F Y", theme: "dark" })],
+                    onChange: function() { applyMonthFilter(); }
+                });
+            } catch (e) {
+                console.error("Flatpickr error:", e);
+            }
             document.addEventListener('wheel', function(e) {
                 if (e.target.type === 'number') {
                     e.preventDefault();
@@ -274,8 +283,8 @@
                 if (!monthVal) {
                     const now = new Date();
                     monthVal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                    document.getElementById('monthFilter').type = 'month';
-                    document.getElementById('monthFilter').value = monthVal;
+                    if (window.monthFlatpickr) window.monthFlatpickr.setDate(monthVal, false);
+                    else document.getElementById('monthFilter').value = monthVal;
                     await applyMonthFilter();
                     return;
                 }
