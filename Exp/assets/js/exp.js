@@ -274,6 +274,7 @@
                 if (!monthVal) {
                     const now = new Date();
                     monthVal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                    document.getElementById('monthFilter').type = 'month';
                     document.getElementById('monthFilter').value = monthVal;
                     await applyMonthFilter();
                     return;
