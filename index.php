@@ -114,7 +114,17 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <!-- Expense Tracking -->
             <div class="glass-card feature-card reveal">
                 <div class="feature-icon exp">
-                    <img src="https://api.iconify.design/flat-color-icons/money-transfer.svg" width="56" height="56" alt="Expense Tracking" />
+                    <svg viewBox="0 0 64 64" width="50" height="50" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="expGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#ff758c" />
+                          <stop offset="100%" stop-color="#ff7eb3" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="8" y="16" width="48" height="32" rx="6" fill="url(#expGrad)" />
+                      <rect x="8" y="24" width="48" height="8" fill="#fff" opacity="0.3" />
+                      <circle cx="32" cy="32" r="6" fill="#fff" />
+                    </svg>
                 </div>
                 <h3>Expense Tracking</h3>
                 <p>Organize spending into custom sections with monthly budgets and detailed records.</p>
@@ -128,7 +138,16 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <!-- Savings Goals -->
             <div class="glass-card feature-card reveal">
                 <div class="feature-icon sav">
-                    <img src="https://api.iconify.design/flat-color-icons/safe.svg" width="56" height="56" alt="Savings Goals" />
+                    <svg viewBox="0 0 64 64" width="50" height="50" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="savGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#43e97b" />
+                          <stop offset="100%" stop-color="#38f9d7" />
+                        </linearGradient>
+                      </defs>
+                      <circle cx="32" cy="32" r="24" fill="url(#savGrad)" />
+                      <path d="M32 18v12M26 24h12M25 42a8 8 0 0 0 14 0" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" />
+                    </svg>
                 </div>
                 <h3>Savings Goals</h3>
                 <p>Set targets, make deposits, and watch your savings grow with visual progress tracking.</p>
@@ -142,7 +161,17 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <!-- Dashboard -->
             <div class="glass-card feature-card reveal">
                 <div class="feature-icon dash">
-                    <img src="https://api.iconify.design/flat-color-icons/combo-chart.svg" width="56" height="56" alt="Live Dashboard" />
+                    <svg viewBox="0 0 64 64" width="50" height="50" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="dashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#4facfe" />
+                          <stop offset="100%" stop-color="#00f2fe" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="12" y="32" width="10" height="20" rx="3" fill="url(#dashGrad)" />
+                      <rect x="27" y="16" width="10" height="36" rx="3" fill="url(#dashGrad)" />
+                      <rect x="42" y="24" width="10" height="28" rx="3" fill="url(#dashGrad)" />
+                    </svg>
                 </div>
                 <h3>Live Dashboard</h3>
                 <p>See everything at a glance — combined analytics across expenses and savings.</p>
