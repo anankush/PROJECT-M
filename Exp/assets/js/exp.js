@@ -23,7 +23,7 @@
         history.pushState(null, null, location.href);
         window.addEventListener('popstate', function(e) {
             fetch(`${API_URL}?action=user_logout`, { method: 'POST', headers: { 'X-CSRF-Token': CSRF_TOKEN }, keepalive: true });
-            window.location.href = 'login.php';
+            window.location.href = '../../auth/login.php';
         });
 
         window.addEventListener('beforeunload', function(e) {
@@ -55,11 +55,15 @@
         });
 
         function initDashboard() {
-            window.monthFlatpickr = flatpickr("#monthFilter", {
-                disableMobile: true,
-                plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "Y-m", theme: "dark" })],
-                onChange: function() { applyMonthFilter(); }
-            });
+            try {
+                window.monthFlatpickr = flatpickr("#monthFilter", {
+                    disableMobile: true,
+                    plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "Y-m", theme: "dark" })],
+                    onChange: function() { applyMonthFilter(); }
+                });
+            } catch (e) {
+                console.error("Flatpickr error:", e);
+            }
             document.addEventListener('wheel', function(e) {
                 if (e.target.type === 'number') {
                     e.preventDefault();
@@ -96,9 +100,9 @@
             if (monthVal) {
                 const [y, m] = monthVal.split('-');
                 const monthName = new Date(y, m - 1).toLocaleString('default', { month: 'long' });
-                summaryTitle.innerText = `${monthName} ${y} Budget`;
-                expTitle.innerText = `${monthName} ${y} Expenditure`;
-                balTitle.innerText = `${monthName} ${y} Remaining`;
+                if (summaryTitle) summaryTitle.innerText = `${monthName} ${y} Budget`;
+                if (expTitle) expTitle.innerText = `${monthName} ${y} Expenditure`;
+                if (balTitle) balTitle.innerText = `${monthName} ${y} Remaining`;
                 await fetchCategories();
 
                 if (window.innerWidth <= 768 && !currentCategoryId) {
@@ -125,21 +129,25 @@
                     document.getElementById('sectionBalanceBox').style.display = 'none';
                 }
             } else {
-                summaryTitle.innerText = 'Overall Budget';
-                expTitle.innerText = 'Overall Expenditure';
-                balTitle.innerText = 'Overall Remaining';
-                titleSpan.innerText = 'Please select a Year and Month to view records or add new ones.';
-                document.getElementById('addRecordBtn').style.display = 'none';
-                document.getElementById('sectionActions').style.display = 'none';
-                document.getElementById('noteBtn').style.display = 'none';
-                document.getElementById('refreshBtn').classList.remove('show');
-                document.getElementById('refreshBtnMobile').classList.remove('show');
-                document.getElementById('dataTable').style.display = 'none';
-                document.getElementById('emptyState').style.display = 'none';
-                document.getElementById('sortRecordsSelect').style.display = 'none';
-                document.getElementById('sectionBudgetBox').style.display = 'none';
-                document.getElementById('sectionExpenditureBox').style.display = 'none';
-                document.getElementById('sectionBalanceBox').style.display = 'none';
+                if (summaryTitle) summaryTitle.innerText = 'Overall Budget';
+                if (expTitle) expTitle.innerText = 'Overall Expenditure';
+                if (balTitle) balTitle.innerText = 'Overall Remaining';
+                if (titleSpan) titleSpan.innerText = 'Please select a Year and Month to view records or add new ones.';
+                
+                const addRecordBtn = document.getElementById('addRecordBtn');
+                if (addRecordBtn) {
+                    addRecordBtn.style.display = 'none';
+                    document.getElementById('sectionActions').style.display = 'none';
+                    document.getElementById('noteBtn').style.display = 'none';
+                    document.getElementById('refreshBtn').classList.remove('show');
+                    document.getElementById('refreshBtnMobile').classList.remove('show');
+                    document.getElementById('dataTable').style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'none';
+                    document.getElementById('sortRecordsSelect').style.display = 'none';
+                    document.getElementById('sectionBudgetBox').style.display = 'none';
+                    document.getElementById('sectionExpenditureBox').style.display = 'none';
+                    document.getElementById('sectionBalanceBox').style.display = 'none';
+                }
                 await fetchCategories();
             }
         }
@@ -153,11 +161,12 @@
                     userCurrency = data.currency;
                     totalBudget = parseFloat(data.total_budget) || 0;
                     document.getElementById('userNameDisplay').innerText = `Welcome, ${email}`;
-                    document.getElementById('totalBudgetDisplay').innerHTML = `${userCurrency}${totalBudget.toFixed(2)}`;
+                    const tbd = document.getElementById('totalBudgetDisplay');
+                    if (tbd) tbd.innerHTML = `${userCurrency}${totalBudget.toFixed(2)}`;
                     document.getElementById('appUI').style.display = 'flex';
                     applyMonthFilter();
                 } else {
-                    window.location.href = 'login.php';
+                    window.location.href = '../../auth/login.php';
                 }
             } catch (e) {
                 console.error(e);
@@ -194,7 +203,8 @@
                 if (data.status === 'success') {
                     categories = data.data;
                     totalBudget = categories.reduce((sum, cat) => sum + (parseFloat(cat.budget) || 0), 0);
-                    document.getElementById('totalBudgetDisplay').innerHTML = `${userCurrency}${totalBudget.toFixed(2)}`;
+                    const tbd = document.getElementById('totalBudgetDisplay');
+                    if (tbd) tbd.innerHTML = `${userCurrency}${totalBudget.toFixed(2)}`;
                     fetchTotalExpenditure();
                     renderTabs();
                 }
@@ -221,11 +231,15 @@
                 const data = await res.json();
                 if (data.status === 'success') {
                     totalExpenditure = parseFloat(data.total) || 0;
-                    document.getElementById('totalAmount').innerHTML = `${userCurrency}${totalExpenditure.toFixed(2)}`;
+                    const ta = document.getElementById('totalAmount');
+                    if (ta) ta.innerHTML = `${userCurrency}${totalExpenditure.toFixed(2)}`;
+                    
                     let balance = totalBudget - totalExpenditure;
                     let balanceEl = document.getElementById('totalBalanceDisplay');
-                    balanceEl.innerHTML = `${userCurrency}${balance.toFixed(2)}`;
-                    updateBalanceCard('totalBalanceBox', balanceEl, balance);
+                    if (balanceEl) {
+                        balanceEl.innerHTML = `${userCurrency}${balance.toFixed(2)}`;
+                        updateBalanceCard('totalBalanceBox', balanceEl, balance);
+                    }
                 }
             } catch (e) {}
         }
