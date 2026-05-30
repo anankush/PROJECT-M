@@ -27,7 +27,7 @@ $base = '../../';
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
     <style>
         /* Hide appUI until data is loaded to prevent flash */
-        #appUI { display: none; width: 100%; }
+        #appUI { display: flex; width: 100%; }
         
         /* Sidebar layout styling overrides */
         .sidebar-bottom {
