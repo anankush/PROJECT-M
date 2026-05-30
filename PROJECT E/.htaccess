@@ -1,0 +1,8 @@
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "\.(sql|env|log|md)$">
+    Require all denied
+</FilesMatch>
+
+ErrorDocument 404 /404.php

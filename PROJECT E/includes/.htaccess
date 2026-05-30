@@ -1,0 +1,9 @@
+# Deny direct access to all files
+<Files "*">
+    Require all denied
+</Files>
+
+# Allow access to api.php only
+<Files "api.php">
+    Require all granted
+</Files>

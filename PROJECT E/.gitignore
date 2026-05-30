@@ -1,0 +1,5 @@
+.env
+includes/.secret
+includes/secrets.php
+includes/php_errors.log
+*.sql
