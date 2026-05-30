@@ -19,7 +19,7 @@
         <button class="btn btn-ghost" id="noteBtn" onclick="openNoteModal()" title="Section Notes" style="display:none;">
             <i class="far fa-sticky-note"></i> <span class="hide-mobile">Notes</span>
         </button>
-        <input type="text" id="monthFilter" class="theme-input-select" placeholder="Choose Month" style="max-width: 140px; font-size: 0.9rem; cursor: pointer;" readonly>
+        <input type="month" id="monthFilter" class="theme-input-select" value="<?php echo date('Y-m'); ?>" style="max-width: 140px; font-size: 0.9rem; cursor: pointer;" onclick="if(this.showPicker) this.showPicker();" onchange="applyMonthFilter()" onkeydown="return false">
         <select id="sortRecordsSelect" class="theme-input-select" onchange="sortRecords()" style="display:none;">
             <option value="newest" style="background:var(--bg-deep);">Date: Newest</option>
             <option value="oldest" style="background:var(--bg-deep);">Date: Oldest</option>
