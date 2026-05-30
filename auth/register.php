@@ -38,7 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Generate OTP
         $otp = sprintf("%06d", mt_rand(1, 999999));
-        $expires_at = date('Y-m-d H:i:s', strtotime('+5 minutes'));
+        $expires_at = date('Y-m-d H:i:s', strtotime('+2 minutes'));
+
+        // Cleanup expired OTPs globally
+        $pdo->exec("DELETE FROM password_resets WHERE expires_at <= NOW()");
 
         // Delete any existing OTP for this email
         $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
@@ -54,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
 
         // Send Email
-        $body = "Your Registration OTP for Money Management is: $otp\n\nIt will expire in 5 minutes.";
+        $body = "Your Registration OTP for Money Management is: $otp\n\nIt will expire in 2 minutes.";
         send_email($email, "Registration OTP", $body);
 
         echo json_encode(['status' => 'success', 'redirect' => 'otp_verify.php']);
