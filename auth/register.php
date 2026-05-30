@@ -39,8 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Generate OTP
         $otp = sprintf("%06d", mt_rand(1, 999999));
-        $expires_at = date('Y-m-d H:i:s', strtotime('+2 minutes'));
-
         // Cleanup expired OTPs globally
         $pdo->exec("DELETE FROM password_resets WHERE expires_at <= NOW()");
 
@@ -48,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
 
         // Insert new OTP
-        $stmt = $pdo->prepare("INSERT INTO password_resets (email, otp, expires_at) VALUES (?, ?, ?)");
-        $stmt->execute([$email, $otp, $expires_at]);
+        $stmt = $pdo->prepare("INSERT INTO password_resets (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 2 MINUTE))");
+        $stmt->execute([$email, $otp]);
 
         // Store pending registration in session
         $_SESSION['pending_reg'] = [

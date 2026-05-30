@@ -18,6 +18,12 @@ if (!isset($_SESSION['pending_reg'])) {
 
 $email = $_SESSION['pending_reg']['email'];
 
+// Calculate time left for the OTP
+$stmt = $pdo->prepare("SELECT UNIX_TIMESTAMP(expires_at) - UNIX_TIMESTAMP(NOW()) as time_left FROM password_resets WHERE email = ? ORDER BY id DESC LIMIT 1");
+$stmt->execute([$email]);
+$otp_record = $stmt->fetch();
+$time_left = $otp_record ? max(0, (int)$otp_record['time_left']) : 0;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
     $input = json_decode(file_get_contents('php://input'), true);
@@ -86,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="auth-logo">
                 <h1>Verify OTP</h1>
                 <p>Enter the 6-digit code sent to <?php echo htmlspecialchars($email); ?></p>
+                <p id="otp-timer" style="color: var(--danger); font-weight: 600; margin-top: 0.8rem; font-size: 0.95rem;"></p>
             </div>
             <form id="otpForm" onsubmit="handleVerify(event)">
                 <div class="form-group">
@@ -104,6 +111,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="../assets/js/csrf.js"></script>
     <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
     <script>
+        let timeLeft = <?php echo $time_left; ?>;
+        let timerId;
+
+        function startTimer() {
+            const timerEl = document.getElementById('otp-timer');
+            const btn = document.querySelector('.auth-submit');
+            
+            if (timeLeft <= 0) {
+                timerEl.innerHTML = "OTP Expired. <a href='register.php' style='color: var(--aurora-1)'>Request again</a>";
+                btn.disabled = true;
+                return;
+            }
+
+            timerId = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    timerEl.innerHTML = "OTP Expired. <a href='register.php' style='color: var(--aurora-1)'>Request again</a>";
+                    btn.disabled = true;
+                } else {
+                    timeLeft--;
+                    const m = Math.floor(timeLeft / 60);
+                    const s = timeLeft % 60;
+                    timerEl.innerHTML = `Expires in 0${m}:${s < 10 ? '0' : ''}${s}`;
+                }
+            }, 1000);
+        }
+
+        window.onload = startTimer;
+
         async function handleVerify(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button');
