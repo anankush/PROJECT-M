@@ -3,25 +3,18 @@
 // ── Toast Notifications ────────────────────────────────
 function showToast(message, type = 'success') {
     if (typeof Swal !== 'undefined') {
-        const isMobile = window.innerWidth <= 768;
         Swal.fire({
-            toast: true,
-            position: isMobile ? 'bottom' : 'top-end',
             icon: type,
-            title: message,
-            showConfirmButton: false,
-            timer: 3500,
-            timerProgressBar: true,
+            title: type === 'success' ? 'Success!' : (type === 'error' ? 'Error' : 'Notification'),
+            text: message,
+            confirmButtonText: 'OK',
             customClass: {
-                popup: 'aurora-toast'
+                confirmButton: 'btn btn-primary'
             },
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            }
+            buttonsStyling: false
         });
     } else {
-        console.log(`[${type}] ${message}`);
+        alert(message);
     }
 }
 
