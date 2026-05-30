@@ -462,7 +462,7 @@
 @media (max-width: 768px) {
     .landing-nav { padding: 0.8rem 1rem; }
     .nav-logo { font-size: 1.3rem; }
-    .nav-links a.desktop-only { display: none; }
+    .nav-links { display: none; }
     
     .hero { padding: 7rem 1.25rem 3rem; }
     .hero-buttons { flex-direction: column; width: 100%; max-width: 300px; margin: 0 auto; }

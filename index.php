@@ -218,28 +218,50 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
         </div>
         <div class="security-grid">
             <div class="glass-card security-item reveal">
-                <div class="security-icon"><i class="fas fa-lock"></i></div>
+                <div class="security-icon">
+                    <svg viewBox="0 0 64 64" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="16" y="28" width="32" height="24" rx="4" fill="#f59e0b"/>
+                      <path d="M22 28V18a10 10 0 0 1 20 0v10" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" fill="none"/>
+                      <circle cx="32" cy="40" r="3" fill="#fff"/>
+                    </svg>
+                </div>
                 <div>
                     <h4>Encrypted Passwords</h4>
                     <p>bcrypt hashing with timing-safe verification protects every account.</p>
                 </div>
             </div>
             <div class="glass-card security-item reveal">
-                <div class="security-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="security-icon">
+                    <svg viewBox="0 0 64 64" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M32 10L14 18v16c0 14 18 20 18 20s18-6 18-20V18z" fill="#10b981"/>
+                      <path d="M26 34l4 4 8-10" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
+                </div>
                 <div>
                     <h4>CSRF Protection</h4>
                     <p>Every form and API call is guarded against cross-site request forgery.</p>
                 </div>
             </div>
             <div class="glass-card security-item reveal">
-                <div class="security-icon"><i class="fas fa-user-shield"></i></div>
+                <div class="security-icon">
+                    <svg viewBox="0 0 64 64" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="32" cy="22" r="10" fill="#3b82f6"/>
+                      <path d="M16 48c0-8 8-14 16-14s16 6 16 14" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </div>
                 <div>
                     <h4>Session Security</h4>
                     <p>Auto-timeout, session fixation prevention, and secure cookie flags.</p>
                 </div>
             </div>
             <div class="glass-card security-item reveal">
-                <div class="security-icon"><i class="fas fa-database"></i></div>
+                <div class="security-icon">
+                    <svg viewBox="0 0 64 64" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+                      <ellipse cx="32" cy="18" rx="20" ry="8" fill="#8b5cf6"/>
+                      <path d="M12 18v28c0 4.4 9 8 20 8s20-3.6 20-8V18" stroke="#8b5cf6" stroke-width="6" fill="none"/>
+                      <ellipse cx="32" cy="32" rx="20" ry="8" stroke="#8b5cf6" stroke-width="4" fill="none"/>
+                    </svg>
+                </div>
                 <div>
                     <h4>Prepared Statements</h4>
                     <p>All database queries use parameterized PDO — zero SQL injection risk.</p>
@@ -271,7 +293,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
     <footer class="landing-footer">
         <div class="footer-inner" style="justify-content: center; text-align: center;">
             <div class="footer-copy">
-                &copy; <?php echo date('Y'); ?> PROJECT M, made with love <i class="fas fa-heart" style="color: #ef4444;"></i>
+                &copy; <?php echo date('Y'); ?> <a href="dev.php" style="color: inherit; text-decoration: none;">PROJECT M</a>, made with love ❤️
             </div>
         </div>
     </footer>
