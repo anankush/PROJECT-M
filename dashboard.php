@@ -26,6 +26,10 @@ $total_savings = $savings_data['total_savings'] ?? 0;
 require_once __DIR__ . '/includes/header.php';
 ?>
 
+<!-- Animated Background Elements -->
+<div class="bg-shape bg-shape-1"></div>
+<div class="bg-shape bg-shape-2"></div>
+
 <div class="glass-panel dashboard-header-container">
     <h2>Welcome back!</h2>
     <p>This is your unified financial dashboard.</p>

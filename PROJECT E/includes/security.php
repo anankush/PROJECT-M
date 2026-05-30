@@ -264,21 +264,8 @@ function decode_id($token)
 
 function validate_domain_access()
 {
-    static $checking = false;
-    if ($checking) return;
-    $checking = true;
-
-    $host = strtolower(explode(':', $_SERVER['HTTP_HOST'] ?? '')[0]);
-
-    if ($host === 'localhost' || $host === '127.0.0.1' || str_contains($host, 'localhost')) {
-        return;
-    }
-
-    if ($host !== 'expensemgmt.is-best.net') {
-        http_response_code(404);
-        require __DIR__ . '/../404.php';
-        exit;
-    }
+    // Domain restriction removed for live server compatibility
+    return;
 }
 
 function validate_url_access($allowed_params = [])
