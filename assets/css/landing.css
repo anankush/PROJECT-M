@@ -42,6 +42,7 @@
     font-weight: 800;
     background: linear-gradient(135deg, #a78bfa, #06b6d4);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     text-decoration: none;
     letter-spacing: -0.5px;
@@ -129,6 +130,7 @@
     background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 30%, #06b6d4 70%, #10b981 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: gradientShift 4s ease infinite;
 }
@@ -165,6 +167,7 @@
     font-weight: 800;
     background: linear-gradient(135deg, var(--aurora-1), var(--aurora-3));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 .hero-stat-label {

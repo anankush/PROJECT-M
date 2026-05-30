@@ -823,11 +823,11 @@ body:has(.sidebar) { overflow: hidden; }
 
 @media (max-width: 768px) {
     .sidebar {
-        position: fixed;
-        left: 0; top: 0;
-        transform: translateX(-100%);
-        z-index: 200;
-    }
+/* ═══ EMPTY STATE ═══ */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
     font-size: 1rem;
 }
 .empty-state i { display: block; margin-bottom: 1rem; }
@@ -1069,6 +1069,7 @@ body:has(.sidebar) { overflow: hidden; }
     font-size: 1.8rem !important;
     background: linear-gradient(to right, var(--aurora-1), var(--aurora-3)) !important;
     -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     margin-bottom: 0.5rem !important;
 }
