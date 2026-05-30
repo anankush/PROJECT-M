@@ -55,15 +55,6 @@
         });
 
         function initDashboard() {
-            try {
-                window.monthFlatpickr = flatpickr("#monthFilter", {
-                    disableMobile: true,
-                    plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "F Y", theme: "dark" })],
-                    onChange: function() { applyMonthFilter(); }
-                });
-            } catch (e) {
-                console.error("Flatpickr error:", e);
-            }
             document.addEventListener('wheel', function(e) {
                 if (e.target.type === 'number') {
                     e.preventDefault();
@@ -283,8 +274,7 @@
                 if (!monthVal) {
                     const now = new Date();
                     monthVal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                    if (window.monthFlatpickr) window.monthFlatpickr.setDate(monthVal, false);
-                    else document.getElementById('monthFilter').value = monthVal;
+                    document.getElementById('monthFilter').value = monthVal;
                     await applyMonthFilter();
                     return;
                 }
@@ -323,7 +313,7 @@
 
                     const [y, m] = monthVal.split('-');
                     const mName = new Date(y, m - 1).toLocaleString('default', { month: 'short' });
-                    document.querySelector('#sectionBudgetBox .metric-label').innerHTML = `Section Budget (${mName} ${y}) <i class="fas fa-edit" style="cursor:pointer; font-size:0.8rem; margin-left:5px;" onclick="editSectionBudget()" title="Edit Section Budget"></i>`;
+                    document.querySelector('#sectionBudgetBox .metric-label').innerHTML = `Section Budget (${mName} ${y})`;
                     document.querySelector('#sectionExpenditureBox .metric-label').innerText = `Section Expenditure (${mName} ${y})`;
                     document.querySelector('#sectionBalanceBox .metric-label').innerText = `Section Remaining (${mName} ${y})`;
 
@@ -395,7 +385,7 @@
                     }
                     rowHtml += `<td>${val}</td>`;
                 });
-                rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;"><div class="action-btns" style="justify-content:flex-end;"><button class="icon-btn edit" onclick='editRecord(${JSON.stringify(row).replace(/'/g, "&#39;")})' title="Edit"><i class="fas fa-edit"></i></button><button class="icon-btn delete" onclick="deleteRecord(${row.id})" title="Delete"><i class="fas fa-trash"></i></button></div></td>`;
+                rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;"><div class="action-btns" style="justify-content:flex-end;"><button class="icon-btn edit" onclick='editRecord(${JSON.stringify(row).replace(/'/g, "&#39;")})' title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button><button class="icon-btn delete" onclick="deleteRecord(${row.id})" title="Delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div></td>`;
                 tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
