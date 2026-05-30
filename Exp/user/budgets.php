@@ -1,5 +1,5 @@
 <!-- Exp/user/budgets.php -->
-<div class="dashboard-header">
+<div class="dashboard-header fadeInUp stagger-1">
     <div class="header-left">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 
@@ -7,7 +7,7 @@
     </div>
 </div>
 
-<div class="table-container" style="display:block;">
+<div class="table-container fadeInUp stagger-2" style="display:block;">
     <p style="margin-bottom:1rem; color:var(--text-muted);">Set or update your monthly budgets for each section.</p>
     
     <table id="budgetsTable">

@@ -17,8 +17,8 @@ set_security_headers();
     <?php echo get_csrf_meta_tag(); ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/glassmorphism.css">
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/glassmorphism.css?v=<?php echo filemtime('../assets/css/glassmorphism.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/dashboard.css?v=<?php echo filemtime('../assets/css/dashboard.css'); ?>">
 </head>
 
 <body>
@@ -131,9 +131,9 @@ set_security_headers();
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../assets/js/csrf.js"></script>
-    <script src="../assets/js/main.js"></script>
-    <script src="../assets/js/charts.js"></script>
+    <script src="../assets/js/csrf.js?v=<?php echo filemtime('../assets/js/csrf.js'); ?>"></script>
+    <script src="../assets/js/main.js?v=<?php echo filemtime('../assets/js/main.js'); ?>"></script>
+    <script src="../assets/js/charts.js?v=<?php echo filemtime('../assets/js/charts.js'); ?>"></script>
 </body>
 
 </html>
