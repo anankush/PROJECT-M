@@ -100,6 +100,11 @@
 
         function initDashboard() {
             // Native type="month" handles month filtering without flatpickr
+            const monthInput = document.getElementById('monthFilter');
+            if (monthInput && !monthInput.value) {
+                const now = new Date();
+                monthInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            }
             if (document.getElementById('budgetsTableBody')) {
                 renderBudgetsTable();
             }
