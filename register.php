@@ -11,56 +11,55 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
-    $password = $_POST['password'] ?? '';
-    $type = $_POST['type'] ?? 'user';
-
-    if (empty($email) || empty($password)) {
-        $error = 'Email and password are required.';
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    
+    if (!verify_csrf_token($csrf_token)) {
+        $error = 'Security token validation failed. Please try again.';
     } else {
-        $table = ($type === 'admin') ? 'admin_users' : 'users';
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        
-        try {
-            $stmt = $pdo->prepare("INSERT INTO {$table} (email, password) VALUES (?, ?)");
-            $stmt->execute([$email, $hashedPassword]);
-            $success = 'Registration successful! You can now <a href="login.php">login</a>.';
-        } catch (PDOException $e) {
-            if ($e->getCode() == 23000) { // Integrity constraint violation (duplicate entry)
-                $error = 'Email is already registered.';
-            } else {
-                $error = 'An error occurred during registration.';
+        $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
+        $password = $_POST['password'] ?? '';
+        $type = $_POST['type'] ?? 'user';
+
+        if (empty($email) || empty($password)) {
+            $error = 'Email and password are required.';
+        } else {
+            $table = ($type === 'admin') ? 'admin_users' : 'users';
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            
+            try {
+                $stmt = $pdo->prepare("INSERT INTO {$table} (email, password) VALUES (?, ?)");
+                $stmt->execute([$email, $hashedPassword]);
+                $success = 'Registration successful! You can now login.';
+            } catch (PDOException $e) {
+                if ($e->getCode() == 23000) { 
+                    $error = 'Email is already registered.';
+                } else {
+                    $error = 'An error occurred during registration.';
+                }
             }
         }
     }
 }
 
 require_once __DIR__ . '/includes/header.php';
+$token = generate_csrf_token();
 ?>
 
-<div class="glass-panel" style="max-width: 400px; margin: 40px auto;">
-    <h2 style="text-align: center; color: var(--primary-color);">Register</h2>
+<div class="glass-panel auth-container">
+    <div class="auth-header">
+        <h2>Create Account</h2>
+        <p>Join PROJECT M and manage your finances</p>
+    </div>
     
-    <?php if ($error): ?>
-        <div style="background: rgba(214, 48, 49, 0.2); border: 1px solid var(--danger-color); padding: 10px; border-radius: 8px; margin-bottom: 20px;">
-            <?= htmlspecialchars($error) ?>
-        </div>
-    <?php endif; ?>
-    
-    <?php if ($success): ?>
-        <div style="background: rgba(0, 184, 148, 0.2); border: 1px solid var(--success-color); padding: 10px; border-radius: 8px; margin-bottom: 20px;">
-            <?= $success ?>
-        </div>
-    <?php endif; ?>
-
-    <form method="POST" action="">
+    <form method="POST" action="" id="registerForm">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($token) ?>">
         <div class="form-group">
             <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-control" required>
+            <input type="email" name="email" id="email" class="form-control" required>
         </div>
         <div class="form-group">
             <label class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" required>
+            <input type="password" name="password" id="password" class="form-control" required>
         </div>
         <div class="form-group">
             <label class="form-label">Account Type</label>
@@ -69,9 +68,53 @@ require_once __DIR__ . '/includes/header.php';
                 <option value="admin">Admin</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
     </form>
-    <p style="text-align: center; margin-top: 20px;">Already have an account? <a href="login.php" style="color: var(--secondary-color);">Login here</a></p>
+    
+    <div class="auth-footer">
+        <p>Already have an account? <a href="login.php">Login here</a></p>
+    </div>
 </div>
+
+<script>
+<?php if ($error): ?>
+    Swal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        text: '<?= addslashes($error) ?>',
+        background: 'rgba(20, 14, 50, 0.9)',
+        color: '#fff',
+        confirmButtonColor: '#d63031'
+    });
+<?php endif; ?>
+
+<?php if ($success): ?>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: '<?= addslashes($success) ?>',
+        background: 'rgba(20, 14, 50, 0.9)',
+        color: '#fff',
+        confirmButtonColor: '#00b894'
+    }).then(() => {
+        window.location.href = 'login.php';
+    });
+<?php endif; ?>
+
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const password = document.getElementById('password').value;
+    
+    if(password.length < 6) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'Weak Password',
+            text: 'Password must be at least 6 characters long.',
+            background: 'rgba(20, 14, 50, 0.9)',
+            color: '#fff'
+        });
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

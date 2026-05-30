@@ -9,7 +9,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Chart.js for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/global.css">
+    
+    <?php
+    $current_page = basename($_SERVER['PHP_SELF']);
+    if ($current_page === 'login.php' || $current_page === 'register.php') {
+        echo '<link rel="stylesheet" href="' . BASE_URL . '/assets/css/auth.css">';
+    } elseif ($current_page === 'index.php' || $current_page === 'about.php' || $current_page === 'dev.php') {
+        echo '<link rel="stylesheet" href="' . BASE_URL . '/assets/css/index.css">';
+    } elseif ($current_page === 'dashboard.php') {
+        echo '<link rel="stylesheet" href="' . BASE_URL . '/assets/css/dashboard.css">';
+    }
+    ?>
 </head>
 <body>
 

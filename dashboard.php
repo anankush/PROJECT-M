@@ -26,39 +26,39 @@ $total_savings = $savings_data['total_savings'] ?? 0;
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="glass-panel" style="margin-bottom: 40px; text-align: center;">
-    <h2 style="color: var(--primary-color);">Welcome back!</h2>
+<div class="glass-panel dashboard-header-container">
+    <h2>Welcome back!</h2>
     <p>This is your unified financial dashboard.</p>
 </div>
 
 <div class="grid grid-2">
     <!-- Expense Card -->
     <a href="PROJECT E/user/dashboard.php" style="text-decoration: none;">
-        <div class="glass-panel stat-card" style="border-left: 4px solid var(--accent-color); cursor: pointer;">
+        <div class="glass-panel stat-card expense-card">
             <h3>Expense Management</h3>
             <p>Manage categories, track daily expenses, and view detailed reports.</p>
-            <div class="stat-value" style="background: linear-gradient(to right, var(--accent-color), #ff9a9e); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            <div class="stat-value">
                 ₹<?= number_format($total_expenses, 2) ?>
             </div>
-            <p style="margin-top: 10px; font-weight: 600; color: var(--accent-color);">Go to PROJECT E &rarr;</p>
+            <p class="card-link">Go to PROJECT E &rarr;</p>
         </div>
     </a>
 
     <!-- Savings Card -->
     <a href="PROJECT S/user/dashboard.php" style="text-decoration: none;">
-        <div class="glass-panel stat-card" style="border-left: 4px solid var(--success-color); cursor: pointer;">
+        <div class="glass-panel stat-card savings-card">
             <h3>Savings Management</h3>
             <p>Set financial goals, track progress, and secure your future.</p>
-            <div class="stat-value" style="background: linear-gradient(to right, var(--success-color), #55efc4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            <div class="stat-value">
                 ₹<?= number_format($total_savings, 2) ?>
             </div>
-            <p style="margin-top: 10px; font-weight: 600; color: var(--success-color);">Go to PROJECT S &rarr;</p>
+            <p class="card-link">Go to PROJECT S &rarr;</p>
         </div>
     </a>
 </div>
 
 <!-- Global Chart -->
-<div class="glass-panel" style="margin-top: 40px;">
+<div class="glass-panel chart-section">
     <h3>Overall Financial Statistics</h3>
     <div class="chart-container">
         <canvas id="financialChart"></canvas>

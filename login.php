@@ -10,54 +10,56 @@ if (isLoggedIn()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
-    $password = $_POST['password'] ?? '';
-    $type = $_POST['type'] ?? 'user';
-
-    if (empty($email) || empty($password)) {
-        $error = 'Email and password are required.';
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    
+    if (!verify_csrf_token($csrf_token)) {
+        $error = 'Security token validation failed. Please try again.';
     } else {
-        $table = ($type === 'admin') ? 'admin_users' : 'users';
-        $stmt = $pdo->prepare("SELECT id, password FROM {$table} WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
+        $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
+        $password = $_POST['password'] ?? '';
+        $type = $_POST['type'] ?? 'user';
 
-        // The old expense management system hashed passwords with password_hash.
-        // It also had a super_password setting. We'll stick to basic password_verify for standard login.
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_email'] = $email;
-            $_SESSION['user_type'] = $type;
-            
-            // Redirect to Central Dashboard
-            header('Location: dashboard.php');
-            exit;
+        if (empty($email) || empty($password)) {
+            $error = 'Email and password are required.';
         } else {
-            $error = 'Invalid email or password.';
+            $table = ($type === 'admin') ? 'admin_users' : 'users';
+            $stmt = $pdo->prepare("SELECT id, password FROM {$table} WHERE email = ?");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+
+            if ($user && password_verify($password, $user['password'])) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_email'] = $email;
+                $_SESSION['user_type'] = $type;
+                
+                header('Location: dashboard.php');
+                exit;
+            } else {
+                $error = 'Invalid email or password.';
+            }
         }
     }
 }
 
 require_once __DIR__ . '/includes/header.php';
+$token = generate_csrf_token();
 ?>
 
-<div class="glass-panel" style="max-width: 400px; margin: 40px auto;">
-    <h2 style="text-align: center; color: var(--primary-color);">Login</h2>
+<div class="glass-panel auth-container">
+    <div class="auth-header">
+        <h2>Welcome Back</h2>
+        <p>Login to your unified dashboard</p>
+    </div>
     
-    <?php if ($error): ?>
-        <div style="background: rgba(214, 48, 49, 0.2); border: 1px solid var(--danger-color); padding: 10px; border-radius: 8px; margin-bottom: 20px;">
-            <?= htmlspecialchars($error) ?>
-        </div>
-    <?php endif; ?>
-
-    <form method="POST" action="">
+    <form method="POST" action="" id="loginForm">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($token) ?>">
         <div class="form-group">
             <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-control" required>
+            <input type="email" name="email" id="email" class="form-control" required>
         </div>
         <div class="form-group">
             <label class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" required>
+            <input type="password" name="password" id="password" class="form-control" required>
         </div>
         <div class="form-group">
             <label class="form-label">Account Type</label>
@@ -66,9 +68,42 @@ require_once __DIR__ . '/includes/header.php';
                 <option value="admin">Admin</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Secure Login</button>
     </form>
-    <p style="text-align: center; margin-top: 20px;">Don't have an account? <a href="register.php" style="color: var(--secondary-color);">Register here</a></p>
+    
+    <div class="auth-footer">
+        <p>Don't have an account? <a href="register.php">Register here</a></p>
+    </div>
 </div>
+
+<script>
+<?php if ($error): ?>
+    Swal.fire({
+        icon: 'error',
+        title: 'Authentication Failed',
+        text: '<?= addslashes($error) ?>',
+        background: 'rgba(20, 14, 50, 0.9)',
+        color: '#fff',
+        confirmButtonColor: '#d63031'
+    });
+<?php endif; ?>
+
+// Basic JS validation
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    if(!email || !password) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'Missing Fields',
+            text: 'Please fill in both email and password.',
+            background: 'rgba(20, 14, 50, 0.9)',
+            color: '#fff'
+        });
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

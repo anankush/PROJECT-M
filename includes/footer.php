@@ -4,5 +4,8 @@
     <p>&copy; <?= date('Y') ?> PROJECT M. All Rights Reserved.</p>
 </footer>
 
+<script src="<?= BASE_URL ?>/assets/js/input_validation.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/page_transition.js"></script>
+
 </body>
 </html>
