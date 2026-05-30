@@ -81,6 +81,7 @@ $base = '../../';
             <!-- Dynamic Content (view_expenses.php / budgets.php) Injected Here via AJAX -->
             <div class="loader" style="margin:auto; display:block; text-align:center; padding-top:100px;">
                 <i class="fas fa-circle-notch fa-spin fa-3x" style="color:var(--aurora-1);"></i>
+                <h2 style="color: white; margin-top: 20px;">Loading Expense Data...</h2>
             </div>
         </main>
     </div>

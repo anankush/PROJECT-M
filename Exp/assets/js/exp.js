@@ -20,11 +20,7 @@
             "XAF", "XCD", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWL"
         ];
 
-        history.pushState(null, null, location.href);
-        window.addEventListener('popstate', function(e) {
-            fetch(`${API_URL}?action=user_logout`, { method: 'POST', headers: { 'X-CSRF-Token': CSRF_TOKEN }, keepalive: true });
-            window.location.href = '../../auth/login.php';
-        });
+        // Removed aggressive popstate logout that breaks navigation and causes 404s
 
         window.addEventListener('beforeunload', function(e) {
             if (!isManualLogout) {
@@ -40,11 +36,15 @@
         async function loadView(viewName) {
             try {
                 const res = await fetch(viewName);
+                if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
                 const html = await res.text();
-                document.getElementById('main-content').innerHTML = html;
+                const mc = document.getElementById('main-content');
+                if (mc) mc.innerHTML = html;
                 initDashboard();
             } catch (e) {
                 console.error("Failed to load view", e);
+                const mc = document.getElementById('main-content');
+                if (mc) mc.innerHTML = `<div style="text-align:center; padding: 50px;"><i class="fas fa-exclamation-triangle fa-3x" style="color:var(--danger); margin-bottom: 20px;"></i><h2 style="color:white;">Failed to load module.</h2><p style="color:var(--text-muted);">${e.message}</p></div>`;
             }
         }
 
