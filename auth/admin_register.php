@@ -1,5 +1,5 @@
 <?php
-// ProjectM/auth/admin_login.php
+// ProjectM/auth/admin_register.php
 require_once '../includes/db.php';
 require_once '../includes/csrf.php';
 require_once '../includes/auth_check.php';
@@ -19,7 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $admin_key = $input['admin_key'] ?? '';
 
     if (empty($email) || empty($password) || empty($admin_key)) {
-        echo json_encode(['status' => 'error', 'message' => 'All fields required']);
+        echo json_encode(['status' => 'error', 'message' => 'All fields are required']);
+        exit;
+    }
+
+    if (strlen($password) < 8) {
+        echo json_encode(['status' => 'error', 'message' => 'Password must be at least 8 characters']);
         exit;
     }
 
@@ -35,27 +40,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Verify admin credentials
-        $stmt = $pdo->prepare("SELECT id, email, password, currency FROM admin_users WHERE email = ? LIMIT 1");
+        // Check if email exists
+        $stmt = $pdo->prepare("SELECT id FROM admin_users WHERE email = ?");
         $stmt->execute([$email]);
-        $admin = $stmt->fetch();
-
-        if ($admin && password_verify($password, $admin['password'])) {
-            session_regenerate_id(true);
-            $_SESSION['admin_id']      = $admin['id'];
-            $_SESSION['role']          = 'admin';
-            $_SESSION['user_name']     = 'Administrator';
-            $_SESSION['user_email']    = $admin['email'];
-            $_SESSION['currency']      = $admin['currency'] ?? '₹';
-            $_SESSION['last_activity'] = time();
-            echo json_encode(['status' => 'success', 'redirect' => '../dashboard/index.php']);
+        if ($stmt->fetch()) {
+            echo json_encode(['status' => 'error', 'message' => 'Admin email already registered']);
             exit;
         }
 
-        password_verify('dummy', '$2y$10$dummyhashtopreventtimingattacks.......');
-        echo json_encode(['status' => 'error', 'message' => 'Invalid credentials']);
+        // Insert new admin
+        $hashedPass = password_hash($password, PASSWORD_DEFAULT);
+        $insert = $pdo->prepare("INSERT INTO admin_users (email, password) VALUES (?, ?)");
+        $insert->execute([$email, $hashedPass]);
+        
+        $adminId = $pdo->lastInsertId();
+
+        // Auto login
+        session_regenerate_id(true);
+        $_SESSION['admin_id']      = $adminId;
+        $_SESSION['role']          = 'admin';
+        $_SESSION['user_name']     = 'Administrator';
+        $_SESSION['user_email']    = $email;
+        $_SESSION['currency']      = '₹';
+        $_SESSION['last_activity'] = time();
+
+        echo json_encode(['status' => 'success', 'redirect' => '../dashboard/index.php']);
     } catch (Exception $e) {
-        echo json_encode(['status' => 'error', 'message' => 'Login failed. Please try again.']);
+        echo json_encode(['status' => 'error', 'message' => 'Registration failed. Please try again.']);
     }
     exit;
 }
@@ -65,9 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | Money Management</title>
+    <title>Admin Registration | PROJECT M</title>
     <?php echo get_csrf_meta_tag(); ?>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/glassmorphism.css">
     <link rel="stylesheet" href="../assets/css/auth.css">
 </head>
@@ -92,27 +102,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </svg>
             </div>
             <div class="auth-logo">
-                <h1 style="background: linear-gradient(to right, #ef4444, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Admin Portal</h1>
-                <p>Authorized personnel only.</p>
+                <h1 style="background: linear-gradient(to right, #ef4444, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Register Admin</h1>
+                <p>Create a new administrative account.</p>
             </div>
-            <form id="loginForm" onsubmit="handleAdminLogin(event)">
+            <form id="regForm" onsubmit="handleRegister(event)">
                 <div class="form-group">
                     <label>Admin Email</label>
-                    <input type="email" id="email" required placeholder="Enter admin email" autocomplete="email">
+                    <input type="email" id="email" required placeholder="Enter admin email">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="password" required placeholder="Enter password" autocomplete="current-password">
+                    <input type="password" id="password" required placeholder="Choose a strong password">
                 </div>
                 <div class="form-group">
                     <label>Admin Key</label>
-                    <input type="password" id="admin_key" required placeholder="Enter admin key" autocomplete="off">
+                    <input type="password" id="admin_key" required placeholder="Enter master admin key">
                 </div>
-                <button type="submit" class="btn btn-primary auth-submit">Login as Admin</button>
+                <button type="submit" class="btn btn-primary auth-submit" style="background: linear-gradient(135deg, #ef4444, #991b1b); box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);">Register Admin</button>
             </form>
             <div class="auth-links">
-                <a href="admin_register.php">Need an admin account? Register</a>
-                <a href="login.php">Back to User Login</a>
+                <a href="admin_login.php">Already have an admin account? Login</a>
             </div>
         </div>
     </div>
@@ -121,10 +130,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="../assets/js/csrf.js"></script>
     <script src="../assets/js/main.js"></script>
     <script>
-        async function handleAdminLogin(e) {
+        async function handleRegister(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button');
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verifying...';
+            btn.innerHTML = 'Registering...';
             btn.disabled = true;
 
             const email = document.getElementById('email').value;
@@ -132,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const admin_key = document.getElementById('admin_key').value;
 
             try {
-                const res = await fetch('admin_login.php', {
+                const res = await fetch('admin_register.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -147,9 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     showToast(data.message, 'error');
                 }
             } catch (err) {
-                showToast('Login failed', 'error');
+                showToast('Registration failed', 'error');
             } finally {
-                btn.innerHTML = 'Login as Admin';
+                btn.innerHTML = 'Register Admin';
                 btn.disabled = false;
             }
         }
