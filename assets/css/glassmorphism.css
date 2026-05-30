@@ -547,6 +547,27 @@ input::placeholder {
     border-radius: var(--radius-sm) !important;
 }
 
+/* ═══ AURORA TOAST ═══ */
+.aurora-toast {
+    background: rgba(10, 6, 30, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(139, 92, 246, 0.3) !important;
+    border-radius: 12px !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.15) !important;
+    margin: 1rem !important;
+}
+.aurora-toast .swal2-title {
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    color: var(--text-primary) !important;
+    margin: 0 !important;
+}
+.aurora-toast .swal2-timer-progress-bar {
+    background: linear-gradient(90deg, var(--aurora-1), var(--aurora-3)) !important;
+}
+
 /* ═══ LOADER ═══ */
 .loader {
     border: 3px solid rgba(139, 92, 246, 0.1);

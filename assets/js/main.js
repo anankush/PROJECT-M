@@ -3,14 +3,18 @@
 // ── Toast Notifications ────────────────────────────────
 function showToast(message, type = 'success') {
     if (typeof Swal !== 'undefined') {
+        const isMobile = window.innerWidth <= 768;
         Swal.fire({
             toast: true,
-            position: 'top-end',
+            position: isMobile ? 'bottom' : 'top-end',
             icon: type,
             title: message,
             showConfirmButton: false,
             timer: 3500,
             timerProgressBar: true,
+            customClass: {
+                popup: 'aurora-toast'
+            },
             didOpen: (toast) => {
                 toast.addEventListener('mouseenter', Swal.stopTimer);
                 toast.addEventListener('mouseleave', Swal.resumeTimer);
