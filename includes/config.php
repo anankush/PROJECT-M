@@ -22,6 +22,20 @@ function requireLogin() {
     }
 }
 
+// Check if user is admin
+function isAdmin() {
+    return isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin';
+}
+
+// Redirect if not admin
+function requireAdmin() {
+    requireLogin();
+    if (!isAdmin()) {
+        header('Location: ' . BASE_URL . '/dashboard.php');
+        exit;
+    }
+}
+
 // CSRF Protection
 function generate_csrf_token() {
     if (empty($_SESSION['csrf_token'])) {

@@ -3,7 +3,11 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 
 if (isLoggedIn()) {
-    header('Location: dashboard.php');
+    if (isAdmin()) {
+        header('Location: admin_dashboard.php');
+    } else {
+        header('Location: dashboard.php');
+    }
     exit;
 }
 
@@ -32,7 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_email'] = $email;
                 $_SESSION['user_type'] = $type;
                 
-                header('Location: dashboard.php');
+                if ($type === 'admin') {
+                    header('Location: admin_dashboard.php');
+                } else {
+                    header('Location: dashboard.php');
+                }
                 exit;
             } else {
                 $error = 'Invalid email or password.';

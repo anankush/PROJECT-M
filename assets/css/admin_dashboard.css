@@ -1,0 +1,92 @@
+/* admin_dashboard.css - Styling for Admin Panel */
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.admin-stat-card {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-stat-icon {
+    font-size: 2rem;
+    margin-right: 20px;
+    padding: 15px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.admin-stat-icon.users { color: #00cec9; }
+.admin-stat-icon.active { color: #fdcb6e; }
+.admin-stat-icon.money { color: #00b894; }
+
+.admin-stat-info h3 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    color: #fff;
+}
+
+.admin-stat-info p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.admin-table-container {
+    width: 100%;
+    overflow-x: auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    border: 1px solid var(--glass-border);
+    padding: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+}
+
+.admin-table th, .admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-table th {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.admin-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.action-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.2s;
+    color: #fff;
+}
+
+.btn-delete { background: var(--danger-color); }
+.btn-delete:hover { background: #ff7675; }
+
+.btn-settings { background: var(--accent-color); margin-right: 5px;}
+.btn-settings:hover { background: #fd79a8; }
