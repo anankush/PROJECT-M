@@ -61,6 +61,15 @@
 .nav-links a:hover { color: var(--text-primary); }
 .nav-links .btn { padding: 0.55rem 1.3rem; font-size: 0.88rem; }
 
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
 /* ═══ CUSTOM BUTTONS ═══ */
 .btn-outline {
     background: rgba(255, 255, 255, 0.08);
@@ -462,7 +471,23 @@
 @media (max-width: 768px) {
     .landing-nav { padding: 0.8rem 1rem; }
     .nav-logo { font-size: 1.3rem; }
-    .nav-links { display: none; }
+    
+    .mobile-menu-btn { display: block; }
+    
+    .nav-links { 
+        display: none; 
+        flex-direction: column; 
+        position: absolute; 
+        top: 100%; 
+        left: 0; 
+        right: 0; 
+        background: rgba(5, 5, 16, 0.95); 
+        backdrop-filter: blur(20px); 
+        padding: 2rem; 
+        border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+    }
+    .nav-links.active { display: flex; }
+    .nav-links a.desktop-only { display: block; width: 100%; text-align: center; margin-bottom: 1rem; }
     
     .hero { padding: 7rem 1.25rem 3rem; }
     .hero-buttons { flex-direction: column; width: 100%; max-width: 300px; margin: 0 auto; }

@@ -45,6 +45,17 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 
     <nav class="landing-nav" id="navbar">
         <a href="index.php" class="nav-logo">PROJECT M</a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+        <div class="nav-links">
+            <a href="index.php" class="desktop-only">Home</a>
+            <a href="about.php" class="desktop-only">About</a>
+        </div>
     </nav>
 
     <div class="about-container" style="text-align: center; min-height: 80vh; display: flex; flex-direction: column; justify-content: center;">
@@ -76,5 +87,16 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             </div>
         </div>
     </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.querySelector('.nav-links');
+        if (mobileMenuBtn && navLinks) {
+            mobileMenuBtn.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+        }
+    </script>
 </body>
 </html>
