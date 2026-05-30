@@ -2,6 +2,7 @@
 <div class="dashboard-header">
     <div class="header-left">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+
         <h1>Manage Budgets</h1>
     </div>
 </div>
