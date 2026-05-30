@@ -1,0 +1,30 @@
+# ═══════════════════════════════════════════
+# PROJECT M — .gitignore
+# ═══════════════════════════════════════════
+
+# ── Credentials (CRITICAL — never commit) ─
+includes/env.php
+includes/secrets.php
+
+# ── IDE / Editor ──────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── OS / Temp Files ───────────────────────
+*.log
+*.tmp
+*.bak
+
+# ── Dependency / Build ────────────────────
+node_modules/
+vendor/
+composer.lock
+
+# ── Gemini AI Agent ───────────────────────
+.gemini/

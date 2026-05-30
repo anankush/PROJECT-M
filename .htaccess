@@ -1,0 +1,18 @@
+# PROJECT M — Root Security Rules
+Options -Indexes
+ServerSignature Off
+
+# Redirect bare domain to dashboard
+DirectoryIndex dashboard/index.php
+
+# Block access to sensitive directories
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(includes|database|\.git)/ - [F,L]
+</IfModule>
+
+# Force HTTPS if available (uncomment on production)
+# <IfModule mod_rewrite.c>
+#     RewriteCond %{HTTPS} off
+#     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
