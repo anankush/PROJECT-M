@@ -68,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Admin Login | Money Management</title>
     <?php echo get_csrf_meta_tag(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/glassmorphism.css">
-    <link rel="stylesheet" href="../assets/css/auth.css">
+    <link rel="stylesheet" href="../assets/css/glassmorphism.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="../assets/css/auth.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <a href="../index.php" class="back-home-btn">
@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../assets/js/csrf.js"></script>
-    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
     <script>
         async function handleAdminLogin(e) {
             e.preventDefault();
