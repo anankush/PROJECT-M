@@ -1,9 +1,10 @@
 <?php
-// PROJECT M — About Page (public, no DB required)
+// PROJECT M — About Page
+require_once 'includes/db.php';
+require_once 'includes/auth_check.php';
 require_once 'includes/functions.php';
 set_security_headers();
 
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 ?>
 <!DOCTYPE html>
