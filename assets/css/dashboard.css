@@ -1,51 +1,14 @@
-/* dashboard.css - Premium Glassmorphism UI */
-
-/* Animated Background Shapes */
-.bg-shape {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(80px);
-    z-index: -1;
-    animation: floatShape 20s infinite alternate;
-}
-
-.bg-shape-1 {
-    width: 400px;
-    height: 400px;
-    background: rgba(108, 92, 231, 0.4);
-    top: -100px;
-    left: -100px;
-}
-
-.bg-shape-2 {
-    width: 500px;
-    height: 500px;
-    background: rgba(0, 206, 201, 0.3);
-    bottom: -200px;
-    right: -100px;
-    animation-delay: -10s;
-}
-
-@keyframes floatShape {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(50px, 50px) scale(1.1); }
-    100% { transform: translate(-50px, -20px) scale(0.9); }
-}
+/* dashboard.css - Light Soft Glass UI */
 
 .dashboard-header-container {
     margin-bottom: 40px;
     text-align: center;
-    animation: slideDownFade 0.8s ease-out;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    animation: slideDownFade 0.6s ease-out;
 }
 
 .dashboard-header-container h2 {
-    background: linear-gradient(135deg, #fff, #a29bfe);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--primary-color);
     font-size: 2.2rem;
-    letter-spacing: 1px;
 }
 
 .grid-2 a {
@@ -61,53 +24,29 @@
     justify-content: center;
     position: relative;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    background: rgba(20, 20, 25, 0.4);
-}
-
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-    opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: all 0.3s ease;
+    border-top: 4px solid #ccc; /* fallback */
 }
 
 .stat-card:hover {
-    transform: translateY(-10px) scale(1.02);
-}
-
-.stat-card:hover::before {
-    opacity: 1;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(31, 38, 135, 0.15);
 }
 
 .stat-card.expense-card {
-    border-top: 4px solid var(--accent-color);
-}
-
-.stat-card.expense-card:hover {
-    box-shadow: 0 15px 35px rgba(255, 118, 117, 0.3);
+    border-top-color: var(--accent-color);
 }
 
 .stat-card.expense-card .stat-value {
-    background: linear-gradient(to right, #ff7675, #ffb8b8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--accent-color);
 }
 
 .stat-card.savings-card {
-    border-top: 4px solid var(--success-color);
-}
-
-.stat-card.savings-card:hover {
-    box-shadow: 0 15px 35px rgba(0, 184, 148, 0.3);
+    border-top-color: var(--success-color);
 }
 
 .stat-card.savings-card .stat-value {
-    background: linear-gradient(to right, #00b894, #55efc4);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--success-color);
 }
 
 .card-link {
@@ -117,29 +56,36 @@
     align-items: center;
     transition: all 0.3s ease;
     padding: 8px 16px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.03);
 }
 
-.stat-card.expense-card .card-link { color: var(--accent-color); border: 1px solid rgba(255, 118, 117, 0.2); }
-.stat-card.savings-card .card-link { color: var(--success-color); border: 1px solid rgba(0, 184, 148, 0.2); }
+.stat-card.expense-card .card-link { color: var(--accent-color); }
+.stat-card.savings-card .card-link { color: var(--success-color); }
 
 .stat-card:hover .card-link {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.08);
     transform: translateX(5px);
 }
 
 .chart-section {
     margin-top: 40px;
-    animation: slideUpFade 0.8s ease-out;
+    animation: slideUpFade 0.6s ease-out;
+}
+
+.chart-container {
+    width: 100%;
+    height: 300px;
+    margin-top: 20px;
+    position: relative;
 }
 
 @keyframes slideDownFade {
-    0% { opacity: 0; transform: translateY(-30px); }
+    0% { opacity: 0; transform: translateY(-20px); }
     100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUpFade {
-    0% { opacity: 0; transform: translateY(30px); }
+    0% { opacity: 0; transform: translateY(20px); }
     100% { opacity: 1; transform: translateY(0); }
 }
