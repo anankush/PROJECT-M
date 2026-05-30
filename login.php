@@ -90,9 +90,9 @@ $token = generate_csrf_token();
         icon: 'error',
         title: 'Authentication Failed',
         text: '<?= addslashes($error) ?>',
-        background: 'rgba(20, 14, 50, 0.9)',
-        color: '#fff',
-        confirmButtonColor: '#d63031'
+        background: 'rgba(255, 255, 255, 0.95)',
+        color: '#2b2d42',
+        confirmButtonColor: '#ef233c'
     });
 <?php endif; ?>
 
@@ -107,8 +107,8 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             icon: 'warning',
             title: 'Missing Fields',
             text: 'Please fill in both email and password.',
-            background: 'rgba(20, 14, 50, 0.9)',
-            color: '#fff'
+            background: 'rgba(255, 255, 255, 0.95)',
+            color: '#2b2d42'
         });
     }
 });

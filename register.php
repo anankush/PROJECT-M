@@ -82,9 +82,9 @@ $token = generate_csrf_token();
         icon: 'error',
         title: 'Registration Failed',
         text: '<?= addslashes($error) ?>',
-        background: 'rgba(20, 14, 50, 0.9)',
-        color: '#fff',
-        confirmButtonColor: '#d63031'
+        background: 'rgba(255, 255, 255, 0.95)',
+        color: '#2b2d42',
+        confirmButtonColor: '#ef233c'
     });
 <?php endif; ?>
 
@@ -93,9 +93,9 @@ $token = generate_csrf_token();
         icon: 'success',
         title: 'Success!',
         text: '<?= addslashes($success) ?>',
-        background: 'rgba(20, 14, 50, 0.9)',
-        color: '#fff',
-        confirmButtonColor: '#00b894'
+        background: 'rgba(255, 255, 255, 0.95)',
+        color: '#2b2d42',
+        confirmButtonColor: '#2a9d8f'
     }).then(() => {
         window.location.href = 'login.php';
     });
@@ -110,8 +110,8 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
             icon: 'warning',
             title: 'Weak Password',
             text: 'Password must be at least 6 characters long.',
-            background: 'rgba(20, 14, 50, 0.9)',
-            color: '#fff'
+            background: 'rgba(255, 255, 255, 0.95)',
+            color: '#2b2d42'
         });
     }
 });

@@ -39,6 +39,6 @@ if (file_exists($central_config)) {
 // PROJECT E specific base URL (for internal asset links)
 $http_host = strtolower($_SERVER['HTTP_HOST'] ?? '');
 $is_local  = ($http_host === 'localhost' || $http_host === '127.0.0.1' || str_contains($http_host, 'localhost'));
-$e_base = $is_local ? BASE_URL . '/PROJECT%20E/' : '/PROJECT%20E/';
+$e_base = $is_local ? BASE_URL . '/E/' : '/E/';
 define('E_BASE_URL', $e_base);
 define('GOOGLE_SCRIPT_URL', defined('GOOGLE_SCRIPT_URL') ? GOOGLE_SCRIPT_URL : '');

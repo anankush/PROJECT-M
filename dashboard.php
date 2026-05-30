@@ -33,26 +33,26 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="grid grid-2">
     <!-- Expense Card -->
-    <a href="PROJECT E/user/dashboard.php" style="text-decoration: none;">
+    <a href="E/user/dashboard.php" style="text-decoration: none;">
         <div class="glass-panel stat-card expense-card">
             <h3>Expense Management</h3>
             <p>Manage categories, track daily expenses, and view detailed reports.</p>
             <div class="stat-value">
                 ₹<?= number_format($total_expenses, 2) ?>
             </div>
-            <p class="card-link">Go to PROJECT E &rarr;</p>
+            <p class="card-link">Go to Expense Manager &rarr;</p>
         </div>
     </a>
 
     <!-- Savings Card -->
-    <a href="PROJECT S/user/dashboard.php" style="text-decoration: none;">
+    <a href="S/user/dashboard.php" style="text-decoration: none;">
         <div class="glass-panel stat-card savings-card">
             <h3>Savings Management</h3>
             <p>Set financial goals, track progress, and secure your future.</p>
             <div class="stat-value">
                 ₹<?= number_format($total_savings, 2) ?>
             </div>
-            <p class="card-link">Go to PROJECT S &rarr;</p>
+            <p class="card-link">Go to Savings Manager &rarr;</p>
         </div>
     </a>
 </div>
