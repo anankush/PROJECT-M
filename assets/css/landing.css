@@ -1,5 +1,18 @@
 /* assets/css/landing.css */
 
+/* ═══ COLORFUL ANIMATED BACKGROUND ═══ */
+body {
+    background: linear-gradient(-45deg, #050510, #2c0e5a, #044b58, #050510) !important;
+    background-size: 400% 400% !important;
+    animation: gradientColorful 15s ease infinite !important;
+}
+@keyframes gradientColorful {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
 /* ═══ NAVBAR ═══ */
 .landing-nav {
     position: fixed;
@@ -45,6 +58,27 @@
 }
 .nav-links a:hover { color: var(--text-primary); }
 .nav-links .btn { padding: 0.55rem 1.3rem; font-size: 0.88rem; }
+
+/* ═══ CUSTOM BUTTONS ═══ */
+.btn-outline {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #ffffff !important;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+.btn-outline:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #ffffff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+.login-btn {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 0.6rem 1.8rem !important;
+    border-radius: 100px;
+}
 
 /* ═══ HERO ═══ */
 .hero {
@@ -179,18 +213,37 @@
     background: linear-gradient(90deg, transparent, rgba(139,92,246,0.5), transparent);
 }
 .feature-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
+    width: 80px;
+    height: 80px;
+    border-radius: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
-    margin: 0 auto 1.5rem;
+    font-size: 2.2rem;
+    margin: 0 auto 1.8rem;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
 }
-.feature-icon.exp { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
-.feature-icon.sav { background: rgba(16, 185, 129, 0.12); color: #10b981; }
-.feature-icon.dash { background: rgba(6, 182, 212, 0.12); color: #06b6d4; }
+.feature-card:hover .feature-icon {
+    transform: scale(1.1) translateY(-5px);
+}
+.feature-icon.exp { 
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.05)); 
+    color: #ff5b5b; 
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+}
+.feature-icon.sav { 
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.05)); 
+    color: #10b981; 
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+}
+.feature-icon.dash { 
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(6, 182, 212, 0.05)); 
+    color: #06b6d4; 
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    box-shadow: 0 8px 32px rgba(6, 182, 212, 0.3);
+}
 .feature-card h3 {
     font-size: 1.2rem;
     font-weight: 700;

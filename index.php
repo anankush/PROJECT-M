@@ -42,7 +42,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <?php if ($isLoggedIn): ?>
                 <a href="dashboard/index.php" class="btn btn-primary">Go to Dashboard</a>
             <?php else: ?>
-                <a href="auth/login.php">Login</a>
+                <a href="auth/login.php" class="btn btn-outline login-btn">Login</a>
                 <a href="auth/register.php" class="btn btn-primary">Get Started</a>
             <?php endif; ?>
         </div>
@@ -74,7 +74,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
                     <a href="auth/register.php" class="btn btn-primary">
                         <i class="fas fa-rocket"></i> Get Started — It's Free
                     </a>
-                    <a href="auth/login.php" class="btn btn-outline">
+                    <a href="auth/login.php" class="btn btn-outline login-btn">
                         <i class="fas fa-sign-in-alt"></i> Login
                     </a>
                 <?php endif; ?>
@@ -106,7 +106,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <!-- Expense Tracking -->
             <div class="glass-card feature-card reveal">
                 <div class="feature-icon exp">
-                    <i class="fas fa-wallet"></i>
+                    <i class="fas fa-money-bill-wave"></i>
                 </div>
                 <h3>Expense Tracking</h3>
                 <p>Organize spending into custom sections with monthly budgets and detailed records.</p>
@@ -120,7 +120,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <!-- Savings Goals -->
             <div class="glass-card feature-card reveal">
                 <div class="feature-icon sav">
-                    <i class="fas fa-piggy-bank"></i>
+                    <i class="fas fa-coins"></i>
                 </div>
                 <h3>Savings Goals</h3>
                 <p>Set targets, make deposits, and watch your savings grow with visual progress tracking.</p>
@@ -134,7 +134,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <!-- Dashboard -->
             <div class="glass-card feature-card reveal">
                 <div class="feature-icon dash">
-                    <i class="fas fa-chart-line"></i>
+                    <i class="fas fa-chart-pie"></i>
                 </div>
                 <h3>Live Dashboard</h3>
                 <p>See everything at a glance — combined analytics across expenses and savings.</p>
