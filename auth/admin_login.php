@@ -78,9 +78,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="noise-overlay"></div>
 
     <div class="auth-container">
-        <div class="glass-card auth-card fadeInUp">
+        <div class="glass-card auth-card fadeInUp" style="border-color: rgba(239, 68, 68, 0.3);">
+            <div class="auth-avatar" style="background: linear-gradient(135deg, #ef4444, #991b1b); box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+            </div>
             <div class="auth-logo">
-                <h1>ADMIN PORTAL</h1>
+                <h1 style="background: linear-gradient(to right, #ef4444, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Admin Portal</h1>
                 <p>Authorized personnel only.</p>
             </div>
             <form id="loginForm" onsubmit="handleAdminLogin(event)">
