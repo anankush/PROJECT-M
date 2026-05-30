@@ -5,6 +5,7 @@
 # ── Credentials (CRITICAL — never commit) ─
 includes/env.php
 includes/secrets.php
+database/production_data.sql
 
 # ── IDE / Editor ──────────────────────────
 .vscode/
