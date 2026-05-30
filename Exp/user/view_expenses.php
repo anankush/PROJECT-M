@@ -17,10 +17,8 @@
         </button>
     </div>
     <div class="header-controls">
-        <button class="btn btn-ghost" id="noteBtn" onclick="openNoteModal()" title="Section Notes" style="display:none;">
-            <i class="far fa-sticky-note"></i> <span class="hide-mobile">Notes</span>
-        </button>
-        <input type="month" id="monthFilter" class="theme-input-select" value="<?php echo date('Y-m'); ?>" placeholder="Choose Month" style="max-width: 140px; font-size: 0.9rem; cursor: pointer;" onfocus="this.type='month'; if(this.showPicker) this.showPicker();" onblur="if(!this.value) this.type='text';" onchange="if(!this.value) this.type='text'; else this.type='month'; applyMonthFilter();" onkeydown="return false">
+        <!-- Notes button moved to Manage Budgets page -->
+        <input type="text" id="monthFilter" class="theme-input-select" placeholder="Select Month">
         <select id="sortRecordsSelect" class="theme-input-select" onchange="sortRecords()" style="display:none;">
             <option value="newest" style="background:var(--bg-deep);">Date: Newest</option>
             <option value="oldest" style="background:var(--bg-deep);">Date: Oldest</option>
@@ -51,7 +49,7 @@
     </div>
 
     <div class="summary-card" id="sectionBudgetBox" style="background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.3); color:#f59e0b; display:none;">
-        <span class="metric-label">Section Budget</span>
+        <span class="metric-label">Section Budget <i class="fas fa-edit" style="cursor:pointer; font-size:0.8rem; margin-left:5px;" onclick="editSectionBudget()" title="Edit Section Budget"></i></span>
         <div class="metric-value" id="sectionBudgetDisplay">0.00</div>
     </div>
     <div class="summary-card" id="sectionExpenditureBox" style="background:rgba(236, 72, 153, 0.1); border:1px solid rgba(236, 72, 153, 0.3); color:#ec4899; display:none;">

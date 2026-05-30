@@ -97,8 +97,15 @@ function handle_add_record($pdo) {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO expenses (user_id, category_id, entry_date, entry_time, amount, description, custom_data) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$uid, $category_id, $entry_date, $entry_time, $amount, $description, $custom_data]);
+        $recordModel = new Model($pdo, 'expenses', $uid);
+        $recordModel->insert([
+            'category_id' => $category_id,
+            'entry_date' => $entry_date,
+            'entry_time' => $entry_time,
+            'amount' => $amount,
+            'description' => $description,
+            'custom_data' => $custom_data
+        ]);
         echo json_encode(['status' => 'success', 'message' => 'Record added successfully']);
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to add record.']);
@@ -139,8 +146,14 @@ function handle_update_record($pdo) {
     }
 
     try {
-        $stmt = $pdo->prepare("UPDATE expenses SET entry_date = ?, entry_time = ?, amount = ?, description = ?, custom_data = ? WHERE id = ? AND user_id = ?");
-        $stmt->execute([$entry_date, $entry_time, $amount, $description, $custom_data, $id, $uid]);
+        $recordModel = new Model($pdo, 'expenses', $uid);
+        $recordModel->update($id, [
+            'entry_date' => $entry_date,
+            'entry_time' => $entry_time,
+            'amount' => $amount,
+            'description' => $description,
+            'custom_data' => $custom_data
+        ]);
         echo json_encode(['status' => 'success', 'message' => 'Record updated successfully']);
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to update record.']);
@@ -168,8 +181,8 @@ function handle_delete_record($pdo) {
     }
 
     try {
-        $stmt = $pdo->prepare("DELETE FROM expenses WHERE id = ? AND user_id = ?");
-        $stmt->execute([$id, $uid]);
+        $recordModel = new Model($pdo, 'expenses', $uid);
+        $recordModel->delete($id);
         echo json_encode(['status' => 'success', 'message' => 'Record deleted successfully']);
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to delete record.']);

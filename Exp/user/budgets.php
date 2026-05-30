@@ -24,40 +24,4 @@
     </table>
 </div>
 
-<script>
-    function renderBudgetsTable() {
-        const tbody = document.getElementById('budgetsTableBody');
-        tbody.innerHTML = '';
-        if (categories.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No sections found. Create one first.</td></tr>';
-            return;
-        }
 
-        categories.forEach(cat => {
-            const tr = document.createElement('tr');
-            const budgetVal = parseFloat(cat.budget) || 0;
-            tr.innerHTML = `
-                <td>${escapeHtml(cat.category_name)}</td>
-                <td style="color:var(--aurora-2); font-weight:600;">${userCurrency}${budgetVal.toFixed(2)}</td>
-                <td style="text-align:right;">
-                    <button class="btn btn-ghost" onclick="triggerEditBudget(${cat.id}, '${escapeHtml(cat.category_name)}')">
-                        <i class="fas fa-edit"></i> Edit Budget
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function triggerEditBudget(id, name) {
-        currentCategoryId = id;
-        currentCategoryName = name;
-        editSectionBudget().then(() => {
-            // After SweetAlert closes and fetchCategories completes, re-render
-            setTimeout(renderBudgetsTable, 500);
-        });
-    }
-
-    // Initialize the table
-    renderBudgetsTable();
-</script>

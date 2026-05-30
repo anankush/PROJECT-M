@@ -5,6 +5,7 @@ require_once '../../includes/auth_check.php';
 require_once '../../includes/csrf.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/id_obfuscate.php';
+require_once '../includes/Model.php';
 
 require_once '../includes/handlers/category_handlers.php';
 require_once '../includes/handlers/record_handlers.php';

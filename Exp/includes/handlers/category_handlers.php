@@ -12,8 +12,9 @@ function handle_get_categories($pdo) {
     $month = sanitize_input($_GET['month'] ?? '');
 
     try {
+        $catModel = new Model($pdo, 'user_categories', $uid);
         if (!empty($month)) {
-            $stmt = $pdo->prepare("
+            $query = "
                 SELECT c.id, c.user_id, c.category_name,
                        COALESCE(mb.budget, c.budget) as budget,
                        c.created_at
@@ -21,10 +22,10 @@ function handle_get_categories($pdo) {
                 LEFT JOIN category_monthly_budgets mb ON c.id = mb.category_id AND mb.budget_month = ?
                 WHERE c.user_id = ?
                 ORDER BY c.id ASC
-            ");
-            $stmt->execute([$month, $uid]);
+            ";
+            $categories = $catModel->customQuery($query, [$month, $uid]);
         } else {
-            $stmt = $pdo->prepare("
+            $query = "
                 SELECT c.id, c.user_id, c.category_name,
                        COALESCE(SUM(mb.budget), c.budget) as budget,
                        c.created_at
@@ -33,17 +34,15 @@ function handle_get_categories($pdo) {
                 WHERE c.user_id = ?
                 GROUP BY c.id, c.user_id, c.category_name, c.budget, c.created_at
                 ORDER BY c.id ASC
-            ");
-            $stmt->execute([$uid]);
+            ";
+            $categories = $catModel->customQuery($query, [$uid]);
         }
 
-        $categories = $stmt->fetchAll();
         echo json_encode(['status' => 'success', 'data' => $categories]);
     } catch (PDOException $e) {
         if ($e->getCode() == '42S02') {
-            $stmt = $pdo->prepare("SELECT * FROM user_categories WHERE user_id = ? ORDER BY id ASC");
-            $stmt->execute([$uid]);
-            $categories = $stmt->fetchAll();
+            $catModel = new Model($pdo, 'user_categories', $uid);
+            $categories = $catModel->getAll([], 'id ASC');
             echo json_encode(['status' => 'success', 'data' => $categories]);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Failed to fetch categories.']);
@@ -72,9 +71,9 @@ function handle_add_category($pdo) {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO user_categories (user_id, category_name) VALUES (?, ?)");
-        $stmt->execute([$uid, $category_name]);
-        echo json_encode(['status' => 'success', 'message' => 'Section added successfully', 'category_id' => $pdo->lastInsertId()]);
+        $catModel = new Model($pdo, 'user_categories', $uid);
+        $newId = $catModel->insert(['category_name' => $category_name]);
+        echo json_encode(['status' => 'success', 'message' => 'Section added successfully', 'category_id' => $newId]);
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to add section.']);
     }
@@ -103,8 +102,8 @@ function handle_rename_category($pdo) {
     }
 
     try {
-        $stmt = $pdo->prepare("UPDATE user_categories SET category_name = ? WHERE id = ? AND user_id = ?");
-        $stmt->execute([$category_name, $category_id, $uid]);
+        $catModel = new Model($pdo, 'user_categories', $uid);
+        $catModel->update($category_id, ['category_name' => $category_name]);
         echo json_encode(['status' => 'success', 'message' => 'Section renamed successfully']);
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to rename section.']);
@@ -133,9 +132,16 @@ function handle_delete_category($pdo) {
 
     try {
         $pdo->beginTransaction();
-        $pdo->prepare("DELETE FROM expenses WHERE category_id = ? AND user_id = ?")->execute([$category_id, $uid]);
-        $pdo->prepare("DELETE FROM category_monthly_budgets WHERE category_id = ? AND user_id = ?")->execute([$category_id, $uid]);
-        $pdo->prepare("DELETE FROM user_categories WHERE id = ? AND user_id = ?")->execute([$category_id, $uid]);
+        
+        $expModel = new Model($pdo, 'expenses', $uid);
+        $expModel->deleteWhere(['category_id' => $category_id]);
+        
+        $budgetModel = new Model($pdo, 'category_monthly_budgets', $uid);
+        $budgetModel->deleteWhere(['category_id' => $category_id]);
+        
+        $catModel = new Model($pdo, 'user_categories', $uid);
+        $catModel->delete($category_id);
+        
         $pdo->commit();
         echo json_encode(['status' => 'success', 'message' => 'Section deleted successfully']);
     } catch (PDOException $e) {
@@ -168,12 +174,12 @@ function handle_update_category_budget($pdo) {
     }
 
     try {
+        $catModel = new Model($pdo, 'user_categories', $uid);
         if (!empty($month)) {
-            $stmt = $pdo->prepare("INSERT INTO category_monthly_budgets (user_id, category_id, budget_month, budget) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE budget = VALUES(budget)");
-            $stmt->execute([$uid, $category_id, $month, $budget]);
+            $query = "INSERT INTO category_monthly_budgets (user_id, category_id, budget_month, budget) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE budget = VALUES(budget)";
+            $catModel->executeQuery($query, [$uid, $category_id, $month, $budget]);
         } else {
-            $stmt = $pdo->prepare("UPDATE user_categories SET budget = ? WHERE id = ? AND user_id = ?");
-            $stmt->execute([$budget, $category_id, $uid]);
+            $catModel->update($category_id, ['budget' => $budget]);
         }
         echo json_encode(['status' => 'success', 'message' => 'Section budget updated successfully']);
     } catch (PDOException $e) {
@@ -241,10 +247,10 @@ function handle_get_note($pdo) {
     }
 
     try {
-        $stmt = $pdo->prepare("SELECT note_content FROM user_notes WHERE user_id = ? AND category_id = ?");
-        $stmt->execute([$uid, $category_id]);
-        $result = $stmt->fetch();
-        echo json_encode(['status' => 'success', 'note' => $result ? $result['note_content'] : '']);
+        $noteModel = new Model($pdo, 'user_notes', $uid);
+        $result = $noteModel->getAll(['category_id' => $category_id]);
+        $noteContent = !empty($result) ? $result[0]['note_content'] : '';
+        echo json_encode(['status' => 'success', 'note' => $noteContent]);
     } catch (PDOException $e) {
         if ($e->getCode() == '42S02') { // Table doesn't exist yet
             echo json_encode(['status' => 'success', 'note' => '']);
@@ -277,8 +283,9 @@ function handle_save_note($pdo) {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO user_notes (user_id, category_id, note_content) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE note_content = VALUES(note_content)");
-        $stmt->execute([$uid, $category_id, htmlspecialchars($note, ENT_QUOTES, 'UTF-8')]);
+        $noteModel = new Model($pdo, 'user_notes', $uid);
+        $query = "INSERT INTO user_notes (user_id, category_id, note_content) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE note_content = VALUES(note_content)";
+        $noteModel->executeQuery($query, [$uid, $category_id, htmlspecialchars($note, ENT_QUOTES, 'UTF-8')]);
         echo json_encode(['status' => 'success', 'message' => 'Note saved successfully.']);
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to save note.']);

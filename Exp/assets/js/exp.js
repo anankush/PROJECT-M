@@ -8,6 +8,16 @@
         let totalBudget = 0.00;
         let totalExpenditure = 0.00;
 
+        function escapeHtml(unsafe) {
+            if (unsafe == null) return '';
+            return String(unsafe)
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
         const allCurrencies = [
             "₹", "৳", "$", "€", "£", "¥", "د.إ", "ر.س", "A$", "C$", "Fr", "kr", "R", "₽", "₺", "₩", "Rp", "฿", "₫", "₱", "₦",
             "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD",
@@ -55,6 +65,16 @@
         });
 
         function initDashboard() {
+            if (document.getElementById('monthFilter')) {
+                window.monthFlatpickr = flatpickr("#monthFilter", {
+                    disableMobile: true,
+                    plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "Y-m", theme: "dark" })],
+                    onChange: function() { applyMonthFilter(); }
+                });
+            }
+            if (document.getElementById('budgetsTableBody')) {
+                renderBudgetsTable();
+            }
             document.addEventListener('wheel', function(e) {
                 if (e.target.type === 'number') {
                     e.preventDefault();
@@ -63,8 +83,62 @@
             checkAuth();
         }
 
+        function renderBudgetsTable() {
+            const tbody = document.getElementById('budgetsTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (categories.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No sections found. Create one first.</td></tr>';
+                return;
+            }
+
+            categories.forEach(cat => {
+                const tr = document.createElement('tr');
+                const budgetVal = parseFloat(cat.budget) || 0;
+                tr.innerHTML = `
+                    <td>${escapeHtml(cat.category_name)}</td>
+                    <td style="color:var(--aurora-2); font-weight:600;">${userCurrency}${budgetVal.toFixed(2)}</td>
+                    <td style="text-align:right;">
+                        <button class="btn btn-ghost" onclick="triggerRename(${cat.id}, '${escapeHtml(cat.category_name)}')">
+                            <i class="fas fa-pen"></i> Rename
+                        </button>
+                        <button class="btn btn-ghost" onclick="triggerEditBudget(${cat.id}, '${escapeHtml(cat.category_name)}')">
+                            <i class="fas fa-edit"></i> Budget
+                        </button>
+                        <button class="btn btn-ghost" onclick="triggerNotes(${cat.id}, '${escapeHtml(cat.category_name)}')">
+                            <i class="far fa-sticky-note"></i> Notes
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function triggerEditBudget(id, name) {
+            currentCategoryId = id;
+            currentCategoryName = name;
+            editSectionBudget().then(() => {
+                setTimeout(renderBudgetsTable, 500);
+            });
+        }
+
+        function triggerRename(id, name) {
+            currentCategoryId = id;
+            currentCategoryName = name;
+            renameSection().then(() => {
+                setTimeout(renderBudgetsTable, 500);
+            });
+        }
+
+        function triggerNotes(id, name) {
+            currentCategoryId = id;
+            currentCategoryName = name;
+            openNoteModal();
+        }
+
         async function applyMonthFilter() {
             const monthInput = document.getElementById('monthFilter');
+            if (!monthInput) return;
             const monthVal = monthInput.value;
 
             if (monthVal) {
@@ -109,7 +183,7 @@
                     titleSpan.innerText = 'Please select a Section';
                     document.getElementById('addRecordBtn').style.display = 'none';
                     document.getElementById('sectionActions').style.display = 'none';
-                    document.getElementById('noteBtn').style.display = 'none';
+                    if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'none';
                     document.getElementById('refreshBtn').classList.remove('show');
                     document.getElementById('refreshBtnMobile').classList.remove('show');
                     document.getElementById('dataTable').style.display = 'none';
@@ -129,7 +203,7 @@
                 if (addRecordBtn) {
                     addRecordBtn.style.display = 'none';
                     document.getElementById('sectionActions').style.display = 'none';
-                    document.getElementById('noteBtn').style.display = 'none';
+                    if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'none';
                     document.getElementById('refreshBtn').classList.remove('show');
                     document.getElementById('refreshBtnMobile').classList.remove('show');
                     document.getElementById('dataTable').style.display = 'none';
@@ -155,7 +229,11 @@
                     const tbd = document.getElementById('totalBudgetDisplay');
                     if (tbd) tbd.innerHTML = `${userCurrency}${totalBudget.toFixed(2)}`;
                     document.getElementById('appUI').style.display = 'flex';
-                    applyMonthFilter();
+                    if (document.getElementById('monthFilter')) {
+                        applyMonthFilter();
+                    } else {
+                        await fetchCategories();
+                    }
                 } else {
                     window.location.href = '../../auth/login.php';
                 }
@@ -187,7 +265,13 @@
         async function fetchCategories() {
             const requestId = ++fetchRequestId;
             try {
-                const monthVal = document.getElementById('monthFilter').value;
+                const monthInput = document.getElementById('monthFilter');
+                let monthVal = '';
+                if (monthInput) monthVal = monthInput.value;
+                else {
+                    const now = new Date();
+                    monthVal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                }
                 const res = await fetch(`${API_URL}?action=get_categories&month=${monthVal}`);
                 if (requestId !== fetchRequestId) return;
                 const data = await res.json();
@@ -198,6 +282,7 @@
                     if (tbd) tbd.innerHTML = `${userCurrency}${totalBudget.toFixed(2)}`;
                     fetchTotalExpenditure();
                     renderTabs();
+                    if (document.getElementById('budgetsTableBody')) renderBudgetsTable();
                 }
             } catch (e) { console.error(e); }
         }
@@ -217,7 +302,13 @@
 
         async function fetchTotalExpenditure() {
             try {
-                const monthVal = document.getElementById('monthFilter').value;
+                const monthInput = document.getElementById('monthFilter');
+                let monthVal = '';
+                if (monthInput) monthVal = monthInput.value;
+                else {
+                    const now = new Date();
+                    monthVal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                }
                 const res = await fetch(`${API_URL}?action=get_total_expenditure&month=${monthVal}`);
                 const data = await res.json();
                 if (data.status === 'success') {
@@ -256,7 +347,7 @@
             document.getElementById('currentTableTitle').innerText = name;
             document.getElementById('addRecordBtn').style.display = 'inline-flex';
             document.getElementById('sectionActions').style.display = 'flex';
-            document.getElementById('noteBtn').style.display = 'inline-flex';
+            if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'inline-flex';
             document.getElementById('refreshBtn').classList.add('show');
             document.getElementById('refreshBtnMobile').classList.add('show');
             renderTabs();
@@ -314,7 +405,7 @@
 
                     const [y, m] = monthVal.split('-');
                     const mName = new Date(y, m - 1).toLocaleString('default', { month: 'short' });
-                    document.querySelector('#sectionBudgetBox .metric-label').innerHTML = `Section Budget (${mName} ${y})`;
+                    document.querySelector('#sectionBudgetBox .metric-label').innerHTML = `Section Budget (${mName} ${y}) <i class="fas fa-edit" style="cursor:pointer; font-size:0.8rem; margin-left:5px;" onclick="editSectionBudget()" title="Edit Section Budget"></i>`;
                     document.querySelector('#sectionExpenditureBox .metric-label').innerText = `Section Expenditure (${mName} ${y})`;
                     document.querySelector('#sectionBalanceBox .metric-label').innerText = `Section Remaining (${mName} ${y})`;
 
@@ -386,7 +477,7 @@
                     }
                     rowHtml += `<td>${val}</td>`;
                 });
-                rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;"><div class="action-btns" style="justify-content:flex-end;"><button class="icon-btn edit" onclick='editRecord(${JSON.stringify(row).replace(/'/g, "&#39;")})' title="Edit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button><button class="icon-btn delete" onclick="deleteRecord(${row.id})" title="Delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div></td>`;
+                rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;"><div class="action-btns" style="justify-content:flex-end;"><button class="icon-btn edit" onclick='editRecord(${JSON.stringify(row).replace(/'/g, "&#39;")})' title="Edit"><i class="fas fa-edit"></i></button><button class="icon-btn delete" onclick="deleteRecord(${row.id})" title="Delete"><i class="fas fa-trash"></i></button></div></td>`;
                 tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
@@ -567,7 +658,7 @@
 
         async function editRecord(row) {
             const { value: formValues } = await Swal.fire({
-                title: 'Edit Record #' + row.id,
+                title: 'Edit Record',
                 html: getFormHtml(row),
                 width: 480,
                 focusConfirm: false,
@@ -672,7 +763,7 @@
                         document.getElementById('currentTableTitle').innerText = 'Select a Section';
                         document.getElementById('addRecordBtn').style.display = 'none';
                         document.getElementById('sectionActions').style.display = 'none';
-                        document.getElementById('noteBtn').style.display = 'none';
+                        if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'none';
                         document.getElementById('refreshBtn').classList.remove('show');
                         document.getElementById('refreshBtnMobile').classList.remove('show');
                         document.getElementById('dataTable').style.display = 'none';
