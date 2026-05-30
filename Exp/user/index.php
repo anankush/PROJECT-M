@@ -13,7 +13,7 @@ $base = '../../';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Management | PROJECT M</title>
+    <title>Expense Management | Money Management</title>
     <?php echo get_csrf_meta_tag(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -70,7 +70,7 @@ $base = '../../';
                 <a href="../../dashboard/index.php" class="btn btn-ghost"><i class="fas fa-home"></i> Main Dashboard</a>
                 <a href="../../auth/logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 <div class="copyright" style="margin-top:1rem; font-size:0.8rem; color:var(--text-muted); text-align:center;">
-                    &copy; <?php echo date("Y"); ?> PROJECT M
+                    &copy; <?php echo date("Y"); ?> Money Management
                 </div>
             </div>
         </aside>

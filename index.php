@@ -1,5 +1,5 @@
 <?php
-// PROJECT M — Landing Page
+// Money Management — Landing Page
 require_once 'includes/db.php';
 require_once 'includes/auth_check.php';
 require_once 'includes/functions.php';
@@ -12,8 +12,8 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT M — Your Complete Financial Command Center</title>
-    <meta name="description" content="Track expenses, grow savings, and master your money with PROJECT M. A premium personal finance management platform with real-time analytics.">
+    <title>Money Management — Your Complete Financial Command Center</title>
+    <meta name="description" content="Track expenses, grow savings, and master your money with Money Management. A premium personal finance management platform with real-time analytics.">
     <meta name="keywords" content="expense tracker, savings goals, money management, finance dashboard, budget planner">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,7 +34,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 
     <!-- ═══ NAVBAR ═══ -->
     <nav class="landing-nav" id="navbar">
-        <a href="index.php" class="nav-logo">PROJECT M</a>
+        <a href="index.php" class="nav-logo">Money Management</a>
         <div class="nav-links">
             <a href="#features" class="desktop-only">Features</a>
             <a href="#how-it-works" class="desktop-only">How It Works</a>
@@ -215,7 +215,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
     <section class="cta-section">
         <div class="glass-card cta-card reveal">
             <h2>Ready to Master<br>Your Finances?</h2>
-            <p>Join PROJECT M today and start tracking every rupee with confidence.</p>
+            <p>Join Money Management today and start tracking every rupee with confidence.</p>
             <div class="hero-buttons">
                 <?php if ($isLoggedIn): ?>
                     <a href="dashboard/index.php" class="btn btn-primary">
@@ -243,7 +243,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
                 </a>
             </div>
             <div class="footer-copy">
-                &copy; <?php echo date('Y'); ?> PROJECT M. Built with <i class="fas fa-heart" style="color: #ef4444;"></i>
+                &copy; <?php echo date('Y'); ?> Money Management. Built with <i class="fas fa-heart" style="color: #ef4444;"></i>
             </div>
         </div>
     </footer>

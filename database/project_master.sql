@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════
--- PROJECT M — Master Database Schema
+-- Money Management — Master Database Schema
 -- Database: money_management
 -- NOTE: This file contains ONLY the table structure.
 --       No user data, credentials, or secrets are included.

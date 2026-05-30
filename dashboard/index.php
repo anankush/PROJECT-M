@@ -12,7 +12,7 @@ set_security_headers();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | PROJECT M</title>
+    <title>Dashboard | Money Management</title>
     <?php echo get_csrf_meta_tag(); ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

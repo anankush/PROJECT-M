@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | PROJECT M</title>
+    <title>Login | Money Management</title>
     <?php echo get_csrf_meta_tag(); ?>
     <link rel="stylesheet" href="../assets/css/glassmorphism.css">
     <link rel="stylesheet" href="../assets/css/auth.css">
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-container">
         <div class="glass-card auth-card fadeInUp">
             <div class="auth-logo">
-                <h1>PROJECT M</h1>
+                <h1>Money Management</h1>
                 <p>Welcome back! Please login to continue.</p>
             </div>
             <form id="loginForm" onsubmit="handleLogin(event)">

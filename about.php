@@ -1,5 +1,5 @@
 <?php
-// PROJECT M — About Page
+// Money Management — About Page
 require_once 'includes/db.php';
 require_once 'includes/auth_check.php';
 require_once 'includes/functions.php';
@@ -12,8 +12,8 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About | PROJECT M</title>
-    <meta name="description" content="Learn about PROJECT M — a free, open-source personal finance management platform built with PHP, MySQL, and a stunning Glassmorphism UI.">
+    <title>About | Money Management</title>
+    <meta name="description" content="Learn about Money Management — a free, open-source personal finance management platform built with PHP, MySQL, and a stunning Glassmorphism UI.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 
     <!-- ═══ NAVBAR ═══ -->
     <nav class="landing-nav" id="navbar">
-        <a href="index.php" class="nav-logo">PROJECT M</a>
+        <a href="index.php" class="nav-logo">Money Management</a>
         <div class="nav-links">
             <a href="index.php" class="desktop-only">Home</a>
             <a href="index.php#features" class="desktop-only">Features</a>
@@ -47,9 +47,9 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
     <!-- ═══ ABOUT CONTENT ═══ -->
     <div class="about-container">
         <div class="reveal">
-            <h1><span class="gradient-text">About PROJECT M</span></h1>
+            <h1><span class="gradient-text">About Money Management</span></h1>
             <p>
-                PROJECT M is a free, open-source personal finance management platform designed 
+                Money Management is a free, open-source personal finance management platform designed 
                 to give you complete control over your money. It combines expense tracking 
                 and savings goal management under one unified dashboard — all wrapped in 
                 a modern, premium interface.
@@ -57,10 +57,10 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
         </div>
 
         <div class="reveal">
-            <h2><i class="fas fa-lightbulb"></i> Why PROJECT M?</h2>
+            <h2><i class="fas fa-lightbulb"></i> Why Money Management?</h2>
             <p>
                 Managing money shouldn't require expensive software or complex spreadsheets. 
-                PROJECT M was built with one goal: make personal finance tracking simple, 
+                Money Management was built with one goal: make personal finance tracking simple, 
                 beautiful, and accessible to everyone. Whether you're a student tracking 
                 monthly expenses or someone saving for a big goal — this platform scales 
                 with your needs.
@@ -70,7 +70,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
         <div class="reveal">
             <h2><i class="fas fa-cubes"></i> Architecture</h2>
             <p>
-                PROJECT M follows a modular architecture. Each module (Expenses, Savings) 
+                Money Management follows a modular architecture. Each module (Expenses, Savings) 
                 is self-contained with its own API, handlers, and UI — but they share a 
                 unified authentication system and design language. The master dashboard 
                 pulls data from both modules to give you a combined financial overview.
@@ -106,7 +106,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
         <div class="reveal">
             <h2><i class="fab fa-github"></i> Open Source</h2>
             <p>
-                PROJECT M is fully open source and available on GitHub. Contributions, 
+                Money Management is fully open source and available on GitHub. Contributions, 
                 bug reports, and feature requests are always welcome.
             </p>
             <a href="https://github.com/anankush/PROJECT-M" target="_blank" rel="noopener" class="btn btn-outline" style="margin-top: 0.5rem;">
@@ -138,7 +138,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
                 </a>
             </div>
             <div class="footer-copy">
-                &copy; <?php echo date('Y'); ?> PROJECT M. Built with <i class="fas fa-heart" style="color: #ef4444;"></i>
+                &copy; <?php echo date('Y'); ?> Money Management. Built with <i class="fas fa-heart" style="color: #ef4444;"></i>
             </div>
         </div>
     </footer>

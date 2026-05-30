@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
 
         // Send Email
-        $body = "Your Registration OTP for PROJECT M is: $otp\n\nIt will expire in 5 minutes.";
+        $body = "Your Registration OTP for Money Management is: $otp\n\nIt will expire in 5 minutes.";
         send_email($email, "Registration OTP", $body);
 
         echo json_encode(['status' => 'success', 'redirect' => 'otp_verify.php']);
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | PROJECT M</title>
+    <title>Register | Money Management</title>
     <?php echo get_csrf_meta_tag(); ?>
     <link rel="stylesheet" href="../assets/css/glassmorphism.css">
     <link rel="stylesheet" href="../assets/css/auth.css">
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-container">
         <div class="glass-card auth-card fadeInUp">
             <div class="auth-logo">
-                <h1>PROJECT M</h1>
+                <h1>Money Management</h1>
                 <p>Create your new account.</p>
             </div>
             <form id="regForm" onsubmit="handleRegister(event)">
