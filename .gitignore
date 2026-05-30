@@ -1,9 +1,0 @@
-# Ignore secrets and sensitive config
-includes/secrets.php
-PROJECT E/includes/secrets.php
-.secret
-.env
-
-# Ignore OS files
-.DS_Store
-Thumbs.db
