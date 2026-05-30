@@ -88,21 +88,18 @@
             }
         });
 
-        function initDashboard() {
-            if (document.getElementById('monthFilter')) {
-                window.monthFlatpickr = flatpickr("#monthFilter", {
-                    disableMobile: true,
-                    plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "Y-m", theme: "dark" })],
-                    onChange: function() { 
-                        applyMonthFilter().then(() => {
-                            if (window.innerWidth <= 768 && !currentCategoryId) {
-                                const sidebar = document.getElementById('appSidebar');
-                                if (!sidebar.classList.contains('open')) toggleSidebar();
-                            }
-                        }); 
-                    }
-                });
+        async function handleMonthChange() {
+            await applyMonthFilter();
+            if (window.innerWidth <= 768 && !currentCategoryId) {
+                const sidebar = document.getElementById('appSidebar');
+                if (sidebar && !sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
             }
+        }
+
+        function initDashboard() {
+            // Native type="month" handles month filtering without flatpickr
             if (document.getElementById('budgetsTableBody')) {
                 renderBudgetsTable();
             }
@@ -203,13 +200,6 @@
                 if (expTitle) expTitle.innerText = `${monthName} ${y} Expenditure`;
                 if (balTitle) balTitle.innerText = `${monthName} ${y} Remaining`;
                 await fetchCategories();
-
-                if (window.innerWidth <= 768 && !currentCategoryId) {
-                    const sidebar = document.getElementById('appSidebar');
-                    if (!sidebar.classList.contains('open')) {
-                        toggleSidebar();
-                    }
-                }
 
                 if (currentCategoryId) {
                     loadCategory(currentCategoryId, currentCategoryName);
@@ -793,27 +783,40 @@
         async function editSectionBudget() {
             if (!currentCategoryId) { Swal.fire('Info', 'Please select a section first.', 'info'); return; }
             
-            const monthVal = document.getElementById('monthFilter') ? document.getElementById('monthFilter').value : '';
-            let budgetType = 'overall';
+            const choice = await Swal.fire({
+                title: 'Budget Type',
+                text: 'Do you want to set this budget for the overall section, or just for a specific month?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Specific Month',
+                cancelButtonText: 'Overall',
+                confirmButtonColor: '#8b5cf6',
+                cancelButtonColor: '#6366f1'
+            });
+            
+            if (choice.dismiss === Swal.DismissReason.backdrop || choice.dismiss === Swal.DismissReason.esc || choice.dismiss === Swal.DismissReason.close) {
+                return;
+            }
+            
+            let budgetType = choice.isConfirmed ? 'monthly' : 'overall';
             let targetMonth = '';
 
-            if (monthVal) {
-                const choice = await Swal.fire({
-                    title: 'Budget Type',
-                    text: 'Do you want to set this budget for the overall section, or just for the currently selected month?',
-                    icon: 'question',
+            if (budgetType === 'monthly') {
+                const defaultMonth = document.getElementById('monthFilter') ? document.getElementById('monthFilter').value : '';
+                const monthPrompt = await Swal.fire({
+                    title: 'Select Month',
+                    html: `<input type="month" id="swalMonthInput" class="theme-input-select swal-input" value="${defaultMonth}" style="text-align:center;">`,
                     showCancelButton: true,
-                    confirmButtonText: 'This Month',
-                    cancelButtonText: 'Overall',
+                    confirmButtonText: 'Next',
                     confirmButtonColor: '#8b5cf6',
-                    cancelButtonColor: '#6366f1'
+                    preConfirm: () => {
+                        const val = document.getElementById('swalMonthInput').value;
+                        if (!val) { Swal.showValidationMessage('Please select a month'); return false; }
+                        return val;
+                    }
                 });
-                
-                if (choice.dismiss === Swal.DismissReason.backdrop || choice.dismiss === Swal.DismissReason.esc || choice.dismiss === Swal.DismissReason.close) {
-                    return;
-                }
-                budgetType = choice.isConfirmed ? 'monthly' : 'overall';
-                targetMonth = choice.isConfirmed ? monthVal : '';
+                if (!monthPrompt.isConfirmed) return;
+                targetMonth = monthPrompt.value;
             }
 
             let currentCat = categories.find(c => c.id === currentCategoryId);
@@ -821,7 +824,7 @@
             let budgetTitle = `Set Overall Budget for ${currentCategoryName}`;
             
             if (budgetType === 'monthly') { 
-                const [y, m] = monthVal.split('-'); 
+                const [y, m] = targetMonth.split('-'); 
                 const monthName = new Date(y, m - 1).toLocaleString('default', { month: 'long' }); 
                 budgetTitle = `Set Budget for ${currentCategoryName} in ${monthName} ${y}`; 
             }
