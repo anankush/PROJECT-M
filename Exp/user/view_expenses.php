@@ -20,14 +20,6 @@
         <button class="btn btn-ghost desktop-refresh-btn" id="refreshBtn" onclick="refreshCurrentView()" style="display:none;">
             <i class="fas fa-sync-alt refresh-icon"></i> <span class="refresh-text">Refresh</span>
         </button>
-        <div class="action-btns" id="sectionActions" style="display:none; align-items:center;">
-            <button class="icon-btn edit" onclick="renameSection()" title="Rename Section">
-                <i class="fas fa-pen"></i>
-            </button>
-            <button class="icon-btn delete" onclick="deleteSpecificCategory(currentCategoryId, currentCategoryName)" title="Delete Section">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
         <button class="btn btn-primary" id="addRecordBtn" onclick="addRecordForm()" style="display:none;">
             <i class="fas fa-plus"></i> <span class="hide-mobile">Add Record</span>
         </button>

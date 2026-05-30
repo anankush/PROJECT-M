@@ -490,7 +490,7 @@
                     }
                     rowHtml += `<td>${val}</td>`;
                 });
-                rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;"><div class="action-btns" style="justify-content:flex-end;"><button class="icon-btn edit" onclick='editRecord(${JSON.stringify(row).replace(/'/g, "&#39;")})' title="Edit"><i class="fas fa-edit"></i></button><button class="icon-btn delete" onclick="deleteRecord(${row.id})" title="Delete"><i class="fas fa-trash"></i></button></div></td>`;
+                rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;"><div class="action-btns" style="justify-content:flex-end;"><button class="icon-btn edit" onclick='editRecord(${JSON.stringify(row).replace(/'/g, "&#39;")})' title="Edit"><i class="fas fa-pen"></i></button><button class="icon-btn delete" onclick="deleteRecord(${row.id})" title="Delete"><i class="fas fa-trash"></i></button></div></td>`;
                 tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
