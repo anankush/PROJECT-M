@@ -8,6 +8,7 @@ require_once '../../includes/id_obfuscate.php';
 
 require_once '../includes/handlers/category_handlers.php';
 require_once '../includes/handlers/record_handlers.php';
+require_once '../includes/handlers/user_handlers.php';
 
 header('Content-Type: application/json');
 
@@ -74,6 +75,25 @@ switch ($action) {
         break;
     case 'get_total_expenditure':
         handle_get_total_expenditure($pdo);
+        break;
+        
+    // User & Settings (Global features integrated into Exp)
+    case 'update_settings':
+        handle_update_settings($pdo);
+        break;
+    case 'change_password':
+        handle_change_password($pdo);
+        break;
+    case 'delete_user_account':
+        handle_delete_user_account($pdo);
+        break;
+        
+    // Export / Import
+    case 'export_data':
+        handle_export_data($pdo);
+        break;
+    case 'import_data':
+        handle_import_data($pdo);
         break;
 
     default:

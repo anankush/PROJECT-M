@@ -66,6 +66,8 @@ $base = '../../';
             </button>
 
             <div class="sidebar-bottom">
+                <button class="btn btn-ghost" onclick="openSettings()"><i class="fas fa-cog"></i> Settings</button>
+                <button class="btn btn-ghost" onclick="changePasswordModal()"><i class="fas fa-key"></i> Change Password</button>
                 <button class="btn btn-ghost" onclick="loadView('budgets.php')"><i class="fas fa-wallet"></i> Manage Budgets</button>
                 <a href="../../dashboard/index.php" class="btn btn-ghost"><i class="fas fa-home"></i> Main Dashboard</a>
                 <a href="../../auth/logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
