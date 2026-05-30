@@ -19,8 +19,8 @@ $base = '../../';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
-    <link rel="stylesheet" href="<?php echo $base; ?>assets/css/glassmorphism.css?v=<?php echo filemtime('../../assets/css/glassmorphism.css'); ?>">
-    <link rel="stylesheet" href="../assets/css/exp.css?v=<?php echo filemtime('../assets/css/exp.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $base; ?>assets/css/glassmorphism.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="../assets/css/exp.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -91,9 +91,9 @@ $base = '../../';
         const API_URL = '../api/api.php';
         const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     </script>
-    <script src="../../assets/js/csrf.js?v=<?php echo filemtime('../../assets/js/csrf.js'); ?>"></script>
-    <script src="../../assets/js/main.js?v=<?php echo filemtime('../../assets/js/main.js'); ?>"></script>
-    <script src="../assets/js/store.js?v=<?php echo filemtime('../assets/js/store.js'); ?>"></script>
-    <script src="../assets/js/exp.js?v=<?php echo filemtime('../assets/js/exp.js'); ?>"></script>
+    <script src="../../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
+    <script src="../../assets/js/main.js?v=<?php echo time(); ?>"></script>
+    <script src="../assets/js/store.js?v=<?php echo time(); ?>"></script>
+    <script src="../assets/js/exp.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

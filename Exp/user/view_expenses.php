@@ -1,5 +1,5 @@
 <!-- Exp/user/view_expenses.php -->
-<div class="dashboard-header fadeInUp stagger-1">
+<div class="dashboard-header">
     <div class="header-left">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 
@@ -26,7 +26,7 @@
     </div>
 </div>
 
-<div class="summary-grid fadeInUp stagger-2" id="summaryGrid">
+<div class="summary-grid" id="summaryGrid">
 
     <div class="summary-card" id="sectionBudgetBox" style="background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.3); color:#f59e0b; display:none;">
         <span class="metric-label">Section Budget <i class="fas fa-edit" style="cursor:pointer; font-size:0.8rem; margin-left:5px;" onclick="editSectionBudget()" title="Edit Section Budget"></i></span>
@@ -42,7 +42,7 @@
     </div>
 </div>
 
-<div class="table-container fadeInUp stagger-3">
+<div class="table-container">
     <div id="tableLoader" class="loading-container" style="display:none; text-align:center; padding:50px;">
         <i class="fas fa-circle-notch fa-spin fa-2x"></i>
     </div>
