@@ -40,6 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$email, $otp]);
             
             if ($stmt->fetch()) {
+                // Security: Delete OTP immediately upon verification to prevent reuse
+                $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
+                
                 $_SESSION['otp_verified'] = true;
                 echo json_encode(['status' => 'success']);
             } else {
@@ -62,14 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            // OTP is valid — update password
+            // OTP was verified, update password
             $hashedPass = password_hash($new_password, PASSWORD_DEFAULT);
             $update = $pdo->prepare("UPDATE users SET password = ? WHERE email = ?");
             $update->execute([$hashedPass, $email]);
             
-            // Clean up OTP
-            $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
-
             // Clear reset session
             unset($_SESSION['reset_email']);
             unset($_SESSION['otp_verified']);
