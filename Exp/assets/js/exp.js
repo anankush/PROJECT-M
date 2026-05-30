@@ -204,18 +204,28 @@
                 if (currentCategoryId) {
                     loadCategory(currentCategoryId, currentCategoryName);
                 } else {
-                    titleSpan.innerText = 'Please select a Section';
-                    document.getElementById('addRecordBtn').style.display = 'none';
-                    document.getElementById('sectionActions').style.display = 'none';
+                    if (titleSpan) titleSpan.innerText = 'Please select a Section';
+                    const addBtn = document.getElementById('addRecordBtn');
+                    if (addBtn) addBtn.style.display = 'none';
+                    const secActions = document.getElementById('sectionActions');
+                    if (secActions) secActions.style.display = 'none';
                     if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'none';
-                    document.getElementById('refreshBtn').classList.remove('show');
-                    document.getElementById('refreshBtnMobile').classList.remove('show');
-                    document.getElementById('dataTable').style.display = 'none';
-                    document.getElementById('emptyState').style.display = 'none';
-                    document.getElementById('sortRecordsSelect').style.display = 'none';
-                    document.getElementById('sectionBudgetBox').style.display = 'none';
-                    document.getElementById('sectionExpenditureBox').style.display = 'none';
-                    document.getElementById('sectionBalanceBox').style.display = 'none';
+                    const rb = document.getElementById('refreshBtn');
+                    if(rb) rb.classList.remove('show');
+                    const rbm = document.getElementById('refreshBtnMobile');
+                    if(rbm) rbm.classList.remove('show');
+                    const dt = document.getElementById('dataTable');
+                    if(dt) dt.style.display = 'none';
+                    const es = document.getElementById('emptyState');
+                    if(es) es.style.display = 'none';
+                    const srs = document.getElementById('sortRecordsSelect');
+                    if(srs) srs.style.display = 'none';
+                    const sbb = document.getElementById('sectionBudgetBox');
+                    if(sbb) sbb.style.display = 'none';
+                    const seb = document.getElementById('sectionExpenditureBox');
+                    if(seb) seb.style.display = 'none';
+                    const sbalb = document.getElementById('sectionBalanceBox');
+                    if(sbalb) sbalb.style.display = 'none';
                 }
             } else {
                 if (summaryTitle) summaryTitle.innerText = 'Overall Budget';
@@ -330,6 +340,10 @@
         }
 
         async function loadCategory(id, name) {
+            if (!document.getElementById('currentTableTitle')) {
+                await loadView('view_expenses.php');
+                return loadCategory(id, name);
+            }
             currentCategoryId = id;
             currentCategoryName = name;
             window.currentCustomSchema = {};
