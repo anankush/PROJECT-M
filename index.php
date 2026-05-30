@@ -300,7 +300,8 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
     <footer class="landing-footer">
         <div class="footer-inner" style="justify-content: center; text-align: center;">
             <div class="footer-copy">
-                &copy; <?php echo date('Y'); ?> <a href="dev.php" style="color: inherit; text-decoration: none;">PROJECT M</a>, made with love ❤️
+                made with love ❤️<br>
+                &copy; <?php echo date('Y'); ?> <a href="dev.php" style="color: inherit; text-decoration: none;">PROJECT M</a>
             </div>
         </div>
     </footer>
