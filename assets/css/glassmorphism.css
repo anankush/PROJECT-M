@@ -722,14 +722,19 @@ tr:hover td { background: rgba(139, 92, 246, 0.04); }
 /* ═══ SIDEBAR LAYOUT (Exp / Sav shared) ═══ */
 body:has(.sidebar) { overflow: hidden; }
 .sidebar-overlay {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.6);
     z-index: 99;
     backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
 }
-.sidebar-overlay.open { display: block; }
+.sidebar-overlay.open {
+    visibility: visible;
+    opacity: 1;
+}
 
 #appUI {
     display: flex;
