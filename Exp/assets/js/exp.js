@@ -241,7 +241,8 @@
                 const addRecordBtn = document.getElementById('addRecordBtn');
                 if (addRecordBtn) {
                     addRecordBtn.style.display = 'none';
-                    document.getElementById('sectionActions').style.display = 'none';
+                    const secAct = document.getElementById('sectionActions');
+                    if(secAct) secAct.style.display = 'none';
                     if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'none';
                     document.getElementById('refreshBtn').classList.remove('show');
                     document.getElementById('refreshBtnMobile').classList.remove('show');
@@ -353,11 +354,15 @@
             currentCategoryName = name;
             window.currentCustomSchema = {};
             document.getElementById('currentTableTitle').innerText = name;
-            document.getElementById('addRecordBtn').style.display = 'inline-flex';
-            document.getElementById('sectionActions').style.display = 'flex';
+            const addBtn = document.getElementById('addRecordBtn');
+            if (addBtn) addBtn.style.display = window.innerWidth <= 768 ? 'flex' : 'inline-flex';
+            const secAct = document.getElementById('sectionActions');
+            if (secAct) secAct.style.display = 'flex';
             if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'inline-flex';
-            document.getElementById('refreshBtn').classList.add('show');
-            document.getElementById('refreshBtnMobile').classList.add('show');
+            const rBtn = document.getElementById('refreshBtn');
+            if (rBtn) rBtn.classList.add('show');
+            const rBtnM = document.getElementById('refreshBtnMobile');
+            if (rBtnM) rBtnM.classList.add('show');
             renderTabs();
 
             const table = document.getElementById('dataTable');
@@ -769,8 +774,10 @@
                     if (currentCategoryId === id) {
                         currentCategoryId = null; currentCategoryName = '';
                         document.getElementById('currentTableTitle').innerText = 'Select a Section';
-                        document.getElementById('addRecordBtn').style.display = 'none';
-                        document.getElementById('sectionActions').style.display = 'none';
+                        const addBtn = document.getElementById('addRecordBtn');
+                        if (addBtn) addBtn.style.display = 'none';
+                        const secAct = document.getElementById('sectionActions');
+                        if (secAct) secAct.style.display = 'none';
                         if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'none';
                         document.getElementById('refreshBtn').classList.remove('show');
                         document.getElementById('refreshBtnMobile').classList.remove('show');
