@@ -608,3 +608,50 @@ tbody tr:hover {
         grid-template-columns: 1fr;
     }
 }
+
+.action-btns {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.icon-btn.edit {
+    background: rgba(139, 92, 246, 0.12);
+    color: #a78bfa;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.icon-btn.edit:hover {
+    background: rgba(139, 92, 246, 0.25);
+    transform: translateY(-1px);
+}
+
+.icon-btn.delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.icon-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.25);
+    transform: translateY(-1px);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+}

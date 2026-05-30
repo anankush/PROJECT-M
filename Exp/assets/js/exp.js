@@ -58,7 +58,7 @@
             try {
                 window.monthFlatpickr = flatpickr("#monthFilter", {
                     disableMobile: true,
-                    plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "Y-m", theme: "dark" })],
+                    plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "F Y", theme: "dark" })],
                     onChange: function() { applyMonthFilter(); }
                 });
             } catch (e) {

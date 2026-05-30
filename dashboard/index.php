@@ -93,14 +93,14 @@ set_security_headers();
                 <i class="fas fa-wallet"></i>
                 <h3>Expense Management</h3>
                 <p class="text-secondary">Track, categorize, and analyze your daily expenses.</p>
-                <div class="btn btn-ghost" style="margin-top:auto;">Expense Panel <i class="fas fa-arrow-right"></i>
+                <div class="btn btn-ghost" style="margin-top:auto;"> Expense Panel <i class="fas fa-arrow-right"></i>
                 </div>
             </a>
             <a href="../Sav/dashboard.php" class="glass-card module-card sav-module">
                 <i class="fas fa-piggy-bank"></i>
                 <h3>Savings Management</h3>
                 <p class="text-secondary">Set goals, track deposits, and achieve financial freedom.</p>
-                <div class="btn btn-ghost" style="margin-top:auto;">Savings Panel <i class="fas fa-arrow-right"></i>
+                <div class="btn btn-ghost" style="margin-top:auto;"> Savings Panel <i class="fas fa-arrow-right"></i>
                 </div>
             </a>
         </div>
