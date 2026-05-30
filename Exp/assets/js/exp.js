@@ -93,7 +93,14 @@
                 window.monthFlatpickr = flatpickr("#monthFilter", {
                     disableMobile: true,
                     plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "Y-m", theme: "dark" })],
-                    onChange: function() { applyMonthFilter(); }
+                    onChange: function() { 
+                        applyMonthFilter().then(() => {
+                            if (window.innerWidth <= 768 && !currentCategoryId) {
+                                const sidebar = document.getElementById('appSidebar');
+                                if (!sidebar.classList.contains('open')) toggleSidebar();
+                            }
+                        }); 
+                    }
                 });
             }
             if (document.getElementById('budgetsTableBody')) {
@@ -131,6 +138,9 @@
                         </button>
                         <button class="btn btn-ghost" onclick="triggerNotes(${cat.id}, '${escapeHtml(cat.category_name)}')">
                             <i class="far fa-sticky-note"></i> Notes
+                        </button>
+                        <button class="btn btn-ghost" style="color:var(--danger);" onclick="deleteSpecificCategory(${cat.id}, '${escapeHtml(cat.category_name)}')">
+                            <i class="fas fa-trash"></i> Delete
                         </button>
                     </td>
                 `;
@@ -782,11 +792,39 @@
 
         async function editSectionBudget() {
             if (!currentCategoryId) { Swal.fire('Info', 'Please select a section first.', 'info'); return; }
+            
+            const monthVal = document.getElementById('monthFilter') ? document.getElementById('monthFilter').value : '';
+            let budgetType = 'overall';
+            let targetMonth = '';
+
+            if (monthVal) {
+                const choice = await Swal.fire({
+                    title: 'Budget Type',
+                    text: 'Do you want to set this budget for the overall section, or just for the currently selected month?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'This Month',
+                    cancelButtonText: 'Overall',
+                    confirmButtonColor: '#8b5cf6',
+                    cancelButtonColor: '#6366f1'
+                });
+                
+                if (choice.dismiss === Swal.DismissReason.backdrop || choice.dismiss === Swal.DismissReason.esc || choice.dismiss === Swal.DismissReason.close) {
+                    return;
+                }
+                budgetType = choice.isConfirmed ? 'monthly' : 'overall';
+                targetMonth = choice.isConfirmed ? monthVal : '';
+            }
+
             let currentCat = categories.find(c => c.id === currentCategoryId);
             let currentBudget = currentCat ? parseFloat(currentCat.budget) || 0 : 0;
-            const monthVal = document.getElementById('monthFilter').value;
-            let budgetTitle = `Set Budget for ${currentCategoryName}`;
-            if (monthVal) { const [y, m] = monthVal.split('-'); const monthName = new Date(y, m - 1).toLocaleString('default', { month: 'long' }); budgetTitle = `Set Budget for ${currentCategoryName} in ${monthName} ${y}`; }
+            let budgetTitle = `Set Overall Budget for ${currentCategoryName}`;
+            
+            if (budgetType === 'monthly') { 
+                const [y, m] = monthVal.split('-'); 
+                const monthName = new Date(y, m - 1).toLocaleString('default', { month: 'long' }); 
+                budgetTitle = `Set Budget for ${currentCategoryName} in ${monthName} ${y}`; 
+            }
 
             const { value: newBudget } = await Swal.fire({
                 title: budgetTitle,
@@ -811,7 +849,7 @@
                 }
             });
             if (newBudget !== undefined && newBudget !== null && newBudget !== '') {
-                const res = await fetch(`${API_URL}?action=update_category_budget`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN }, body: JSON.stringify({ category_id: currentCategoryId, budget: newBudget, month: document.getElementById('monthFilter').value }) });
+                const res = await fetch(`${API_URL}?action=update_category_budget`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN }, body: JSON.stringify({ category_id: currentCategoryId, budget: newBudget, month: targetMonth }) });
                 const result = await res.json();
                 if (result.status === 'success') { await fetchCategories(); if (currentCategoryId) loadCategory(currentCategoryId, currentCategoryName); Swal.fire('Saved!', '', 'success'); }
                 else Swal.fire('Error', result.message, 'error');

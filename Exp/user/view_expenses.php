@@ -4,14 +4,6 @@
         <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 
         <h1 id="currentTableTitle">Select a Section</h1>
-        <div class="action-btns" id="sectionActions" style="display:none;">
-            <button class="icon-btn edit" onclick="renameSection()" title="Rename Section">
-                <i class="fas fa-pen"></i>
-            </button>
-            <button class="icon-btn delete" onclick="deleteSpecificCategory(currentCategoryId, currentCategoryName)" title="Delete Section">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
         <button class="btn btn-ghost mobile-refresh-btn" id="refreshBtnMobile" onclick="refreshCurrentView()" style="display:none; margin-left:auto;">
             <i class="fas fa-sync-alt refresh-icon"></i> <span class="refresh-text">Refresh</span>
         </button>
@@ -28,6 +20,14 @@
         <button class="btn btn-ghost desktop-refresh-btn" id="refreshBtn" onclick="refreshCurrentView()" style="display:none;">
             <i class="fas fa-sync-alt refresh-icon"></i> <span class="refresh-text">Refresh</span>
         </button>
+        <div class="action-btns" id="sectionActions" style="display:none; align-items:center;">
+            <button class="icon-btn edit" onclick="renameSection()" title="Rename Section">
+                <i class="fas fa-pen"></i>
+            </button>
+            <button class="icon-btn delete" onclick="deleteSpecificCategory(currentCategoryId, currentCategoryName)" title="Delete Section">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
         <button class="btn btn-primary" id="addRecordBtn" onclick="addRecordForm()" style="display:none;">
             <i class="fas fa-plus"></i> <span class="hide-mobile">Add Record</span>
         </button>
@@ -35,18 +35,6 @@
 </div>
 
 <div class="summary-grid" id="summaryGrid">
-    <div class="summary-card card-budget" id="totalBudgetBox">
-        <span class="metric-label" id="labelTotalBudget">Total Budget</span>
-        <div class="metric-value" id="totalBudgetDisplay">0.00</div>
-    </div>
-    <div class="summary-card card-expenditure" id="totalExpenditureBox">
-        <span class="metric-label" id="labelTotalExpenditure">Total Expenditure</span>
-        <div class="metric-value" id="totalAmount">0.00</div>
-    </div>
-    <div class="summary-card card-balance" id="totalBalanceBox">
-        <span class="metric-label" id="labelTotalBalance">Total Remaining</span>
-        <div class="metric-value" id="totalBalanceDisplay">0.00</div>
-    </div>
 
     <div class="summary-card" id="sectionBudgetBox" style="background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.3); color:#f59e0b; display:none;">
         <span class="metric-label">Section Budget <i class="fas fa-edit" style="cursor:pointer; font-size:0.8rem; margin-left:5px;" onclick="editSectionBudget()" title="Edit Section Budget"></i></span>
