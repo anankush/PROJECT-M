@@ -43,7 +43,7 @@
 </div>
 
 <div class="table-container">
-    <div id="tableLoader" class="loader" style="display:none; text-align:center; padding:50px;">
+    <div id="tableLoader" class="loading-container" style="display:none; text-align:center; padding:50px;">
         <i class="fas fa-circle-notch fa-spin fa-2x"></i>
     </div>
     <table id="dataTable" style="display:none;">
