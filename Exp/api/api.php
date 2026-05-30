@@ -14,7 +14,7 @@ header('Content-Type: application/json');
 
 // All API requests MUST have CSRF except checking session status
 $action = $_GET['action'] ?? '';
-if ($action !== 'check_session') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'check_session') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
 }
 
