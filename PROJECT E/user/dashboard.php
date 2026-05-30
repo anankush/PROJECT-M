@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Member Dashboard | Expense Management';
 require_once '../includes/header.php';
-$base = BASE_URL;
+$base = defined('E_BASE_URL') ? E_BASE_URL : BASE_URL;
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: ' . $base . '404.php');

@@ -6,8 +6,12 @@ define('DB_HOST', 'localhost');
 define('DB_USER', 'root'); // Assuming XAMPP default
 define('DB_PASS', '');
 define('DB_NAME', 'project_m_db');
-
-define('BASE_URL', '/PROJECT M');
+// Dynamically determine BASE_URL
+$doc_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
+$dir = str_replace('\\', '/', dirname(__DIR__));
+$base_url = str_replace($doc_root, '', $dir);
+$base_url = str_replace(' ', '%20', $base_url);
+define('BASE_URL', $base_url);
 
 // Helper function to check if user is logged in
 function isLoggedIn() {

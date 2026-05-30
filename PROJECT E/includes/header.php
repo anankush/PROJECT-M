@@ -3,7 +3,7 @@ require_once __DIR__ . '/security.php';
 validate_domain_access();
 session_start_secure();
 generate_csrf_token();
-$base = BASE_URL;
+$base = defined('E_BASE_URL') ? E_BASE_URL : BASE_URL;
 ?>
 <!DOCTYPE html>
 <html lang="en">
