@@ -2,10 +2,17 @@
 // includes/config.php
 session_start();
 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root'); // Assuming XAMPP default
-define('DB_PASS', '');
-define('DB_NAME', 'money_management');
+// Load secrets if exists (this file should NOT be pushed to github)
+$secrets_file = __DIR__ . '/secrets.php';
+if (file_exists($secrets_file)) {
+    require_once $secrets_file;
+}
+
+// Fallback to defaults or environment variables
+define('DB_HOST', defined('DB_HOST') ? DB_HOST : (getenv('DB_HOST') ?: '127.0.0.1'));
+define('DB_USER', defined('DB_USER') ? DB_USER : (getenv('DB_USER') ?: 'root'));
+define('DB_PASS', defined('DB_PASS') ? DB_PASS : (getenv('DB_PASS') ?: ''));
+define('DB_NAME', defined('DB_NAME') ? DB_NAME : (getenv('DB_NAME') ?: 'money_management'));
 // Dynamically determine BASE_URL
 $doc_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
 $dir = str_replace('\\', '/', dirname(__DIR__));
