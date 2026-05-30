@@ -112,18 +112,14 @@ async function loadDashboardData() {
     }
 
     try {
-        const [expRes, savRes] = await Promise.all([
-            fetch('../Exp/api/summary.php').catch(() => null),
-            fetch('../Sav/api/summary.php').catch(() => null)
-        ]);
-
-        const expData = expRes ? await expRes.json().catch(() => null) : null;
-        const savData = savRes ? await savRes.json().catch(() => null) : null;
+        const res = await fetch('../api/dashboard_api.php');
+        const result = await res.json().catch(() => null);
+        const data = result?.status === 'success' ? result.data : null;
 
         // ── Exp Stat Pills ──────────────────────────────────────────────
-        const currency = expData?.currency || CURRENCY;
-        const budget   = expData?.status === 'success' ? expData.total_budget : null;
-        const spent    = expData?.status === 'success' ? expData.total_spent  : null;
+        const currency = result?.currency || CURRENCY;
+        const budget   = data ? data.total_budget : null;
+        const spent    = data ? data.total_spent  : null;
         const balance  = (budget !== null && spent !== null) ? budget - spent : null;
 
         setStatPill('expBudgetVal', budget, currency);
@@ -131,11 +127,11 @@ async function loadDashboardData() {
         setStatPill('expBalanceVal', balance, currency, true);
 
         // ── Sav Stat Pill ───────────────────────────────────────────────
-        const totalSaved = savData?.status === 'success' ? savData.total_saved : null;
+        const totalSaved = data ? data.total_saved : null;
         setStatPill('savTotalVal', totalSaved, currency, false, '#06b6d4');
 
         // ── Update Donut Chart ──────────────────────────────────────────
-        if (expData?.status === 'success' && expData.breakdown && expData.breakdown.length > 0) {
+        if (data && data.breakdown && data.breakdown.length > 0) {
             const donutEmpty = document.getElementById('donutEmpty');
             if (donutEmpty) donutEmpty.style.display = 'none';
 
@@ -145,9 +141,9 @@ async function loadDashboardData() {
                 'rgba(6, 182, 212, 0.85)',   'rgba(236, 72, 153, 0.85)',
                 'rgba(59, 130, 246, 0.85)',  'rgba(251, 191, 36, 0.85)'
             ];
-            donutChart.data.labels   = expData.breakdown.map(b => b.category_name);
-            donutChart.data.datasets[0].data            = expData.breakdown.map(b => parseFloat(b.spent));
-            donutChart.data.datasets[0].backgroundColor = expData.breakdown.map((_, i) => palette[i % palette.length]);
+            donutChart.data.labels   = data.breakdown.map(b => b.category_name);
+            donutChart.data.datasets[0].data            = data.breakdown.map(b => parseFloat(b.spent));
+            donutChart.data.datasets[0].backgroundColor = data.breakdown.map((_, i) => palette[i % palette.length]);
             donutChart.data.datasets[0].borderWidth     = 2;
             donutChart.data.datasets[0].borderColor     = 'rgba(10,10,20,0.6)';
             donutChart.update('active');
@@ -170,8 +166,8 @@ async function loadDashboardData() {
         }
 
         // Map API monthly arrays to the labels
-        const expMonthly = expData?.monthly || [];
-        const savMonthly = savData?.monthly || [];
+        const expMonthly = data?.exp_monthly || [];
+        const savMonthly = data?.sav_monthly || [];
 
         const expMap = Object.fromEntries(expMonthly.map(r => [r.month, parseFloat(r.total_spent)]));
         const savMap = Object.fromEntries(savMonthly.map(r => [r.month, parseFloat(r.net_saved)]));
