@@ -131,50 +131,30 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
         <!-- Main Content -->
         <div class="dev-content">
             <div class="reveal visible dev-header">
-                <h1><span class="gradient-text">Developer Portal</span></h1>
-                <p>Quick access to all major system modules and repositories.</p>
+                <h1><span class="gradient-text">Developer Profile</span></h1>
+                <p>Connect with the developer or access the admin portal.</p>
             </div>
             
             <div class="dev-grid reveal visible">
-                <!-- Home -->
-                <a href="index.php" class="glass-card dev-card card-home">
-                    <i class="fas fa-home dev-card-icon"></i>
-                    <div class="dev-card-title">Main Site</div>
-                    <div class="dev-card-desc">Return to the public landing page.</div>
+                <!-- LinkedIn -->
+                <a href="https://www.linkedin.com/in/itznayan" target="_blank" rel="noopener" class="glass-card dev-card card-home">
+                    <i class="fab fa-linkedin dev-card-icon"></i>
+                    <div class="dev-card-title">LinkedIn Profile</div>
+                    <div class="dev-card-desc">Connect with me professionally.</div>
                 </a>
 
-                <!-- Auth/Dashboard -->
-                <?php if ($isLoggedIn): ?>
-                    <a href="dashboard/index.php" class="glass-card dev-card">
-                        <i class="fas fa-chart-line dev-card-icon"></i>
-                        <div class="dev-card-title">User Dashboard</div>
-                        <div class="dev-card-desc">Access your financial control center.</div>
-                    </a>
-                <?php else: ?>
-                    <a href="auth/login.php" class="glass-card dev-card">
-                        <i class="fas fa-sign-in-alt dev-card-icon"></i>
-                        <div class="dev-card-title">User Login</div>
-                        <div class="dev-card-desc">Sign in to your account.</div>
-                    </a>
-                    <a href="auth/register.php" class="glass-card dev-card">
-                        <i class="fas fa-user-plus dev-card-icon"></i>
-                        <div class="dev-card-title">Register</div>
-                        <div class="dev-card-desc">Create a new user account.</div>
-                    </a>
-                <?php endif; ?>
+                <!-- GitHub -->
+                <a href="https://github.com/anankush/" target="_blank" rel="noopener" class="glass-card dev-card card-git">
+                    <i class="fab fa-github dev-card-icon"></i>
+                    <div class="dev-card-title">GitHub Profile</div>
+                    <div class="dev-card-desc">Check out my open-source projects.</div>
+                </a>
 
                 <!-- Admin Portal -->
                 <a href="auth/admin_login.php" class="glass-card dev-card card-admin">
                     <i class="fas fa-user-shield dev-card-icon"></i>
                     <div class="dev-card-title">Admin Portal</div>
                     <div class="dev-card-desc">Restricted access for system administrators.</div>
-                </a>
-
-                <!-- GitHub -->
-                <a href="https://github.com/anankush/PROJECT-M" target="_blank" rel="noopener" class="glass-card dev-card card-git">
-                    <i class="fab fa-github dev-card-icon"></i>
-                    <div class="dev-card-title">Source Code</div>
-                    <div class="dev-card-desc">View the official repository on GitHub.</div>
                 </a>
             </div>
         </div>
