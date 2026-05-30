@@ -269,19 +269,9 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 
     <!-- ═══ FOOTER ═══ -->
     <footer class="landing-footer">
-        <div class="footer-inner">
-            <div class="footer-links">
-                <a href="about.php">About</a>
-                <a href="#features">Features</a>
-                <a href="auth/login.php">Login</a>
-                <a href="auth/register.php">Register</a>
-                <a href="https://github.com/anankush/PROJECT-M" target="_blank" rel="noopener">
-                    <i class="fab fa-github"></i> GitHub
-                </a>
-            </div>
+        <div class="footer-inner" style="justify-content: center; text-align: center;">
             <div class="footer-copy">
-                &copy; <?php echo date('Y'); ?> Money Management. Built with <i class="fas fa-heart"
-                    style="color: #ef4444;"></i>
+                &copy; <?php echo date('Y'); ?> PROJECT M, made with love <i class="fas fa-heart" style="color: #ef4444;"></i>
             </div>
         </div>
     </footer>
