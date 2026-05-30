@@ -1,10 +1,10 @@
 <?php
-// PROJECT M — Landing Page
-require_once 'includes/db.php';
-require_once 'includes/auth_check.php';
+// PROJECT M — Landing Page (public, no DB required)
 require_once 'includes/functions.php';
 set_security_headers();
 
+// Lightweight session check — no DB needed for the landing page
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 ?>
 <!DOCTYPE html>
