@@ -150,3 +150,30 @@ function handle_delete_user_account($pdo) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to delete account.']);
     }
 }
+
+function handle_check_session($pdo) {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['is_user' => false]);
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("SELECT email, currency, total_budget FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user) {
+            echo json_encode([
+                'status' => 'success',
+                'is_user' => true,
+                'email' => $user['email'],
+                'currency' => $user['currency'],
+                'total_budget' => $user['total_budget']
+            ]);
+        } else {
+            echo json_encode(['is_user' => false]);
+        }
+    } catch (PDOException $e) {
+        echo json_encode(['is_user' => false]);
+    }
+}
