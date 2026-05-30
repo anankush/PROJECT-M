@@ -1,4 +1,4 @@
-name: Deploy PROJECT M to InfinityFree
+name: Deploy PROJECT M on push
 
 on:
   push:
@@ -8,27 +8,35 @@ on:
 
 jobs:
   web-deploy:
-    name: 🚀 Deploy to InfinityFree FTP
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v4
-      
-    - name: 📂 Sync files via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.3
+    - name: Get latest code
+      uses: actions/checkout@v3
+
+    - name: Inject Secrets
+      run: |
+        cat << 'EOF' > includes/secrets.php
+        <?php
+        define('DB_HOST', '${{ secrets.DB_HOST }}');
+        define('DB_NAME', '${{ secrets.DB_NAME }}');
+        define('DB_USER', '${{ secrets.DB_USER }}');
+        define('DB_PASS', '${{ secrets.DB_PASS }}');
+        define('APP_SECRET_VAL', '${{ secrets.APP_SECRET }}');
+        ?>
+        EOF
+
+    - name: Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: ${{ secrets.FTP_SERVER }}
+        server: ${{ secrets.FTP_HOST }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: moneymgmt.is-best.net/htdocs/
-        protocol: ftp
-        timeout: 1200000
+        server-dir: ./moneymgmt.is-best.net/htdocs/
+        local-dir: ./
         exclude: |
           **/.git*
           **/.git*/**
-          **/node_modules/**
-          .github/
-          **/.DS_Store
-          money_management.sql
+          **/.github/**
           readme.md
-          PROJECT E/readme.md
+          *.sql
