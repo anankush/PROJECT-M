@@ -15,6 +15,7 @@
     padding: 3.5rem 2.5rem 2.5rem;
     position: relative;
     margin-top: 40px;
+    overflow: visible !important;
 }
 
 .auth-avatar {

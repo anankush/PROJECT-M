@@ -116,7 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
             <div class="auth-links">
                 <a href="register.php">New here? Create an account</a>
-                <a href="admin_login.php">Admin Login (Advanced)</a>
             </div>
         </div>
     </div>
