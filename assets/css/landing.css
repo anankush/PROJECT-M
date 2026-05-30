@@ -461,13 +461,49 @@
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 768px) {
     .landing-nav { padding: 0.8rem 1rem; }
+    .nav-logo { font-size: 1.3rem; }
     .nav-links a.desktop-only { display: none; }
-    .hero { padding: 6rem 1.5rem 3rem; }
-    .hero-stats { gap: 1.5rem; }
+    
+    .hero { padding: 7rem 1.25rem 3rem; }
+    .hero-buttons { flex-direction: column; width: 100%; max-width: 300px; margin: 0 auto; }
+    .hero-buttons .btn { width: 100%; justify-content: center; padding: 1rem; }
+    .hero-stats { gap: 1.5rem; flex-wrap: wrap; margin-top: 3rem; }
+    .hero-stat { flex: 1 1 40%; }
     .hero-stat-value { font-size: 1.5rem; }
-    .steps-grid { grid-template-columns: 1fr; }
-    .steps-grid::before { display: none; }
-    .features-grid { grid-template-columns: 1fr; }
+    
+    .landing-section { padding: 4rem 1.25rem; }
+    .section-header { margin-bottom: 3rem; }
+    .section-header h2 { font-size: 2rem; line-height: 1.2; }
+    
+    .features-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .feature-card { padding: 2rem 1.5rem; }
+    
+    /* Vertical Timeline for Mobile Steps */
+    .steps-grid { grid-template-columns: 1fr; gap: 3rem; text-align: left; }
+    .step-card { text-align: left; padding-left: 76px; min-height: 56px; }
+    .step-number { position: absolute; left: 0; top: 0; margin: 0; }
+    .steps-grid::before { 
+        display: block; 
+        top: 28px; 
+        bottom: 28px; 
+        left: 27px; 
+        right: auto;
+        width: 0; 
+        height: auto;
+        border-top: none;
+        border-left: 2px dashed rgba(139, 92, 246, 0.4); 
+    }
+    
+    .security-grid { grid-template-columns: 1fr; }
+    
     .cta-card { padding: 2.5rem 1.5rem; }
-    .footer-inner { flex-direction: column; text-align: center; }
+    .cta-card h2 { font-size: 1.7rem; }
+    
+    .footer-inner { flex-direction: column; text-align: center; gap: 1.5rem; }
+    .footer-links { flex-wrap: wrap; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+    .hero h1 { font-size: 2.2rem; }
+    .hero-stat { flex: 1 1 100%; }
 }
