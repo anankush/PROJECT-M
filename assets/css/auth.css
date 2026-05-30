@@ -116,3 +116,36 @@
         font-size: 1.6rem;
     }
 }
+
+.back-home-btn {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.3s, transform 0.3s;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+}
+.back-home-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--aurora-1);
+    transform: translateX(-3px);
+}
+@media (max-width: 768px) {
+    .back-home-btn {
+        top: 1rem;
+        left: 1rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+}
