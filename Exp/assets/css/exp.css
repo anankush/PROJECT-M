@@ -524,8 +524,8 @@ tbody tr:hover {
     .header-controls {
         width: 100%;
         flex-direction: row;
-        gap: 4px;
-        flex-wrap: nowrap;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
     .header-controls .theme-input-select {
@@ -572,11 +572,14 @@ tbody tr:hover {
     }
 
     .table-container {
-        max-height: 50vh;
+        max-height: 70vh;
+        -webkit-overflow-scrolling: touch;
     }
 
     .icon-btn {
-        padding: 0.4rem;
+        width: 42px;
+        height: 42px;
+        font-size: 1rem;
     }
 }
 
@@ -601,9 +604,7 @@ tbody tr:hover {
     .summary-card .metric-value {
         font-size: 0.9rem;
     }
-}
 
-@media (max-width: 420px) {
     .summary-grid {
         grid-template-columns: 1fr;
     }
