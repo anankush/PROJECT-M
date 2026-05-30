@@ -5,7 +5,7 @@ session_start();
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root'); // Assuming XAMPP default
 define('DB_PASS', '');
-define('DB_NAME', 'project_m_db');
+define('DB_NAME', 'money_management');
 // Dynamically determine BASE_URL
 $doc_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
 $dir = str_replace('\\', '/', dirname(__DIR__));
