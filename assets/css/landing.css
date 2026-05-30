@@ -1,18 +1,20 @@
 /* assets/css/landing.css */
 
 /* ═══ COLORFUL ANIMATED BACKGROUND ═══ */
-body {
-    background: linear-gradient(-45deg, #050510, #2c0e5a, #044b58, #050510) !important;
-    background-size: 400% 400% !important;
-    animation: gradientColorful 15s ease infinite !important;
+.color-combo-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    background: linear-gradient(45deg, #0f0c29, #ff007f, #00d4ff, #0f0c29);
+    background-size: 400% 400%;
+    animation: rainbowWave 12s ease infinite;
+    opacity: 0.15;
 }
-@keyframes gradientColorful {
+@keyframes rainbowWave {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
-
-
 /* ═══ NAVBAR ═══ */
 .landing-nav {
     position: fixed;
@@ -219,30 +221,29 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.2rem;
     margin: 0 auto 1.8rem;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+.feature-icon img {
+    border-radius: 8px;
 }
 .feature-card:hover .feature-icon {
     transform: scale(1.1) translateY(-5px);
 }
 .feature-icon.exp { 
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.05)); 
-    color: #ff5b5b; 
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)); 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.05);
 }
 .feature-icon.sav { 
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.05)); 
-    color: #10b981; 
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)); 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.05);
 }
 .feature-icon.dash { 
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(6, 182, 212, 0.05)); 
-    color: #06b6d4; 
-    border: 1px solid rgba(6, 182, 212, 0.3);
-    box-shadow: 0 8px 32px rgba(6, 182, 212, 0.3);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)); 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.05);
 }
 .feature-card h3 {
     font-size: 1.2rem;

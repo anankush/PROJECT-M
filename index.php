@@ -28,6 +28,9 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 </head>
 
 <body>
+    <!-- Colorful Animated Background Overlay -->
+    <div class="color-combo-bg"></div>
+
     <!-- Aurora Background -->
     <div class="aurora-bg">
         <div class="orb orb-1"></div>
@@ -111,7 +114,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <!-- Expense Tracking -->
             <div class="glass-card feature-card reveal">
                 <div class="feature-icon exp">
-                    <i class="fas fa-money-bill-wave"></i>
+                    <img src="https://api.iconify.design/flat-color-icons/money-transfer.svg" width="56" height="56" alt="Expense Tracking" />
                 </div>
                 <h3>Expense Tracking</h3>
                 <p>Organize spending into custom sections with monthly budgets and detailed records.</p>
@@ -125,7 +128,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <!-- Savings Goals -->
             <div class="glass-card feature-card reveal">
                 <div class="feature-icon sav">
-                    <i class="fas fa-coins"></i>
+                    <img src="https://api.iconify.design/flat-color-icons/safe.svg" width="56" height="56" alt="Savings Goals" />
                 </div>
                 <h3>Savings Goals</h3>
                 <p>Set targets, make deposits, and watch your savings grow with visual progress tracking.</p>
@@ -139,7 +142,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <!-- Dashboard -->
             <div class="glass-card feature-card reveal">
                 <div class="feature-icon dash">
-                    <i class="fas fa-chart-pie"></i>
+                    <img src="https://api.iconify.design/flat-color-icons/combo-chart.svg" width="56" height="56" alt="Live Dashboard" />
                 </div>
                 <h3>Live Dashboard</h3>
                 <p>See everything at a glance — combined analytics across expenses and savings.</p>
