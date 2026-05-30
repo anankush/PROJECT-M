@@ -94,6 +94,7 @@ $base = '../../';
     </script>
     <script src="../../assets/js/csrf.js"></script>
     <script src="../../assets/js/main.js"></script>
+    <script src="../assets/js/store.js"></script>
     <script src="../assets/js/exp.js"></script>
 </body>
 </html>

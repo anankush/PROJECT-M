@@ -8,6 +8,30 @@
         let totalBudget = 0.00;
         let totalExpenditure = 0.00;
 
+        if (window.DataStore) {
+            DataStore.subscribe((state) => {
+                categories = state.categories || [];
+                totalBudget = state.totalBudget || 0;
+                totalExpenditure = state.totalExpenditure || 0;
+                
+                const tbd = document.getElementById('totalBudgetDisplay');
+                if (tbd) tbd.innerHTML = `${userCurrency}${totalBudget.toFixed(2)}`;
+                
+                const ta = document.getElementById('totalAmount');
+                if (ta) ta.innerHTML = `${userCurrency}${totalExpenditure.toFixed(2)}`;
+                
+                let balance = totalBudget - totalExpenditure;
+                let balanceEl = document.getElementById('totalBalanceDisplay');
+                if (balanceEl) {
+                    balanceEl.innerHTML = `${userCurrency}${balance.toFixed(2)}`;
+                    updateBalanceCard('totalBalanceBox', balanceEl, balance);
+                }
+                
+                renderTabs();
+                if (document.getElementById('budgetsTableBody')) renderBudgetsTable();
+            });
+        }
+
         function escapeHtml(unsafe) {
             if (unsafe == null) return '';
             return String(unsafe)
@@ -263,26 +287,12 @@
 
         let fetchRequestId = 0;
         async function fetchCategories() {
-            const requestId = ++fetchRequestId;
             try {
                 const monthInput = document.getElementById('monthFilter');
                 let monthVal = '';
                 if (monthInput) monthVal = monthInput.value;
-                else {
-                    const now = new Date();
-                    monthVal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                }
-                const res = await fetch(`${API_URL}?action=get_categories&month=${monthVal}`);
-                if (requestId !== fetchRequestId) return;
-                const data = await res.json();
-                if (data.status === 'success') {
-                    categories = data.data;
-                    totalBudget = categories.reduce((sum, cat) => sum + (parseFloat(cat.budget) || 0), 0);
-                    const tbd = document.getElementById('totalBudgetDisplay');
-                    if (tbd) tbd.innerHTML = `${userCurrency}${totalBudget.toFixed(2)}`;
-                    fetchTotalExpenditure();
-                    renderTabs();
-                    if (document.getElementById('budgetsTableBody')) renderBudgetsTable();
+                if (window.DataStore) {
+                    await DataStore.fetchAllData(monthVal);
                 }
             } catch (e) { console.error(e); }
         }
@@ -301,29 +311,7 @@
         }
 
         async function fetchTotalExpenditure() {
-            try {
-                const monthInput = document.getElementById('monthFilter');
-                let monthVal = '';
-                if (monthInput) monthVal = monthInput.value;
-                else {
-                    const now = new Date();
-                    monthVal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                }
-                const res = await fetch(`${API_URL}?action=get_total_expenditure&month=${monthVal}`);
-                const data = await res.json();
-                if (data.status === 'success') {
-                    totalExpenditure = parseFloat(data.total) || 0;
-                    const ta = document.getElementById('totalAmount');
-                    if (ta) ta.innerHTML = `${userCurrency}${totalExpenditure.toFixed(2)}`;
-                    
-                    let balance = totalBudget - totalExpenditure;
-                    let balanceEl = document.getElementById('totalBalanceDisplay');
-                    if (balanceEl) {
-                        balanceEl.innerHTML = `${userCurrency}${balance.toFixed(2)}`;
-                        updateBalanceCard('totalBalanceBox', balanceEl, balance);
-                    }
-                }
-            } catch (e) {}
+            // No-op: DataStore handles this simultaneously with fetchCategories
         }
 
         function updateBalanceCard(boxId, el, balance) {
