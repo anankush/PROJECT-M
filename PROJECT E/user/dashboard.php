@@ -50,7 +50,7 @@ validate_url_access();
             <div class="sidebar-bottom">
                 <button class="btn btn-ghost" onclick="openSettings()"><i class="fas fa-cog"></i> Settings</button>
                 <button class="btn btn-ghost" onclick="changePasswordModal()"><i class="fas fa-key"></i> Change Password</button>
-                <a href="<?php echo $base; ?>index.php" class="btn btn-ghost"><i class="fas fa-home"></i> Main Page</a>
+                <a href="../../index.php" class="btn btn-ghost"><i class="fas fa-home"></i> Main Page</a>
                 <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 <div class="support-info">Support: support.nayan@gmail.com</div>
                 <div class="copyright">
@@ -167,14 +167,11 @@ validate_url_access();
 
         history.pushState(null, null, location.href);
         window.addEventListener('popstate', function(e) {
-            fetch(`${API_URL}?action=user_logout`, { method: 'POST', headers: { 'X-CSRF-Token': CSRF_TOKEN }, keepalive: true });
-            window.location.href = 'login.php';
+            window.location.href = '../../login.php';
         });
 
         window.addEventListener('beforeunload', function(e) {
-            if (!isManualLogout) {
-                fetch(`${API_URL}?action=user_logout`, { method: 'POST', headers: { 'X-CSRF-Token': CSRF_TOKEN }, keepalive: true });
-            }
+            // No action needed
         });
 
         function toggleSidebar() {
@@ -285,7 +282,7 @@ validate_url_access();
                     document.getElementById('appUI').style.display = 'flex';
                     applyMonthFilter();
                 } else {
-                    window.location.href = 'login.php';
+                    window.location.href = '../../login.php';
                 }
             } catch (e) {
                 console.error(e);
@@ -304,8 +301,7 @@ validate_url_access();
                 cancelButtonText: 'Cancel'
             });
             if (confirm.isConfirmed) {
-                await fetch(`${API_URL}?action=user_logout`, { method: 'POST', headers: { 'X-CSRF-Token': CSRF_TOKEN } });
-                window.location.href = 'login.php';
+                window.location.href = '../../logout.php';
             } else {
                 isManualLogout = false;
             }

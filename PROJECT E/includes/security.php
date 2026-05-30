@@ -39,8 +39,7 @@ function check_session_timeout()
             exit;
         }
         // Redirect to central PROJECT M login
-        $root = defined('ROOT_BASE_URL') ? ROOT_BASE_URL : '/';
-        header('Location: ' . $root . 'login.php?error=session_expired');
+        header('Location: ../../login.php?error=session_expired');
         exit;
     }
 

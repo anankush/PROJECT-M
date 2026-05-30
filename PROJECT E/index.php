@@ -37,8 +37,8 @@ $base = BASE_URL;
         <h1 class="hero-title">Expense Management<br>Made Simple</h1>
         <p class="hero-subtitle">A centralized, secure financial tracking solution for teams and individuals — anytime, anywhere.</p>
         <div class="hero-buttons">
-            <a href="<?php echo $base; ?>user/login.php" class="hero-btn hero-btn-primary"><i class="fas fa-users"></i> Member Portal</a>
-            <a href="<?php echo $base; ?>admin/login.php" class="hero-btn hero-btn-secondary"><i class="fas fa-user-shield"></i> Admin Portal</a>
+            <a href="../../login.php" class="hero-btn hero-btn-primary"><i class="fas fa-users"></i> Member Portal</a>
+            <a href="../../login.php" class="hero-btn hero-btn-secondary"><i class="fas fa-user-shield"></i> Admin Portal</a>
         </div>
     </section>
 
