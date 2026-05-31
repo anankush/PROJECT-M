@@ -132,7 +132,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
         <div class="dev-content">
             <div class="reveal visible dev-header">
                 <h1><span class="gradient-text">Developer Profile</span></h1>
-                <p>Connect with the developer or access the admin portal.</p>
+                <p>Connect with the developer of PROJECT M.</p>
             </div>
             
             <div class="dev-grid reveal visible">
@@ -150,12 +150,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
                     <div class="dev-card-desc">Check out my open-source projects.</div>
                 </a>
 
-                <!-- Admin Portal -->
-                <a href="admin_portal.php" class="glass-card dev-card card-admin">
-                    <i class="fas fa-user-shield dev-card-icon"></i>
-                    <div class="dev-card-title">Admin Portal</div>
-                    <div class="dev-card-desc">Restricted access for system administrators.</div>
-                </a>
+
             </div>
         </div>
 
