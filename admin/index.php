@@ -219,7 +219,7 @@ $base = '../';
             </ul>
 
             <div class="sidebar-bottom">
-                <a href="../dashboard/index.php" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> User Dashboard</a>
+                <a href="#" class="btn btn-ghost" onclick="Swal.fire({icon:'info',title:'Coming Soon',text:'Settings panel is under construction.',background:'var(--glass-bg)',color:'var(--text-primary)',confirmButtonColor:'var(--aurora-1)'}); return false;"><i class="fas fa-cog"></i> Settings</a>
                 <a href="<?php echo get_logout_url('../'); ?>" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 <div class="copyright" style="margin-top:1rem; font-size:0.75rem; color:var(--text-muted); text-align:center;">
                     &copy; <?php echo date("Y"); ?> Money Management
