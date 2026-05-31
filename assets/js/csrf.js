@@ -1,12 +1,3 @@
-window.navigateTo = function(url) {
-    if (document.body) {
-        document.body.classList.add('page-exit');
-    }
-    setTimeout(() => {
-        window.location.href = url;
-    }, 300);
-};
-
 const originalFetch = window.fetch;
 window.fetch = async function () {
     let [resource, config] = arguments;
@@ -27,10 +18,10 @@ window.fetch = async function () {
             const data = await clone.json();
             if (data && data.redirect) {
                 if (typeof Swal !== 'undefined') Swal.close();
-                window.navigateTo(data.redirect);
-                return new Promise(() => {});
+                window.location.href = data.redirect;
+                return new Promise(() => { });
             }
-        } catch (e) {}
+        } catch (e) { }
 
         let depth = 0;
         const path = window.location.pathname;
@@ -45,11 +36,11 @@ window.fetch = async function () {
 
         if (typeof Swal !== 'undefined') Swal.close();
         if (response.status === 403) {
-            window.navigateTo(prefix + 'error.php?code=security');
+            window.location.href = prefix + 'error.php?code=security';
         } else if (response.status === 401) {
-            window.navigateTo(prefix + 'error.php?code=unauthorized');
+            window.location.href = prefix + 'error.php?code=unauthorized';
         }
-        return new Promise(() => {});
+        return new Promise(() => { });
     }
 
     return response;
@@ -63,6 +54,6 @@ if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
     const logoutUrl = getLogoutUrl();
     if (logoutUrl && logoutUrl !== '#') {
         sessionStorage.clear();
-        window.navigateTo(logoutUrl);
+        window.location.href = logoutUrl;
     }
 }

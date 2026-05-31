@@ -7,7 +7,7 @@ Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.08)';
 
 let combinedChart = null;
 let donutChart = null;
-const CURRENCY = '₹'; 
+const CURRENCY = '₹';
 
 let dashboardCategories = [];
 let dashboardGoals = [];
@@ -120,25 +120,25 @@ async function loadDashboardData(selectedMonth = 'all') {
         const result = await res.json().catch(() => null);
         const data = result?.status === 'success' ? result.data : null;
 
-        
+
         dashboardCategories = data?.categories || [];
         dashboardGoals = data?.goals || [];
 
-        
+
         const currency = result?.currency || CURRENCY;
-        const budget   = data ? data.total_budget : null;
-        const spent    = data ? data.total_spent  : null;
-        const balance  = (budget !== null && spent !== null) ? budget - spent : null;
+        const budget = data ? data.total_budget : null;
+        const spent = data ? data.total_spent : null;
+        const balance = (budget !== null && spent !== null) ? budget - spent : null;
 
         setStatPill('expBudgetVal', budget, currency);
-        setStatPill('expSpentVal',  spent,  currency, false);
+        setStatPill('expSpentVal', spent, currency, false);
         setStatPill('expBalanceVal', balance, currency, true);
 
-        
+
         const totalSaved = data ? data.total_saved : null;
         setStatPill('savTotalVal', totalSaved, currency, false, '#06b6d4');
 
-        
+
         const netWorth = data ? data.net_worth : null;
         setStatPill('netWorthVal', netWorth, currency, true);
 
@@ -149,7 +149,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             scoreEl.innerHTML = `<span style="color:${scoreColor}">${score} <span style="font-size:0.8rem; font-weight:500; color:var(--text-muted);">/ 100</span></span>`;
         }
 
-        
+
         const goalsList = document.getElementById('goalsProgressList');
         if (goalsList) {
             const goals = data?.goals || [];
@@ -159,7 +159,7 @@ async function loadDashboardData(selectedMonth = 'all') {
                     const current = parseFloat(g.current_amount);
                     const target = parseFloat(g.target_amount);
                     const pct = Math.min(100, Math.round((current / target) * 100));
-                    
+
                     const div = document.createElement('div');
                     div.className = 'dash-goal-item';
                     div.innerHTML = `
@@ -185,26 +185,26 @@ async function loadDashboardData(selectedMonth = 'all') {
             }
         }
 
-        
+
         const deadlinesList = document.getElementById('upcomingDeadlinesList');
         if (deadlinesList) {
             const goals = data?.goals || [];
             const now = new Date();
-            now.setHours(0,0,0,0);
-            
+            now.setHours(0, 0, 0, 0);
+
             const upcoming = goals.filter(g => {
                 const current = parseFloat(g.current_amount);
                 const target = parseFloat(g.target_amount);
                 return (current < target) && g.deadline;
             }).map(g => {
                 const dl = new Date(g.deadline);
-                dl.setHours(0,0,0,0);
+                dl.setHours(0, 0, 0, 0);
                 const diffTime = dl - now;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 return { ...g, diffDays };
             }).filter(g => g.diffDays <= 30)
-            .sort((a,b) => a.diffDays - b.diffDays);
-            
+                .sort((a, b) => a.diffDays - b.diffDays);
+
             if (upcoming.length > 0) {
                 deadlinesList.innerHTML = '';
                 upcoming.forEach(g => {
@@ -220,9 +220,9 @@ async function loadDashboardData(selectedMonth = 'all') {
                         badgeColor = g.diffDays <= 7 ? '#f59e0b' : '#3b82f6';
                         badgeText = `${g.diffDays}d left`;
                     }
-                    
+
                     const formattedDate = new Date(g.deadline).toLocaleDateString('default', { month: 'short', day: 'numeric' });
-                    
+
                     const div = document.createElement('div');
                     div.className = 'dash-deadline-item';
                     div.innerHTML = `
@@ -243,7 +243,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             }
         }
 
-        
+
         if (data && data.breakdown && data.breakdown.length > 0) {
             const donutEmpty = document.getElementById('donutEmpty');
             if (donutEmpty) donutEmpty.style.display = 'none';
@@ -251,16 +251,16 @@ async function loadDashboardData(selectedMonth = 'all') {
             const palette = [
                 'rgba(139, 92, 246, 0.85)', 'rgba(239, 68, 68, 0.85)',
                 'rgba(245, 158, 11, 0.85)', 'rgba(16, 185, 129, 0.85)',
-                'rgba(6, 182, 212, 0.85)',   'rgba(236, 72, 153, 0.85)',
-                'rgba(59, 130, 246, 0.85)',  'rgba(251, 191, 36, 0.85)'
+                'rgba(6, 182, 212, 0.85)', 'rgba(236, 72, 153, 0.85)',
+                'rgba(59, 130, 246, 0.85)', 'rgba(251, 191, 36, 0.85)'
             ];
-            donutChart.data.labels   = data.breakdown.map(b => b.category_name);
-            donutChart.data.datasets[0].data            = data.breakdown.map(b => parseFloat(b.spent));
-            donutChart.data.datasets[0].categoryIds     = data.breakdown.map(b => parseInt(b.category_id));
+            donutChart.data.labels = data.breakdown.map(b => b.category_name);
+            donutChart.data.datasets[0].data = data.breakdown.map(b => parseFloat(b.spent));
+            donutChart.data.datasets[0].categoryIds = data.breakdown.map(b => parseInt(b.category_id));
             donutChart.data.datasets[0].backgroundColor = data.breakdown.map((_, i) => palette[i % palette.length]);
-            donutChart.data.datasets[0].borderWidth     = 2;
-            donutChart.data.datasets[0].borderColor     = 'rgba(10,10,20,0.6)';
-            
+            donutChart.data.datasets[0].borderWidth = 2;
+            donutChart.data.datasets[0].borderColor = 'rgba(10,10,20,0.6)';
+
             if (donutChart.options.onClick === undefined) {
                 donutChart.options.onClick = (e, activeEls) => {
                     if (activeEls.length > 0) {
@@ -285,7 +285,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             donutChart.update();
         }
 
-        
+
         const now = new Date();
         const monthLabels = [];
         for (let i = 5; i >= 0; i--) {
@@ -307,7 +307,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             return new Date(y, mo - 1).toLocaleString('default', { month: 'short' }) + ` '${y.slice(2)}`;
         });
 
-        
+
         const selectFilter = document.getElementById('dashboardMonthFilter');
         if (selectFilter && selectFilter.options.length <= 1) {
             monthLabels.forEach((m, idx) => {
@@ -342,25 +342,25 @@ async function loadDashboardData(selectedMonth = 'all') {
             curMonthLabel.textContent = (selectedMonth === 'all') ? '(All-Time)' : `(${formatMonthYearLabel(selectedMonth)})`;
         }
 
-        
+
         const tbody = document.getElementById('summaryTableBody');
         if (tbody) {
             tbody.innerHTML = '';
             const reversedLabels = [...monthLabels].reverse();
             const reversedPretty = [...prettyLabels].reverse();
-            
+
             reversedLabels.forEach((m, idx) => {
                 const tr = document.createElement('tr');
                 tr.style.cursor = 'pointer';
                 tr.title = `Click to filter details for ${reversedPretty[idx]}`;
                 tr.onclick = () => { filterDashboardByMonth(m); };
-                
-                const isCurrentMonth = (idx === 0); 
+
+                const isCurrentMonth = (idx === 0);
                 const budgetStr = (isCurrentMonth && budget !== null) ? `${currency}${Number(budget).toFixed(2)}` : `<span style="color:var(--text-muted)">-</span>`;
-                
+
                 const expVal = expMap[m] || 0;
                 const savVal = savMap[m] || 0;
-                
+
                 tr.innerHTML = `
                     <td style="font-weight:600; color:var(--aurora-2)">${reversedPretty[idx]}</td>
                     <td>${budgetStr}</td>
@@ -371,7 +371,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             });
         }
 
-        
+
         const txList = document.getElementById('recentTransactionsList');
         if (txList) {
             const txs = data?.recent_transactions || [];
@@ -380,12 +380,12 @@ async function loadDashboardData(selectedMonth = 'all') {
                 txs.forEach(tx => {
                     const d = new Date(tx.activity_date);
                     const formattedDate = d.toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' });
-                    
+
                     let amtColor = '#ef4444';
                     let amtSign = '-';
                     let iconClass = 'fa-receipt';
                     let bgIcon = 'rgba(239, 68, 68, 0.15)';
-                    
+
                     if (tx.type === 'savings') {
                         if (tx.subtype === 'deposit') {
                             amtColor = '#10b981';
@@ -399,7 +399,7 @@ async function loadDashboardData(selectedMonth = 'all') {
                             bgIcon = 'rgba(245, 158, 11, 0.15)';
                         }
                     }
-                    
+
                     const div = document.createElement('div');
                     div.className = 'tx-item';
                     div.style.padding = '0.75rem 1rem';
@@ -503,8 +503,8 @@ async function openQuickLog() {
             Swal.fire('No Categories', 'Please create an expense category first in the Expense panel.', 'warning');
             return;
         }
-        
-        const catOptions = dashboardCategories.map(c => 
+
+        const catOptions = dashboardCategories.map(c =>
             `<option value="${c.id}">${escapeHtml(c.category_name)}</option>`
         ).join('');
 
@@ -558,7 +558,7 @@ async function openQuickLog() {
             return;
         }
 
-        const goalOptions = activeGoals.map(g => 
+        const goalOptions = activeGoals.map(g =>
             `<option value="${g.id}">${escapeHtml(g.goal_name)} (Target: ${CURRENCY}${g.target_amount})</option>`
         ).join('');
 
@@ -670,10 +670,6 @@ function formatMonthYearLabel(monthStr) {
 }
 
 async function navigateSecurely(module) {
-    const card = document.getElementById(module + 'ModuleLink');
-    if (card) {
-        card.classList.add('clicked');
-    }
     try {
         const res = await fetch(`../api/dashboard_api.php?action=generate_ott&module=${module}`);
         const result = await res.json().catch(() => null);
@@ -685,23 +681,18 @@ async function navigateSecurely(module) {
             } else if (module === 'sav') {
                 targetUrl = `../Sav/dashboard.php?ott=${encodeURIComponent(token)}`;
             }
-            
+
             if (currentSelectedMonth && currentSelectedMonth !== 'all') {
                 targetUrl += `&month=${encodeURIComponent(currentSelectedMonth)}`;
             }
-            
-            document.body.classList.add('page-exit');
-            setTimeout(() => {
-                window.location.href = targetUrl;
-            }, 300);
+
+            window.location.href = targetUrl;
         } else {
-            if (card) card.classList.remove('clicked');
             Swal.fire('Security Error', 'Could not generate a secure access token. Please log in again.', 'error').then(() => {
                 window.location.href = getLogoutUrl();
             });
         }
     } catch (e) {
-        if (card) card.classList.remove('clicked');
         console.error('Secure navigation failed:', e);
         Swal.fire('Connection Error', 'Failed to communicate with secure gateway.', 'error');
     }

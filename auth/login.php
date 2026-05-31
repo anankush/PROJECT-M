@@ -49,11 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 session_regenerate_id(true);
                 unset($_SESSION['admin_id']);
                 unset($_SESSION['is_admin']);
-                $_SESSION['user_id']     = $user['id'];
-                $_SESSION['role']        = 'user';
-                $_SESSION['user_name']   = explode('@', $user['email'])[0];
-                $_SESSION['user_email']  = $user['email'];
-                $_SESSION['currency']    = $user['currency'] ?? '₹';
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['role'] = 'user';
+                $_SESSION['user_name'] = explode('@', $user['email'])[0];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['currency'] = $user['currency'] ?? '₹';
                 $_SESSION['last_activity'] = time();
                 $_SESSION['logout_token'] = bin2hex(random_bytes(16));
                 log_security_event($pdo, $email, 'login_success', $user['id']);
@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -82,23 +83,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../assets/css/glassmorphism.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="../assets/css/auth.css?v=<?php echo time(); ?>">
 </head>
+
 <body>
     <a href="../index.php" class="back-home-btn">
-        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
         Back to Home
     </a>
     <div class="aurora-bg">
-        <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
     </div>
     <div class="noise-overlay"></div>
 
     <div class="auth-container">
         <div class="glass-card auth-card fadeInUp">
             <div class="auth-avatar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                 </svg>
@@ -145,11 +151,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'Content-Type': 'application/json',
                         'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
                     },
-                    body: JSON.stringify({email, password})
+                    body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    window.navigateTo(data.redirect);
+                    window.location.href = data.redirect;
                 } else {
                     showToast(data.message, 'error');
                 }
@@ -162,4 +168,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
 </body>
+
 </html>

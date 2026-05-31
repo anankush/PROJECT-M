@@ -32,7 +32,7 @@ const priorityClasses = {
 async function loadSavView(viewName, tabId) {
     currentView = viewName;
     document.querySelectorAll('.category-tab, .sidebar-bottom .btn').forEach(t => t.classList.remove('active'));
-    if(tabId) {
+    if (tabId) {
         const activeTab = document.getElementById(tabId);
         if (activeTab) activeTab.classList.add('active');
     }
@@ -41,7 +41,7 @@ async function loadSavView(viewName, tabId) {
         const res = await fetch(viewName);
         const html = await res.text();
         document.getElementById('main-content').innerHTML = html;
-        
+
         if (viewName === 'goals.php' || viewName === 'manage_goals.php') {
             fetchGoals();
         } else if (viewName === 'history.php') {
@@ -80,7 +80,7 @@ async function checkAuth() {
             document.getElementById('appUI').style.display = 'flex';
             loadSavView('goals.php', 'tab-goals');
         } else {
-            window.navigateTo('../../auth/login.php');
+            window.location.href = '../../auth/login.php';
         }
     } catch (e) {
         console.error(e);
@@ -96,7 +96,7 @@ async function fetchGoals() {
         const res = await fetch(`${API_URL}?action=get_goals`);
         const result = await res.json();
         if (document.getElementById('goalsLoader')) document.getElementById('goalsLoader').style.display = 'none';
-        
+
         if (result.status === 'success') {
             goals = result.data;
             if (currentView === 'goals.php') {
@@ -144,12 +144,12 @@ function renderGoals() {
         let pct = target > 0 ? (current / target) * 100 : 0;
         if (pct > 100) pct = 100;
         if (pct < 0) pct = 0;
-        
+
         let deadlineStr = g.deadline ? new Date(g.deadline).toLocaleDateString() : 'No Deadline';
-        
+
         const pClass = priorityClasses[g.priority || 'medium'] || 'priority-medium';
         const pLabel = (g.priority || 'medium').toUpperCase();
-        
+
         const iconClass = categoryIcons[g.category || 'others'] || 'fas fa-rocket';
         let badgeHtml = current >= target && target > 0 ? `<div class="goal-badge">ACHIEVED <i class="fas fa-check-circle"></i></div>` : '';
         let plannerHtml = '';
@@ -215,7 +215,7 @@ function renderGoals() {
 }
 
 function updateSummary(target, saved) {
-    if(document.getElementById('totalTargetDisplay')) {
+    if (document.getElementById('totalTargetDisplay')) {
         document.getElementById('totalTargetDisplay').innerHTML = `${userCurrency}${target.toFixed(2)}`;
         document.getElementById('totalSavedDisplay').innerHTML = `${userCurrency}${saved.toFixed(2)}`;
         let rem = target - saved;
@@ -285,7 +285,7 @@ async function addNewGoal() {
         didOpen: () => {
             const targetInput = document.getElementById('sg-target');
             const sliderInput = document.getElementById('sg-slider');
-            
+
             const updateSliderCalc = () => {
                 const targetVal = parseFloat(targetInput.value) || 0;
                 const sliderVal = parseFloat(sliderInput.value) || 0;
@@ -297,7 +297,7 @@ async function addNewGoal() {
                         const months = Math.ceil(targetVal / sliderVal);
                         const years = (months / 12).toFixed(1);
                         result.innerHTML = `It will take <strong>${months} month(s)</strong> (${years} year(s)) to reach your target.`;
-                        
+
                         const targetDate = new Date();
                         targetDate.setMonth(targetDate.getMonth() + months);
                         document.getElementById('sg-date').value = getLocalDateString(targetDate);
@@ -345,7 +345,7 @@ async function addNewGoal() {
 async function editGoal(id) {
     const goal = goals.find(g => g.id === id);
     if (!goal) return;
-    
+
     const { value: formValues } = await Swal.fire({
         title: 'Edit Savings Goal',
         html: `
@@ -406,7 +406,7 @@ async function editGoal(id) {
         didOpen: () => {
             const targetInput = document.getElementById('sg-target');
             const sliderInput = document.getElementById('sg-slider');
-            
+
             const updateSliderCalc = () => {
                 const targetVal = parseFloat(targetInput.value) || 0;
                 const sliderVal = parseFloat(sliderInput.value) || 0;
@@ -418,7 +418,7 @@ async function editGoal(id) {
                         const months = Math.ceil(targetVal / sliderVal);
                         const years = (months / 12).toFixed(1);
                         result.innerHTML = `It will take <strong>${months} month(s)</strong> (${years} year(s)) to reach your target.`;
-                        
+
                         const targetDate = new Date();
                         targetDate.setMonth(targetDate.getMonth() + months);
                         document.getElementById('sg-date').value = getLocalDateString(targetDate);
@@ -472,7 +472,7 @@ async function deleteGoal(id) {
         confirmButtonColor: '#ef4444',
         confirmButtonText: 'Yes, delete it!'
     });
-    
+
     if (confirm.isConfirmed) {
         const res = await fetch(`${API_URL}?action=delete_goal`, {
             method: 'POST',
@@ -492,7 +492,7 @@ async function deleteGoal(id) {
 async function openDepositModal(goalId, type) {
     let typeText = type === 'deposit' ? 'Deposit to Goal' : 'Withdraw from Goal';
     let btnColor = type === 'deposit' ? '#10b981' : '#ef4444';
-    
+
     const { value: formValues } = await Swal.fire({
         title: typeText,
         html: `
@@ -571,7 +571,7 @@ async function fetchHistory() {
     const tbody = document.getElementById('historyTableBody');
     const emptyState = document.getElementById('historyEmptyState');
     const filter = document.getElementById('goalFilter');
-    
+
     let goalId = filter ? filter.value : 'all';
 
     if (loader) loader.style.display = 'block';
@@ -582,15 +582,15 @@ async function fetchHistory() {
         const res = await fetch(`${API_URL}?action=get_history&goal_id=${goalId}`);
         const result = await res.json();
         if (loader) loader.style.display = 'none';
-        
+
         if (result.status === 'success') {
             if (tbody) tbody.innerHTML = '';
             if (result.data.length > 0) {
                 result.data.forEach(r => {
-                    let typeHtml = r.type === 'deposit' ? 
-                        `<span style="color:#10b981; font-weight:bold;"><i class="fas fa-arrow-down"></i> Deposit</span>` : 
+                    let typeHtml = r.type === 'deposit' ?
+                        `<span style="color:#10b981; font-weight:bold;"><i class="fas fa-arrow-down"></i> Deposit</span>` :
                         `<span style="color:#ef4444; font-weight:bold;"><i class="fas fa-arrow-up"></i> Withdraw</span>`;
-                    
+
                     let notesHtml = r.notes ? escapeHtml(r.notes) : `<span style="color:var(--text-muted); font-style:italic;">-</span>`;
 
                     let tr = document.createElement('tr');
@@ -598,7 +598,7 @@ async function fetchHistory() {
                         <td>${new Date(r.transaction_date).toLocaleDateString()}</td>
                         <td>${escapeHtml(r.goal_name)}</td>
                         <td>${typeHtml}</td>
-                        <td style="font-weight:bold; color: ${r.type==='deposit' ? '#10b981' : '#ef4444'}">${userCurrency}${parseFloat(r.amount).toFixed(2)}</td>
+                        <td style="font-weight:bold; color: ${r.type === 'deposit' ? '#10b981' : '#ef4444'}">${userCurrency}${parseFloat(r.amount).toFixed(2)}</td>
                         <td>${notesHtml}</td>
                     `;
                     if (tbody) tbody.appendChild(tr);
@@ -617,26 +617,26 @@ async function fetchHistory() {
 function escapeHtml(unsafe) {
     if (!unsafe) return '';
     return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 function showSIPProjection(goalId) {
     const goal = goals.find(g => g.id === goalId);
     if (!goal) return;
-    
+
     const current = parseFloat(goal.current_amount) || 0;
-    
+
     const calculateFutureValue = (principal, rate, years) => {
         return principal * Math.pow(1 + rate / 100, years);
     };
-    
+
     const rates = [6, 8, 12];
     const periods = [1, 3, 5, 10];
-    
+
     let tableHtml = `
         <table class="dashboard-table" style="width:100%; font-size:0.85rem; border-collapse: collapse; margin-top:15px; background: rgba(255,255,255,0.01); border-radius: 8px; overflow: hidden;">
             <thead>
@@ -650,7 +650,7 @@ function showSIPProjection(goalId) {
             </thead>
             <tbody>
     `;
-    
+
     rates.forEach(r => {
         tableHtml += `<tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
             <td style="padding:10px; font-weight:bold; color:var(--aurora-1); text-align:left;">${r}%</td>`;
@@ -660,9 +660,9 @@ function showSIPProjection(goalId) {
         });
         tableHtml += `</tr>`;
     });
-    
+
     tableHtml += `</tbody></table>`;
-    
+
     Swal.fire({
         title: 'Compound Growth Projection',
         html: `
@@ -776,7 +776,7 @@ async function showEmergencyFundSetupModal(avgMonthlyExpense) {
             const calculateTarget = () => {
                 const months = parseInt(monthsSlider.value) || 6;
                 const total = avgMonthlyExpense * months;
-                if (label) label.innerHTML = `Coverage Period: <strong>${months} Month(s)</strong> (${(months/12).toFixed(1)} Year(s))`;
+                if (label) label.innerHTML = `Coverage Period: <strong>${months} Month(s)</strong> (${(months / 12).toFixed(1)} Year(s))`;
                 if (targetInput) targetInput.value = `${userCurrency}${total.toFixed(2)}`;
             };
 

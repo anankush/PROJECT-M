@@ -42,14 +42,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($admin && password_verify($password, $admin['password'])) {
             session_regenerate_id(true);
             unset($_SESSION['user_id']);
-            $_SESSION['admin_id']      = $admin['id'];
-            $_SESSION['role']          = 'admin';
-            $_SESSION['is_admin']      = true;
-            $_SESSION['user_name']     = 'Administrator';
-            $_SESSION['user_email']    = $admin['email'];
-            $_SESSION['currency']      = $admin['currency'] ?? '₹';
+            $_SESSION['admin_id'] = $admin['id'];
+            $_SESSION['role'] = 'admin';
+            $_SESSION['is_admin'] = true;
+            $_SESSION['user_name'] = 'Administrator';
+            $_SESSION['user_email'] = $admin['email'];
+            $_SESSION['currency'] = $admin['currency'] ?? '₹';
             $_SESSION['last_activity'] = time();
-            $_SESSION['logout_token']  = bin2hex(random_bytes(16));
+            $_SESSION['logout_token'] = bin2hex(random_bytes(16));
             log_security_event($pdo, $email, 'admin_login_success', $admin['id']);
             echo json_encode(['status' => 'success', 'redirect' => '../admin/index.php']);
             exit;
@@ -66,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -75,28 +76,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../assets/css/glassmorphism.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="../assets/css/auth.css?v=<?php echo time(); ?>">
 </head>
+
 <body>
     <a href="../index.php" class="back-home-btn">
-        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
         Back to Home
     </a>
     <div class="aurora-bg">
-        <div class="orb orb-1"></div><div class="orb orb-3"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-3"></div>
     </div>
     <div class="noise-overlay"></div>
 
     <div class="auth-container">
         <div class="glass-card auth-card fadeInUp" style="border-color: rgba(239, 68, 68, 0.3);">
-            <div class="auth-avatar" style="background: linear-gradient(135deg, #ef4444, #991b1b); box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div class="auth-avatar"
+                style="background: linear-gradient(135deg, #ef4444, #991b1b); box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
             </div>
             <div class="auth-logo">
-                <h1 style="background: linear-gradient(to right, #ef4444, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Admin Portal</h1>
+                <h1
+                    style="background: linear-gradient(to right, #ef4444, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Admin Portal</h1>
                 <p>Authorized personnel only.</p>
             </div>
             <form id="loginForm" onsubmit="handleAdminLogin(event)">
@@ -106,7 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="password" required placeholder="Enter password" autocomplete="current-password">
+                    <input type="password" id="password" required placeholder="Enter password"
+                        autocomplete="current-password">
                 </div>
                 <div class="form-group">
                     <label>Admin Key</label>
@@ -141,11 +150,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'Content-Type': 'application/json',
                         'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
                     },
-                    body: JSON.stringify({email, password, admin_key})
+                    body: JSON.stringify({ email, password, admin_key })
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    window.navigateTo(data.redirect);
+                    window.location.href = data.redirect;
                 } else {
                     showToast(data.message, 'error');
                 }
@@ -158,4 +167,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
 </body>
+
 </html>

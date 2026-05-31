@@ -20,7 +20,7 @@ $email = $_SESSION['pending_reg']['email'];
 $stmt = $pdo->prepare("SELECT UNIX_TIMESTAMP(expires_at) - UNIX_TIMESTAMP(NOW()) as time_left FROM password_resets WHERE email = ? ORDER BY id DESC LIMIT 1");
 $stmt->execute([$email]);
 $otp_record = $stmt->fetch();
-$time_left = $otp_record ? max(0, (int)$otp_record['time_left']) : 0;
+$time_left = $otp_record ? max(0, (int) $otp_record['time_left']) : 0;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $stmt = $pdo->prepare("SELECT * FROM password_resets WHERE email = ? AND otp = ? AND expires_at > NOW() LIMIT 1");
         $stmt->execute([$email, $otp]);
-        
+
         if ($stmt->fetch()) {
             $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
 
@@ -50,20 +50,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hashedPass = $_SESSION['pending_reg']['password'];
             $insert = $pdo->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
             $insert->execute([$email, $hashedPass]);
-            
+
             $userId = $pdo->lastInsertId();
 
             session_regenerate_id(true);
             unset($_SESSION['admin_id']);
             unset($_SESSION['is_admin']);
-            $_SESSION['user_id']       = $userId;
-            $_SESSION['role']          = 'user';
-            $_SESSION['user_name']     = explode('@', $email)[0];
-            $_SESSION['user_email']    = $email;
-            $_SESSION['currency']      = '₹';
+            $_SESSION['user_id'] = $userId;
+            $_SESSION['role'] = 'user';
+            $_SESSION['user_name'] = explode('@', $email)[0];
+            $_SESSION['user_email'] = $email;
+            $_SESSION['currency'] = '₹';
             $_SESSION['last_activity'] = time();
-            $_SESSION['logout_token']  = bin2hex(random_bytes(16));
-            
+            $_SESSION['logout_token'] = bin2hex(random_bytes(16));
+
             unset($_SESSION['pending_reg']);
 
             echo json_encode(['status' => 'success', 'redirect' => '../dashboard/index.php']);
@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -87,9 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../assets/css/glassmorphism.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="../assets/css/auth.css?v=<?php echo time(); ?>">
 </head>
+
 <body>
     <div class="aurora-bg">
-        <div class="orb orb-2"></div><div class="orb orb-4"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-4"></div>
     </div>
     <div class="noise-overlay"></div>
 
@@ -98,12 +101,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="auth-logo">
                 <h1>Verify OTP</h1>
                 <p>Enter the 6-digit code sent to <?php echo htmlspecialchars($email); ?></p>
-                <p id="otp-timer" style="color: var(--danger); font-weight: 600; margin-top: 0.8rem; font-size: 0.95rem;"></p>
+                <p id="otp-timer"
+                    style="color: var(--danger); font-weight: 600; margin-top: 0.8rem; font-size: 0.95rem;"></p>
             </div>
             <form id="otpForm" onsubmit="handleVerify(event)">
                 <div class="form-group">
                     <label>6-Digit OTP</label>
-                    <input type="text" id="otp" required placeholder="123456" maxlength="6" pattern="\d{6}" inputmode="numeric" autocomplete="one-time-code">
+                    <input type="text" id="otp" required placeholder="123456" maxlength="6" pattern="\d{6}"
+                        inputmode="numeric" autocomplete="one-time-code">
                 </div>
                 <button type="submit" class="btn btn-primary auth-submit">Verify & Create Account</button>
             </form>
@@ -123,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         function startTimer() {
             const timerEl = document.getElementById('otp-timer');
             const btn = document.querySelector('.auth-submit');
-            
+
             if (timeLeft <= 0) {
                 timerEl.innerHTML = "OTP Expired. <a href='register.php' style='color: var(--aurora-1)'>Request again</a>";
                 btn.disabled = true;
@@ -161,12 +166,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'Content-Type': 'application/json',
                         'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
                     },
-                    body: JSON.stringify({otp})
+                    body: JSON.stringify({ otp })
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
                     showToast('Account created successfully!');
-                    setTimeout(() => window.navigateTo(data.redirect), 1000);
+                    setTimeout(() => window.location.href = data.redirect, 1000);
                 } else {
                     showToast(data.message, 'error');
                 }
@@ -179,4 +184,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
 </body>
+
 </html>

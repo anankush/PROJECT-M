@@ -2,7 +2,7 @@
 
 window.tempCurrency = userCurrency;
 
-window.selCurr = function(el, val) {
+window.selCurr = function (el, val) {
     document.querySelectorAll('.curr-card').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     window.tempCurrency = val;
@@ -10,7 +10,7 @@ window.selCurr = function(el, val) {
     if (lbl) lbl.textContent = val;
 };
 
-window.filterCurrencies = function(q) {
+window.filterCurrencies = function (q) {
     const grid = document.getElementById('currencyGrid');
     if (!grid) return;
     const matches = q.trim()
@@ -37,7 +37,7 @@ const allCurrencies = [
 async function openGlobalSettings() {
     window.tempCurrency = userCurrency;
 
-    
+
     const defaultList = allCurrencies.slice(0, 20).includes(userCurrency)
         ? allCurrencies.slice(0, 20)
         : [userCurrency, ...allCurrencies.slice(0, 20)];
@@ -160,7 +160,7 @@ async function forgotPassword(apiUrl, csrfToken, role, userEmail) {
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }
         });
         const result = await res.json();
-        
+
         if (result.status !== 'success') {
             Swal.fire('Error', result.message || 'Failed to send OTP.', 'error');
             return;
@@ -203,7 +203,7 @@ async function forgotPassword(apiUrl, csrfToken, role, userEmail) {
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
             body: JSON.stringify({ otp: otpValue })
         });
-        
+
         const verifyResult = await verifyRes.json();
         if (verifyResult.status !== 'success') {
             Swal.fire('Error', verifyResult.message || 'Invalid or expired OTP.', 'error');
@@ -295,7 +295,7 @@ async function deleteMyAccount() {
     const data = await res.json();
     if (data.status === 'success') {
         await Swal.fire('Deleted!', 'Your account has been deleted.', 'success');
-        window.navigateTo('../index.php');
+        window.location.href = '../index.php';
     } else Swal.fire('Error', data.message, 'error');
 }
 
@@ -355,7 +355,7 @@ async function handleImport(event) {
     if (!password) { document.getElementById('importFile').value = ''; return; }
 
     const reader = new FileReader();
-    reader.onload = async function(e) {
+    reader.onload = async function (e) {
         try {
             const decrypted = CryptoJS.AES.decrypt(e.target.result, password);
             const jsonText = decrypted.toString(CryptoJS.enc.Utf8);
@@ -370,7 +370,7 @@ async function handleImport(event) {
                 if (checkData.status === 'success') {
                     hasExistingData = checkData.has_data;
                 }
-            } catch (err) {}
+            } catch (err) { }
 
             let mode = 'replace';
             if (hasExistingData) {
