@@ -49,7 +49,7 @@ function session_start_secure() {
                     echo json_encode(['status' => 'error', 'message' => 'Security check failed. Session terminated.']);
                     exit;
                 }
-                header('Location: ' . BASE_URL . 'auth/login.php?error=security_breach');
+                header('Location: ' . BASE_URL . 'error.php?type=Security%20Alert&msg=Session%20terminated%20due%20to%20IP%20or%20browser%20fingerprint%20mismatch%20to%20prevent%20unauthorized%20hijacking.');
                 exit;
             }
         }

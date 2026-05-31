@@ -5,7 +5,8 @@ require_once 'includes/auth_check.php';
 require_once 'includes/functions.php';
 set_security_headers();
 
-$isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
+$isUserLoggedIn = isset($_SESSION['user_id']);
+$isAdminLoggedIn = isset($_SESSION['admin_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,8 +55,10 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <a href="#features" class="desktop-only">Features</a>
             <a href="#how-it-works" class="desktop-only">How It Works</a>
             <a href="about.php" class="desktop-only">About</a>
-            <?php if ($isLoggedIn): ?>
+            <?php if ($isUserLoggedIn): ?>
                 <a href="dashboard/index.php" class="btn btn-primary">Go to Dashboard</a>
+            <?php elseif ($isAdminLoggedIn): ?>
+                <a href="admin/index.php" class="btn btn-primary">Go to Admin Panel</a>
             <?php else: ?>
                 <a href="auth/login.php" class="btn btn-outline login-btn">Login</a>
                 <a href="auth/register.php" class="btn btn-primary">Get Started</a>
@@ -81,9 +84,13 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
                 unfold with beautiful real-time analytics.
             </p>
             <div class="hero-buttons">
-                <?php if ($isLoggedIn): ?>
+                <?php if ($isUserLoggedIn): ?>
                     <a href="dashboard/index.php" class="btn btn-primary">
                         <i class="fas fa-arrow-right"></i> Open Dashboard
+                    </a>
+                <?php elseif ($isAdminLoggedIn): ?>
+                    <a href="admin/index.php" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Open Admin Panel
                     </a>
                 <?php else: ?>
                     <a href="auth/register.php" class="btn btn-primary">
@@ -283,9 +290,13 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             <h2>Ready to Master<br>Your Finances?</h2>
             <p>Join Money Management today and start tracking every rupee with confidence.</p>
             <div class="hero-buttons">
-                <?php if ($isLoggedIn): ?>
+                <?php if ($isUserLoggedIn): ?>
                     <a href="dashboard/index.php" class="btn btn-primary">
                         <i class="fas fa-arrow-right"></i> Go to Dashboard
+                    </a>
+                <?php elseif ($isAdminLoggedIn): ?>
+                    <a href="admin/index.php" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Go to Admin Panel
                     </a>
                 <?php else: ?>
                     <a href="auth/register.php" class="btn btn-primary">

@@ -58,6 +58,12 @@ try {
     $pdo->exec("SET time_zone = '+05:30'");
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
+    if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
+     || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
+        echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
+    } else {
+        $base_path = defined('BASE_URL') ? BASE_URL : '/';
+        header('Location: ' . $base_path . 'error.php?type=Database%20Error&msg=Database%20connection%20failed.%20Please%20verify%20your%20credentials%20and%20server%20status.');
+    }
     exit;
 }
