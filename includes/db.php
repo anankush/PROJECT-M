@@ -18,13 +18,27 @@ if (file_exists(__DIR__ . '/env.php')) {
     require_once __DIR__ . '/env.php';
 }
 
-// Fallback defaults (safe for local XAMPP)
-if (!defined('DB_HOST'))          define('DB_HOST',          'localhost');
-if (!defined('DB_NAME'))          define('DB_NAME',          'money_management');
-if (!defined('DB_USER'))          define('DB_USER',          'root');
-if (!defined('DB_PASS'))          define('DB_PASS',          '');
+// Ensure all required database constants are defined
+$required_constants = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'];
+$missing = [];
+foreach ($required_constants as $constant) {
+    if (!defined($constant)) {
+        $missing[] = $constant;
+    }
+}
+
+if (!empty($missing)) {
+    http_response_code(500);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'System configuration error: Missing definitions for ' . implode(', ', $missing)
+    ]);
+    exit;
+}
+
+// Fallback session and base URL defaults if not specified in secrets or env
 if (!defined('SESSION_LIFETIME')) define('SESSION_LIFETIME', 900);
-if (!defined('BASE_URL'))         define('BASE_URL',         '/PROJECT M/');
+if (!defined('BASE_URL'))         define('BASE_URL',         '/');
 
 error_reporting(0);
 ini_set('display_errors', 0);
@@ -35,9 +49,9 @@ try {
         DB_USER,
         DB_PASS,
         [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false
+            PDO::ATTR_EMULATE_PREPARES => false
         ]
     );
     // Sync MySQL session timezone with Indian Standard Time (+05:30)
