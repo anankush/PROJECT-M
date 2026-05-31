@@ -55,6 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Animate elements with .fadeInUp class
     document.querySelectorAll('.fadeInUp').forEach(el => {
-        el.style.animation = 'fadeInUp 0.6s ease both';
+        el.style.animation = 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both';
     });
 });
