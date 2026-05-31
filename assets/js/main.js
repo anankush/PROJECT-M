@@ -58,3 +58,21 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.animation = 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both';
     });
 });
+
+// Smooth Page Leave Transition
+document.addEventListener('click', e => {
+    const link = e.target.closest('a');
+    if (!link) return;
+    
+    const href = link.getAttribute('href');
+    const target = link.getAttribute('target');
+    
+    if (!href || href.startsWith('#') || href.startsWith('javascript:') || target === '_blank') return;
+    if (href.startsWith('mailto:') || href.startsWith('tel:') || href.includes('download')) return;
+    
+    e.preventDefault();
+    document.body.classList.add('page-exit');
+    setTimeout(() => {
+        window.location.href = href;
+    }, 300);
+});

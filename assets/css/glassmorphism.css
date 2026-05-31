@@ -1126,3 +1126,43 @@ select option {
     color: #ffffff !important;
 }
 
+/* ═══ PREMIUM PAGE TRANSITIONS & MODULE CARD LOADING ═══ */
+body {
+    animation: globalPageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    opacity: 1;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.page-exit {
+    opacity: 0 !important;
+    transform: translateY(-15px) !important;
+}
+
+@keyframes globalPageEnter {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    100% {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.module-card.clicked {
+    transform: scale(0.96) translateY(2px) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    border-color: var(--aurora-1) !important;
+    opacity: 0.8;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.module-card.clicked i {
+    animation: pulseScale 0.6s ease infinite alternate !important;
+}
+
+@keyframes pulseScale {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.15); }
+}
+

@@ -670,6 +670,10 @@ function formatMonthYearLabel(monthStr) {
 }
 
 async function navigateSecurely(module) {
+    const card = document.getElementById(module + 'ModuleLink');
+    if (card) {
+        card.classList.add('clicked');
+    }
     try {
         const res = await fetch(`../api/dashboard_api.php?action=generate_ott&module=${module}`);
         const result = await res.json().catch(() => null);
@@ -686,13 +690,18 @@ async function navigateSecurely(module) {
                 targetUrl += `&month=${encodeURIComponent(currentSelectedMonth)}`;
             }
             
-            window.location.href = targetUrl;
+            document.body.classList.add('page-exit');
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 300);
         } else {
+            if (card) card.classList.remove('clicked');
             Swal.fire('Security Error', 'Could not generate a secure access token. Please log in again.', 'error').then(() => {
                 window.location.href = getLogoutUrl();
             });
         }
     } catch (e) {
+        if (card) card.classList.remove('clicked');
         console.error('Secure navigation failed:', e);
         Swal.fire('Connection Error', 'Failed to communicate with secure gateway.', 'error');
     }
