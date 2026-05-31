@@ -824,6 +824,11 @@ body:has(.sidebar) { overflow: hidden; }
     font-size: 0.88rem;
     outline: none;
 }
+.theme-input-select option,
+select option {
+    background: #120e2e;
+    color: #ffffff;
+}
 .theme-input-select:focus { border-color: var(--aurora-1); }
 
 @media (max-width: 768px) {
