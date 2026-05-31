@@ -700,56 +700,41 @@ tbody tr:hover {
 .stagger-3 { animation-delay: 0.15s; }
 .stagger-4 { animation-delay: 0.2s;  }
 
-/* ── NEW UI UPDATES ── */
-.icon-btn.edit:hover {
-    box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+/* ── Sidebar overlay: enable click-outside-to-close ── */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(3, 0, 20, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 9;
+    pointer-events: none;
 }
-.icon-btn.delete:hover {
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
-}
-
-.desktop-icon-text {
-    width: auto;
-    padding: 0 0.8rem;
-    gap: 0.5rem;
-}
-.desktop-icon-text .btn-text {
-    font-family: var(--font-body);
-    font-weight: 500;
+.sidebar-overlay.open {
+    display: block;
+    pointer-events: all;
 }
 
-@media (max-width: 768px) {
-    .desktop-icon-text {
-        width: 38px;
-        padding: 0;
-        gap: 0;
-    }
-    .desktop-icon-text .btn-text {
-        display: none;
-    }
-}
-
-/* Hide up/down arrows for number inputs */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
+/* ── Remove number input spinner arrows (Point 6 & 8) ── */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
-input[type="number"] {
+input[type=number] {
     -moz-appearance: textfield;
 }
 
-/* Custom Fields Size Fix */
-.swal-input {
-    height: 42px; /* Set a consistent height */
-    box-sizing: border-box;
+/* ── Custom field value input — consistent width ── */
+.custom-field-row .cf-val {
+    flex: 2 !important;
+    min-width: 0;
 }
+
+/* ── Add New Section mobile: always show plus icon ── */
 @media (max-width: 768px) {
-    .sidebar-overlay.open {
-        display: block;
-        z-index: 99;
-    }
     .add-category-btn i {
-        display: inline-block;
+        display: inline-block !important;
     }
 }

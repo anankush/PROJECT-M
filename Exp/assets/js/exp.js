@@ -97,7 +97,7 @@
 
         async function handleMonthChange() {
             await applyMonthFilter();
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= 768 && !currentCategoryId) {
                 const sidebar = document.getElementById('appSidebar');
                 if (sidebar && !sidebar.classList.contains('open')) {
                     toggleSidebar();
@@ -108,15 +108,12 @@
         function initDashboard() {
             const urlParams = new URLSearchParams(window.location.search);
             const monthParam = urlParams.get('month');
-            // Native type="month" handles month filtering without flatpickr
+            // Only pre-fill if coming from a month-specific link (e.g. dashboard chart click)
             const monthInput = document.getElementById('monthFilter');
-            if (monthInput && !monthInput.value) {
-                if (monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
-                    monthInput.value = monthParam;
-                } else {
-                    monthInput.value = ""; // No default date
-                }
+            if (monthInput && !monthInput.value && monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
+                monthInput.value = monthParam;
             }
+            // Otherwise leave blank — user selects month manually
             if (document.getElementById('budgetsTableBody')) {
                 renderBudgetsTable();
             }
@@ -144,10 +141,20 @@
                     <td>${escapeHtml(cat.category_name)}</td>
                     <td style="color:var(--aurora-2); font-weight:600;">${userCurrency}${budgetVal.toFixed(2)}</td>
                     <td style="text-align:right;">
-                        <button class="icon-btn desktop-icon-text" onclick="triggerRename(${cat.id}, '${escapeHtml(cat.category_name)}')" title="Rename"><i class="fas fa-pen"></i><span class="btn-text">Rename</span></button>
-                        <button class="icon-btn desktop-icon-text" onclick="triggerEditBudget(${cat.id}, '${escapeHtml(cat.category_name)}')" title="Budget"><i class="fas fa-wallet"></i><span class="btn-text">Budget</span></button>
-                        <button class="icon-btn desktop-icon-text" onclick="triggerNotes(${cat.id}, '${escapeHtml(cat.category_name)}')" title="Notes"><i class="fas fa-sticky-note"></i><span class="btn-text">Notes</span></button>
-                        <button class="icon-btn delete desktop-icon-text" onclick="deleteSpecificCategory(${cat.id}, '${escapeHtml(cat.category_name)}')" title="Delete"><i class="fas fa-trash-alt"></i><span class="btn-text">Delete</span></button>
+                        <div class="action-btns" style="justify-content:flex-end;">
+                            <button class="icon-btn edit" title="Rename" onclick="triggerRename(${cat.id}, '${escapeHtml(cat.category_name)}')">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="icon-btn edit" title="Set Budget" onclick="triggerEditBudget(${cat.id}, '${escapeHtml(cat.category_name)}')" style="background:rgba(6,182,212,0.1);color:#06b6d4;border-color:rgba(6,182,212,0.2);">
+                                <i class="fas fa-wallet"></i>
+                            </button>
+                            <button class="icon-btn edit" title="Notes" onclick="triggerNotes(${cat.id}, '${escapeHtml(cat.category_name)}')" style="background:rgba(245,158,11,0.1);color:#f59e0b;border-color:rgba(245,158,11,0.2);">
+                                <i class="far fa-sticky-note"></i>
+                            </button>
+                            <button class="icon-btn delete" title="Delete" onclick="deleteSpecificCategory(${cat.id}, '${escapeHtml(cat.category_name)}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -385,16 +392,11 @@
             try {
                 let monthVal = document.getElementById('monthFilter').value;
                 if (!monthVal) {
-                    loader.style.display = 'none';
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Select Month',
-                        text: 'Please select a month (date) first from the top bar to view records.'
-                    });
-                    if (window.innerWidth <= 768) {
-                        const sidebar = document.getElementById('appSidebar');
-                        if (sidebar && sidebar.classList.contains('open')) toggleSidebar();
-                    }
+                    const now = new Date();
+                    monthVal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                    document.getElementById('monthFilter').type = 'month';
+                    document.getElementById('monthFilter').value = monthVal;
+                    await applyMonthFilter();
                     return;
                 }
                 const res = await fetch(`${API_URL}?action=get_records&category_id=${id}&month=${monthVal}`);
@@ -504,10 +506,7 @@
                     }
                     rowHtml += `<td>${val}</td>`;
                 });
-                rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;">
-                            <button class="icon-btn edit" onclick='editRecord(${JSON.stringify(row).replace(/'/g, "&#39;")})' title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="icon-btn delete" onclick="deleteRecord(${row.id})" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                        </td>`;
+                rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;"><div class="action-btns" style="justify-content:flex-end;"><button class="icon-btn edit" onclick='editRecord(${JSON.stringify(row).replace(/'/g, "&#39;")})' title="Edit"><i class="fas fa-pen"></i></button><button class="icon-btn delete" onclick="deleteRecord(${row.id})" title="Delete"><i class="fas fa-trash"></i></button></div></td>`;
                 tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
@@ -550,32 +549,22 @@
                 document.getElementById('custom-fields-container').appendChild(div);
                 const selectEl = div.querySelector('.cf-type');
                 const valEl = div.querySelector('.cf-val');
-                function setupInput(t) {
-                    if (t === 'currency' || t === 'number') {
-                        valEl.type = 'number';
-                        valEl.step = '0.01';
-                        valEl.removeAttribute('onclick');
-                        valEl.removeAttribute('onkeydown');
-                    } else if (t === 'date') {
-                        valEl.type = 'date';
-                        valEl.removeAttribute('step');
-                        valEl.setAttribute('onclick', 'this.showPicker()');
-                        valEl.setAttribute('onkeydown', 'return false;');
+                let fpInstance = null;
+                function setupFlatpickr(t) {
+                    if (fpInstance) { fpInstance.destroy(); fpInstance = null; }
+                    valEl.type = t === 'currency' ? 'number' : (t === 'date' || t === 'time' ? 'text' : t);
+                    if (t === 'currency' || t === 'number') valEl.step = '0.01';
+                    else valEl.removeAttribute('step');
+                    
+                    if (t === 'date') {
+                        fpInstance = flatpickr(valEl, { altInput: true, altFormat: "d-m-Y", dateFormat: "Y-m-d", allowInput: false });
                     } else if (t === 'time') {
-                        valEl.type = 'time';
-                        valEl.removeAttribute('step');
-                        valEl.setAttribute('onclick', 'this.showPicker()');
-                        valEl.setAttribute('onkeydown', 'return false;');
-                    } else {
-                        valEl.type = 'text';
-                        valEl.removeAttribute('step');
-                        valEl.removeAttribute('onclick');
-                        valEl.removeAttribute('onkeydown');
+                        fpInstance = flatpickr(valEl, { enableTime: true, noCalendar: true, dateFormat: "h:i K", time_24hr: false, allowInput: false, defaultHour: 12 });
                     }
                 }
-                setupInput(type);
+                setupFlatpickr(type);
                 selectEl.addEventListener('change', (e) => {
-                    setupInput(e.target.value);
+                    setupFlatpickr(e.target.value);
                 });
             }
         }
@@ -584,9 +573,25 @@
             if (confirm('Are you sure you want to remove this custom field?')) document.getElementById(divId).remove();
         }
 
+        function convertTo12Hr(timeStr) {
+            if (!timeStr) return timeStr;
+            const parts = timeStr.split(':');
+            if (parts.length < 2) return timeStr;
+            let h = parseInt(parts[0]);
+            const m = parts[1];
+            const period = h >= 12 ? 'PM' : 'AM';
+            if (h > 12) h -= 12;
+            if (h === 0) h = 12;
+            return h + ':' + m + ' ' + period;
+        }
+
         function getFormHtml(data = null) {
             const date = data ? data.entry_date : new Date().toISOString().split('T')[0];
-            const time = data ? data.entry_time.substring(0, 5) : new Date().toLocaleTimeString('en-US', { hour12: false }).substring(0, 5);
+            // Native type="time" expects HH:MM (24-hour) format
+            const now = new Date();
+            const timeVal = data
+                ? (data.entry_time ? data.entry_time.slice(0, 5) : '')
+                : `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
             const amt = data ? data.amount : '';
             const desc = data ? data.description : '';
             customFieldsCount = 0;
@@ -602,10 +607,10 @@
                 }
             }, 50);
 
-        return `<div class="swal-form-container">
-                <div class="swal-field"><label class="swal-label">Date</label><input id="f-date" type="date" class="theme-input-select swal-input" value="${date}" onchange="checkDateMonth(this.value)" onclick="this.showPicker()" onkeydown="return false;"></div>
+            return `<div class="swal-form-container">
+                <div class="swal-field"><label class="swal-label">Date</label><input id="f-date" type="date" class="theme-input-select swal-input" value="${date}" onkeydown="return false" onchange="checkDateMonth(this.value)"></div>
                 <div id="date-hint" style="font-size:0.8rem; color:#f59e0b; display:none; text-align:left; margin-top:-10px;"></div>
-                <div class="swal-field"><label class="swal-label">Time</label><input id="f-time" type="time" class="theme-input-select swal-input" value="${time}" onclick="this.showPicker()" onkeydown="return false;"></div>
+                <div class="swal-field"><label class="swal-label">Time</label><input id="f-time" type="time" class="theme-input-select swal-input" value="${timeVal}" onkeydown="return false"></div>
                 <div class="swal-field"><label class="swal-label">Amount (${userCurrency})</label><input id="f-amt" type="number" step="0.01" class="theme-input-select swal-input" value="${amt}"></div>
                 <div class="swal-field"><label class="swal-label">Description</label><input id="f-desc" type="text" class="theme-input-select swal-input" value="${desc}" maxlength="255"></div>
                 <div style="text-align:left; margin-top:10px;"><label class="swal-label">Custom Fields (Unlimited)</label><div id="custom-fields-container"></div><button class="btn" style="background:rgba(255,255,255,0.1); color:white; font-size:0.8rem; padding:0.4rem 0.8rem; margin-top:5px;" onclick="addCustomFieldRow()">+ Add Field</button></div>
@@ -650,6 +655,18 @@
             }
         }
 
+        function convertTo24Hr(timeStr) {
+            if (!timeStr) return timeStr;
+            const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+            if (!match) return timeStr;
+            let h = parseInt(match[1]);
+            const m = match[2];
+            const period = match[3].toUpperCase();
+            if (period === 'PM' && h !== 12) h += 12;
+            if (period === 'AM' && h === 12) h = 0;
+            return String(h).padStart(2, '0') + ':' + m;
+        }
+
         async function addRecordForm() {
             if (!currentCategoryId) return;
             const { value: formValues } = await Swal.fire({
@@ -662,7 +679,7 @@
                 confirmButtonColor: '#8b5cf6',
                 preConfirm: () => {
                     const date = document.getElementById('f-date').value;
-                    const time = document.getElementById('f-time').value;
+                    const time = document.getElementById('f-time').value; // HH:MM from native time input
                     const amt = document.getElementById('f-amt').value || 0;
                     if (!date || !time) { Swal.showValidationMessage('Date and Time are required'); return false; }
                     return { category_id: currentCategoryId, entry_date: date, entry_time: time, amount: amt, description: document.getElementById('f-desc').value, custom_data: extractCustomFields() }
@@ -682,7 +699,7 @@
                 confirmButtonColor: '#8b5cf6',
                 preConfirm: () => {
                     const date = document.getElementById('f-date').value;
-                    const time = document.getElementById('f-time').value;
+                    const time = document.getElementById('f-time').value; // HH:MM from native time input
                     const amt = document.getElementById('f-amt').value || 0;
                     if (!date || !time) { Swal.showValidationMessage('Date and Time are required'); return false; }
                     return { id: row.id, entry_date: date, entry_time: time, amount: amt, description: document.getElementById('f-desc').value, custom_data: extractCustomFields() }
@@ -903,13 +920,56 @@
 
         async function openSettings() {
             window.tempCurrency = userCurrency;
-            let selectHtml = `<select id="currencySelect" class="theme-input-select swal-input" onchange="window.tempCurrency = this.value" style="width:100%; margin-top:5px; background:var(--glass-bg); color:var(--text-primary);">`;
-            allCurrencies.forEach(c => { selectHtml += `<option value="${c}" style="background:var(--bg-deep); color:var(--text-primary);" ${userCurrency===c?'selected':''}>${c}</option>`; });
-            selectHtml += `</select>`;
+
+            // Build currency search + card UI
+            function buildCurrencyGrid(filter = '') {
+                const filtered = filter.trim()
+                    ? allCurrencies.filter(c => c.toLowerCase().includes(filter.toLowerCase()))
+                    : allCurrencies.slice(0, 20); // default: first 20 popular
+                // Always show currently selected at top if not in list
+                const list = filtered.includes(userCurrency) ? filtered : [userCurrency, ...filtered];
+                return list.map(c =>
+                    `<div class="set-card curr-card ${window.tempCurrency === c ? 'active' : ''}" onclick="selCurr(this, '${c}')">${c}</div>`
+                ).join('');
+            }
+
+            const currencySection = `
+                <div style="text-align:left; margin-bottom:15px;">
+                    <label style="font-weight:600; color:var(--text-primary);">Regional Settings</label>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Select your preferred currency (160+ available)</div>
+                    <input type="text" id="currencySearch" placeholder="🔍 Search (e.g. USD, ₹, EUR)..." 
+                        class="theme-input-select" 
+                        style="width:100%; box-sizing:border-box; margin-bottom:10px; font-size:0.9rem;"
+                        oninput="
+                            const grid = document.getElementById('currencyGrid');
+                            const q = this.value;
+                            const res = q.trim()
+                                ? allCurrencies.filter(c => c.toLowerCase().includes(q.toLowerCase()))
+                                : allCurrencies.slice(0, 20);
+                            const list = res.includes(userCurrency) ? res : [userCurrency, ...res];
+                            grid.innerHTML = list.map(c =>
+                                '<div class=\\'set-card curr-card ' + (window.tempCurrency===c?'active':'') + '\\' onclick=\\'selCurr(this,\\\"'+c+'\\\")\\'>'+c+'</div>'
+                            ).join('');
+                        ">
+                    <div id="currencyGrid" class="set-grid">${buildCurrencyGrid()}</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px; text-align:right;">
+                        Selected: <strong id="selCurrLabel" style="color:var(--aurora-1);">${userCurrency}</strong>
+                    </div>
+                </div>`;
+
+            // Override selCurr to also update label
+            window.selCurr = function(el, val) {
+                document.querySelectorAll('.curr-card').forEach(c => c.classList.remove('active'));
+                el.classList.add('active');
+                window.tempCurrency = val;
+                const lbl = document.getElementById('selCurrLabel');
+                if (lbl) lbl.textContent = val;
+            };
 
             const { value: formValues } = await Swal.fire({
                 title: 'Global Settings', width: 600,
-                html: `<div style="text-align:left; margin-bottom:15px;"><label style="font-weight:600; color:var(--text-primary);">Regional Settings</label><div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Select your preferred currency</div>${selectHtml}</div><hr style="border-color:rgba(255,255,255,0.1); margin:20px 0;"><div style="text-align:left; margin-bottom:15px;"><label style="font-weight:600; color:var(--text-primary);">Security</label><div style="margin-top:10px;"><button type="button" class="btn btn-ghost" style="width:100%; justify-content:flex-start; background:rgba(139, 92, 246, 0.1); border:1px solid rgba(139, 92, 246, 0.2);" onclick="Swal.close(); setTimeout(changePasswordModal, 300);"><i class="fas fa-key" style="color:var(--aurora-1);"></i> Change Account Password</button></div></div><hr style="border-color:rgba(255,255,255,0.1); margin:20px 0;"><div style="text-align:left; margin-bottom:15px;"><label style="font-weight:600; color:var(--text-primary);">Backup & Restore</label><div style="display:flex; gap:10px; margin-top:10px;"><button type="button" class="btn btn-ghost" style="flex:1;" onclick="exportData()"><i class="fas fa-download"></i> Export Data</button><button type="button" class="btn btn-ghost" style="flex:1;" onclick="document.getElementById('importFile').click()"><i class="fas fa-upload"></i> Import Data</button></div></div><hr style="border-color:rgba(239,68,68,0.3); margin:20px 0;"><div style="text-align:left; margin-bottom:15px;"><label style="font-weight:600; color:var(--danger);">Danger Zone</label><div style="margin-top:10px;"><button type="button" class="btn btn-danger" style="width:100%; justify-content:flex-start;" onclick="deleteMyAccount()"><i class="fas fa-trash-alt"></i> Permanently Delete My Account</button></div></div>`,
+                html: currencySection +
+                    `<hr style="border-color:rgba(255,255,255,0.1); margin:20px 0;"><div style="text-align:left; margin-bottom:15px;"><label style="font-weight:600; color:var(--text-primary);">Security</label><div style="margin-top:10px;"><button type="button" class="btn btn-ghost" style="width:100%; justify-content:flex-start; background:rgba(139, 92, 246, 0.1); border:1px solid rgba(139, 92, 246, 0.2);" onclick="Swal.close(); setTimeout(changePasswordModal, 300);"><i class="fas fa-key" style="color:var(--aurora-1);"></i> Change Account Password</button></div></div><hr style="border-color:rgba(255,255,255,0.1); margin:20px 0;"><div style="text-align:left; margin-bottom:15px;"><label style="font-weight:600; color:var(--text-primary);">Backup &amp; Restore</label><div style="display:flex; gap:10px; margin-top:10px;"><button type="button" class="btn btn-ghost" style="flex:1;" onclick="exportData()"><i class="fas fa-download"></i> Export Data</button><button type="button" class="btn btn-ghost" style="flex:1;" onclick="document.getElementById('importFile').click()"><i class="fas fa-upload"></i> Import Data</button></div></div><hr style="border-color:rgba(239,68,68,0.3); margin:20px 0;"><div style="text-align:left; margin-bottom:15px;"><label style="font-weight:600; color:var(--danger);">Danger Zone</label><div style="margin-top:10px;"><button type="button" class="btn btn-danger" style="width:100%; justify-content:flex-start;" onclick="deleteMyAccount()"><i class="fas fa-trash-alt"></i> Permanently Delete My Account</button></div></div>`,
                 focusConfirm: false, showCancelButton: true, confirmButtonText: 'Save Changes', confirmButtonColor: '#8b5cf6',
                 preConfirm: () => { return { currency: window.tempCurrency, language: 'en' } }
             });

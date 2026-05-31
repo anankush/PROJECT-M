@@ -8,6 +8,8 @@
 </div>
 
 <div class="table-container fadeInUp stagger-2" style="display:block;">
+
+
     
     <table id="budgetsTable">
         <thead>
