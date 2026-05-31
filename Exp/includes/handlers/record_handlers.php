@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 function handle_get_records($pdo) {
     $uid = $_SESSION['user_id'] ?? null;
     $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;

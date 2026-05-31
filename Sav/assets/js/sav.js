@@ -1,4 +1,4 @@
-﻿let userCurrency = '₹';
+let userCurrency = '₹';
 let email = '';
 let currentView = 'goals.php';
 let goals = [];
