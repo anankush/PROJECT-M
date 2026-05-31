@@ -997,5 +997,14 @@ body:has(.sidebar) { overflow: hidden; }
     .swal2-popup .btn {
         width: 100% !important;
         max-width: 100% !important;
+        padding: 0.8rem 1rem !important;
+    }
+    .settings-btn-group {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    .settings-btn-group button {
+        width: 100% !important;
+        flex: none !important;
     }
 }
