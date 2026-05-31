@@ -468,7 +468,7 @@
                     const mName = new Date(y, m - 1).toLocaleString('default', { month: 'short' });
                     document.querySelector('#sectionBudgetBox .metric-label').innerHTML = `Section Budget (${mName} ${y}) <i class="fas fa-edit" style="cursor:pointer; font-size:0.8rem; margin-left:5px;" onclick="showBudgetManageInfo()" title="Edit Section Budget"></i>`;
                     document.querySelector('#sectionExpenditureBox .metric-label').innerText = `Section Expenditure (${mName} ${y})`;
-                    document.querySelector('#sectionBalanceBox .metric-label').innerText = `Section Remaining (${mName} ${y})`;
+                    document.querySelector('#sectionBalanceBox .metric-label').innerHTML = `Section Remaining (${mName} ${y}) <i class="fas fa-piggy-bank" id="sweepSavingsBtn" style="cursor:pointer; font-size:0.9rem; margin-left:8px; color:#10b981; display:none;" onclick="triggerSweepToSavings()" title="Sweep remaining to Savings Goal"></i>`;
 
                     let secExp = 0;
                     if (data.data.length > 0) {
@@ -494,7 +494,7 @@
                     const sweepBtn = document.getElementById('sweepSavingsBtn');
                     if (sweepBtn) {
                         if (secBal > 0) {
-                            sweepBtn.style.display = 'inline-flex';
+                            sweepBtn.style.display = 'inline-block';
                             sweepBtn.dataset.amount = secBal;
                             sweepBtn.dataset.section = name;
                         } else {
