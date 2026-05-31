@@ -47,7 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 session_regenerate_id(true);
-                $pdo->prepare("UPDATE users SET active_session_id = ? WHERE id = ?")->execute([session_id(), $user['id']]);
+                $new_sess_id = session_id();
+                $log_msg = sprintf("[%s] LOGIN: User %d | New Session: %s\n", date('Y-m-d H:i:s'), $user['id'], $new_sess_id);
+                file_put_contents(__DIR__ . '/../includes/session_debug.log', $log_msg, FILE_APPEND);
+                $pdo->prepare("UPDATE users SET active_session_id = ? WHERE id = ?")->execute([$new_sess_id, $user['id']]);
                 unset($_SESSION['admin_id']);
                 unset($_SESSION['is_admin']);
                 $_SESSION['user_id'] = $user['id'];
