@@ -495,6 +495,14 @@ select option {
         transform: translateX(-100%);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 100;
+        height: 100% !important;
+        max-height: 100vh !important;
+        max-height: 100dvh !important;
+        overflow-y: auto !important;
+    }
+
+    .sidebar-bottom {
+        padding-bottom: 80px !important;
     }
 
     .sidebar.open {
