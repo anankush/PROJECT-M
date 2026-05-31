@@ -21,7 +21,13 @@ $base = '../../';
     <link rel="stylesheet" href="../assets/css/sav.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        #appUI { display: flex; width: 100%; }
+        #appUI {
+            display: flex;
+            height: 100vh;
+            height: 100dvh;
+            width: 100%;
+            overflow: hidden;
+        }
         
         
         .sidebar-bottom {
