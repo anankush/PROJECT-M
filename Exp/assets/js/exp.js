@@ -640,9 +640,9 @@
             }, 50);
 
             return `<div class="swal-form-container">
-                <div class="swal-field"><label class="swal-label">Date</label><input id="f-date" type="date" class="theme-input-select swal-input" value="${date}" onkeydown="return false" onchange="checkDateMonth(this.value)"></div>
+                <div class="swal-field"><label class="swal-label">Date</label><input id="f-date" type="date" class="theme-input-select swal-input" value="${date}" onkeydown="return false" onchange="checkDateMonth(this.value)" onclick="this.showPicker()"></div>
                 <div id="date-hint" style="font-size:0.8rem; color:#f59e0b; display:none; text-align:left; margin-top:-10px;"></div>
-                <div class="swal-field"><label class="swal-label">Time</label><input id="f-time" type="time" class="theme-input-select swal-input" value="${timeVal}" onkeydown="return false"></div>
+                <div class="swal-field"><label class="swal-label">Time</label><input id="f-time" type="time" class="theme-input-select swal-input" value="${timeVal}" onkeydown="return false" onclick="this.showPicker()"></div>
                 <div class="swal-field"><label class="swal-label">Amount (${userCurrency})</label><input id="f-amt" type="number" step="0.01" class="theme-input-select swal-input" value="${amt}"></div>
                 <div class="swal-field"><label class="swal-label">Description</label><input id="f-desc" type="text" class="theme-input-select swal-input" value="${desc}" maxlength="255"></div>
                 <div style="text-align:left; margin-top:10px;"><label class="swal-label">Custom Fields (Unlimited)</label><div id="custom-fields-container"></div><button class="btn" style="background:rgba(255,255,255,0.1); color:white; font-size:0.8rem; padding:0.4rem 0.8rem; margin-top:5px;" onclick="addCustomFieldRow()">+ Add Field</button></div>
