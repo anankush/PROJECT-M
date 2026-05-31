@@ -15,6 +15,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Enforce session timeout on every API call
+check_session_timeout();
+
 $uid = $_SESSION['user_id'];
 $currency = $_SESSION['currency'] ?? '₹';
 
@@ -349,6 +352,7 @@ try {
     ]);
 
 } catch (Exception $e) {
+    error_log('[Dashboard API] ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Failed to fetch dashboard data: ' . $e->getMessage()]);
+    echo json_encode(['status' => 'error', 'message' => 'Failed to fetch dashboard data.']);
 }

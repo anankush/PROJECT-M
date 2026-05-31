@@ -12,6 +12,28 @@ function sanitize_input($value) {
     return htmlspecialchars(strip_tags(trim($value)), ENT_QUOTES, 'UTF-8');
 }
 
+/**
+ * Returns the real client IP address, InfinityFree/Cloudflare-aware.
+ *
+ * Priority order:
+ *   1. CF-Connecting-IP  — set by Cloudflare (trusted, cannot be spoofed by clients)
+ *   2. REMOTE_ADDR        — direct connection IP (fallback for local/non-CF environments)
+ *
+ * We deliberately ignore HTTP_X_FORWARDED_FOR because it can be forged by clients.
+ * On InfinityFree, Cloudflare sits in front, so CF-Connecting-IP is the reliable source.
+ */
+function get_real_ip() {
+    // Cloudflare sets this header and it cannot be forged by the end client
+    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        $ip = trim($_SERVER['HTTP_CF_CONNECTING_IP']);
+        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            return $ip;
+        }
+    }
+    // Fallback: direct connection (localhost dev or non-Cloudflare)
+    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+}
+
 function set_security_headers() {
     header('X-Frame-Options: DENY');
     header('X-Content-Type-Options: nosniff');
@@ -33,7 +55,7 @@ function set_security_headers() {
  * @param int    $window_minutes  Rolling time window in minutes
  */
 function check_rate_limit($pdo, $action, $max_attempts = 10, $window_minutes = 15) {
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    $ip = get_real_ip();
 
     try {
         // 1. Purge expired records to keep the table lean (no cron needed)
@@ -73,9 +95,7 @@ function check_rate_limit($pdo, $action, $max_attempts = 10, $window_minutes = 1
 }
 
 function log_security_event($pdo, $email, $action, $user_id = null) {
-    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-    $ip_parts = explode(',', $ip);
-    $ip = trim($ip_parts[0]);
+    $ip         = get_real_ip();
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
     try {
         $stmt = $pdo->prepare("INSERT INTO security_logs (user_id, email, action, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)");

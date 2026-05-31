@@ -14,14 +14,13 @@ window.fetch = async function () {
     return await originalFetch(resource, config);
 };
 
+// Helper: get the CSRF-protected logout URL injected by PHP via <meta name="logout-url">
+function getLogoutUrl() {
+    return document.querySelector('meta[name="logout-url"]')?.getAttribute('content') || '#';
+}
+
 // Strict Logout on Page Refresh (Reload)
 if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
     sessionStorage.clear();
-    let path = window.location.pathname;
-    if (path.includes('/user/') || path.includes('/Exp/') || path.includes('/Sav/')) {
-        window.location.href = '../../auth/logout.php';
-    } else {
-        window.location.href = '../auth/logout.php';
-    }
+    window.location.href = getLogoutUrl();
 }
-

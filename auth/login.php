@@ -57,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_email']  = $user['email'];
                 $_SESSION['currency']    = $user['currency'] ?? '₹';
                 $_SESSION['last_activity'] = time();
+                $_SESSION['logout_token'] = bin2hex(random_bytes(16));
                 log_security_event($pdo, $email, 'login_success', $user['id']);
                 echo json_encode(['status' => 'success', 'redirect' => '../dashboard/index.php']);
                 exit;

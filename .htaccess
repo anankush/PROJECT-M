@@ -11,8 +11,13 @@ DirectoryIndex index.php
     RewriteRule ^(includes|database|\.git)/ - [F,L]
 </IfModule>
 
-# Force HTTPS if available (uncomment on production)
-# <IfModule mod_rewrite.c>
-#     RewriteCond %{HTTPS} off
-#     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-# </IfModule>
+# Force HTTPS — works with InfinityFree/Cloudflare proxy
+# Checks both the standard HTTPS flag and the Cloudflare forwarded-proto header
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Standard HTTPS check
+    RewriteCond %{HTTPS} off
+    # AND not coming through Cloudflare/proxy as HTTPS
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>

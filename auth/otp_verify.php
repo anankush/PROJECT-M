@@ -67,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_email']    = $email;
             $_SESSION['currency']      = '₹';
             $_SESSION['last_activity'] = time();
+            $_SESSION['logout_token']  = bin2hex(random_bytes(16));
             
             unset($_SESSION['pending_reg']);
 

@@ -6,9 +6,26 @@ class Model {
     protected $table;
     protected $userId;
 
+    // Whitelist of tables this Model is permitted to operate on.
+    // Any attempt to instantiate Model with a table not in this list
+    // will throw an exception — preventing SQL injection via dynamic table names.
+    private static $allowed_tables = [
+        'expenses',
+        'user_categories',
+        'user_notes',
+        'savings_goals',
+        'savings_transactions',
+        'category_monthly_budgets',
+        'rate_limits',
+        'security_logs'
+    ];
+
     public function __construct($pdo, $table, $userId) {
-        $this->pdo = $pdo;
-        $this->table = $table;
+        if (!in_array($table, self::$allowed_tables, true)) {
+            throw new \InvalidArgumentException("Model: disallowed table name '{$table}'.");
+        }
+        $this->pdo    = $pdo;
+        $this->table  = $table;
         $this->userId = $userId;
     }
 

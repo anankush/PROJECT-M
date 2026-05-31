@@ -24,6 +24,7 @@ set_security_headers();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Money Management</title>
     <?php echo get_csrf_meta_tag(); ?>
+    <?php echo get_logout_meta_tag('../'); ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/glassmorphism.css?v=<?php echo time(); ?>">
@@ -63,7 +64,7 @@ set_security_headers();
                 <button class="btn btn-ghost" id="openSettingsBtn" onclick="openGlobalSettings()">
                     <i class="fas fa-cog"></i> <span class="hide-mobile">Settings</span>
                 </button>
-                <a href="../auth/logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <a href="<?php echo get_logout_url('../'); ?>" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </header>
 

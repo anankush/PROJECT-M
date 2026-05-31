@@ -24,6 +24,9 @@ if (!isset($_SESSION['user_id']) && !isset($_SESSION['admin_id'])) {
     exit;
 }
 
+// Enforce session timeout on every API call
+check_session_timeout();
+
 switch ($action) {
     case 'check_session':
         handle_check_session($pdo);

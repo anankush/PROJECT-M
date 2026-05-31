@@ -79,8 +79,8 @@ function validate_ott($module, $token) {
         return false;
     }
     $stored = $_SESSION[$module . '_ott'];
-    // Valid for 5 seconds
-    if ($stored['token'] === $token && (time() - $stored['created_at'] <= 5)) {
+    // Valid for 15 seconds (extended from 5s to handle InfinityFree/slow-network latency)
+    if ($stored['token'] === $token && (time() - $stored['created_at'] <= 15)) {
         unset($_SESSION[$module . '_ott']); // Single-use consumption
         return true;
     }
@@ -128,4 +128,16 @@ function require_admin() {
         exit;
     }
     check_session_timeout();
+}
+
+/**
+ * Returns a CSRF-protected logout URL with the session logout_token.
+ * Usage in PHP pages: href="<?php echo get_logout_url('../'); ?>"
+ *
+ * @param string $base_path  Relative path to the auth/ directory (e.g. '../', '../../')
+ * @return string  Full logout URL with token query param
+ */
+function get_logout_url($base_path = '../') {
+    $token = $_SESSION['logout_token'] ?? '';
+    return $base_path . 'auth/logout.php?token=' . urlencode($token);
 }

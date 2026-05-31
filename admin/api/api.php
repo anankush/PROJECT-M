@@ -70,7 +70,8 @@ switch ($action) {
                 ]
             ]);
         } catch (Exception $e) {
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            error_log('[Admin API:get_system_stats] ' . $e->getMessage());
+            echo json_encode(['status' => 'error', 'message' => 'Failed to fetch system stats.']);
         }
         break;
 
@@ -93,7 +94,8 @@ switch ($action) {
             $users = $stmt->fetchAll();
             echo json_encode(['status' => 'success', 'data' => $users]);
         } catch (Exception $e) {
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            error_log('[Admin API:get_users] ' . $e->getMessage());
+            echo json_encode(['status' => 'error', 'message' => 'Failed to fetch users.']);
         }
         break;
 
@@ -131,7 +133,8 @@ switch ($action) {
 
             echo json_encode(['status' => 'success', 'message' => 'User status updated successfully']);
         } catch (Exception $e) {
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            error_log('[Admin API:toggle_user_status] ' . $e->getMessage());
+            echo json_encode(['status' => 'error', 'message' => 'Failed to update user status.']);
         }
         break;
 
@@ -144,7 +147,8 @@ switch ($action) {
             $logs = $stmt->fetchAll();
             echo json_encode(['status' => 'success', 'data' => $logs]);
         } catch (Exception $e) {
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            error_log('[Admin API:get_security_logs] ' . $e->getMessage());
+            echo json_encode(['status' => 'error', 'message' => 'Failed to fetch security logs.']);
         }
         break;
 
@@ -188,7 +192,8 @@ switch ($action) {
                 ]
             ]);
         } catch (Exception $e) {
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            error_log('[Admin API:get_analytics] ' . $e->getMessage());
+            echo json_encode(['status' => 'error', 'message' => 'Failed to fetch analytics data.']);
         }
         break;
 

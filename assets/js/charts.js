@@ -689,7 +689,7 @@ async function navigateSecurely(module) {
             window.location.href = targetUrl;
         } else {
             Swal.fire('Security Error', 'Could not generate a secure access token. Please log in again.', 'error').then(() => {
-                window.location.href = '../auth/logout.php';
+                window.location.href = getLogoutUrl();
             });
         }
     } catch (e) {

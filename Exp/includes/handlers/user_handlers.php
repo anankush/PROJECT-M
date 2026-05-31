@@ -56,15 +56,14 @@ function handle_change_password($pdo) {
         $stmt->execute([$_SESSION['user_id']]);
         $user = $stmt->fetch();
 
-        // Check if legacy plaintext or hashed
-        $isValid = false;
-        if ($user) {
-            if ($old_password === $user['password']) {
-                $isValid = true;
-            } else {
-                $isValid = password_verify($old_password, $user['password']);
-            }
+        if (!$user) {
+            echo json_encode(['status' => 'error', 'message' => 'Incorrect current password']);
+            return;
         }
+
+        // Use only password_verify() — timing-safe and bcrypt-aware.
+        // Legacy plaintext fallback removed (security hardening).
+        $isValid = password_verify($old_password, $user['password']);
 
         if (!$isValid) {
             echo json_encode(['status' => 'error', 'message' => 'Incorrect current password']);
@@ -106,14 +105,14 @@ function handle_delete_user_account($pdo) {
         $stmt->execute([$uid]);
         $user = $stmt->fetch();
 
-        $isValid = false;
-        if ($user) {
-            if ($password === $user['password']) {
-                $isValid = true;
-            } else {
-                $isValid = password_verify($password, $user['password']);
-            }
+        if (!$user) {
+            echo json_encode(['status' => 'error', 'message' => 'Incorrect password. Account deletion aborted.']);
+            return;
         }
+
+        // Use only password_verify() — timing-safe and bcrypt-aware.
+        // Legacy plaintext fallback removed (security hardening).
+        $isValid = password_verify($password, $user['password']);
 
         if (!$isValid) {
             echo json_encode(['status' => 'error', 'message' => 'Incorrect password. Account deletion aborted.']);

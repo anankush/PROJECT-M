@@ -31,32 +31,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
-        if (!$stmt->fetch()) {
-            echo json_encode(['status' => 'error', 'message' => 'Email not found']);
-            exit;
+        $user = $stmt->fetch();
+
+        // SECURITY: Do not reveal whether the email exists or not (prevents User Enumeration).
+        // If email is NOT registered, we silently do nothing and show the same success message.
+        if ($user) {
+            // Generate OTP
+            $otp = sprintf("%06d", random_int(100000, 999999));
+            // Cleanup expired OTPs globally
+            $pdo->exec("DELETE FROM password_resets WHERE expires_at <= NOW()");
+
+            // Delete any existing OTP for this email
+            $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
+
+            // Insert new OTP
+            $stmt = $pdo->prepare("INSERT INTO password_resets (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 2 MINUTE))");
+            $stmt->execute([$email, $otp]);
+
+            // Store email in session for the next step
+            $_SESSION['reset_email'] = $email;
+            log_security_event($pdo, $email, 'password_reset_request');
+
+            // Send Email
+            $body = "Your Password Reset OTP for Money Management is: $otp\n\nIt will expire in 2 minutes.";
+            send_email($email, "Password Reset OTP", $body);
+
+            // Redirect to OTP verification page
+            echo json_encode(['status' => 'success', 'redirect' => 'reset_password.php']);
+        } else {
+            // Email not registered — return same generic success to prevent enumeration.
+            // No session set, no OTP sent, no redirect (user stays on this page).
+            echo json_encode([
+                'status'  => 'success',
+                'message' => 'If this email is registered, an OTP has been sent to it.'
+            ]);
         }
-
-        // Generate OTP
-        $otp = sprintf("%06d", random_int(100000, 999999));
-        // Cleanup expired OTPs globally
-        $pdo->exec("DELETE FROM password_resets WHERE expires_at <= NOW()");
-
-        // Delete any existing OTP for this email
-        $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
-
-        // Insert new OTP
-        $stmt = $pdo->prepare("INSERT INTO password_resets (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 2 MINUTE))");
-        $stmt->execute([$email, $otp]);
-
-        // Store email in session for the next step
-        $_SESSION['reset_email'] = $email;
-        log_security_event($pdo, $email, 'password_reset_request');
-
-        // Send Email
-        $body = "Your Password Reset OTP for Money Management is: $otp\n\nIt will expire in 2 minutes.";
-        send_email($email, "Password Reset OTP", $body);
-
-        echo json_encode(['status' => 'success', 'redirect' => 'reset_password.php']);
     } catch (Exception $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to process request. Please try again.']);
     }

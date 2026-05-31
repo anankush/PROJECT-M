@@ -42,6 +42,7 @@ $base = '../../';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Savings Management | Money Management</title>
     <?php echo get_csrf_meta_tag(); ?>
+    <?php echo get_logout_meta_tag('../../'); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="<?php echo $base; ?>assets/css/glassmorphism.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="../assets/css/sav.css?v=<?php echo time(); ?>">
@@ -99,7 +100,7 @@ $base = '../../';
             <div class="sidebar-bottom">
                 <button class="btn btn-ghost" id="tab-manage-goals" onclick="loadSavView('manage_goals.php', 'tab-manage-goals')"><i class="fas fa-tasks"></i> Manage Goals</button>
                 <a href="../../dashboard/index.php" class="btn btn-ghost"><i class="fas fa-home"></i> Main Dashboard</a>
-                <a href="../../auth/logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <a href="<?php echo get_logout_url('../../'); ?>" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 <div class="copyright" style="margin-top:1rem; font-size:0.8rem; color:var(--text-muted); text-align:center;">
                     &copy; <?php echo date("Y"); ?> Money Management
                 </div>

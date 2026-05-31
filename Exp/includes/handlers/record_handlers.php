@@ -195,7 +195,14 @@ function handle_import_data($pdo) {
         return;
     }
 
-    $input = json_decode(file_get_contents('php://input'), true);
+    // Security: limit import payload to 2MB to prevent server memory overload
+    $raw = file_get_contents('php://input');
+    if (strlen($raw) > 2 * 1024 * 1024) {
+        echo json_encode(['status' => 'error', 'message' => 'Import file is too large. Maximum allowed size is 2MB.']);
+        return;
+    }
+
+    $input = json_decode($raw, true);
     if (empty($input['categories']) || !is_array($input['categories'])) {
         echo json_encode(['status' => 'error', 'message' => 'Invalid import data format']);
         return;
