@@ -141,7 +141,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    window.location.href = data.redirect;
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        // Email not registered — server intentionally omits redirect to prevent enumeration
+                        showToast(data.message || 'If this email is registered, an OTP has been sent.', 'success');
+                    }
                 } else {
                     showToast(data.message, 'error');
                 }

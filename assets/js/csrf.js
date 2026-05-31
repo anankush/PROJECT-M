@@ -54,8 +54,11 @@ function getLogoutUrl() {
     return document.querySelector('meta[name="logout-url"]')?.getAttribute('content') || '#';
 }
 
-// Strict Logout on Page Refresh (Reload)
+// Strict Logout on Page Refresh (Reload) — only if user is actually logged in
 if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
-    sessionStorage.clear();
-    window.location.href = getLogoutUrl();
+    const logoutUrl = getLogoutUrl();
+    if (logoutUrl && logoutUrl !== '#') {
+        sessionStorage.clear();
+        window.location.href = logoutUrl;
+    }
 }

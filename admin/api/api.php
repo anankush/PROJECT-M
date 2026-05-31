@@ -11,6 +11,7 @@ $action = $_GET['action'] ?? '';
 
 // Check session role first
 if ($action === 'check_session') {
+    check_rate_limit($pdo, 'admin_session_check', 60, 1);
     if (isset($_SESSION['admin_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
         echo json_encode([
             'status' => 'success',

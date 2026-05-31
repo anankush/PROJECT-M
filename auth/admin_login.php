@@ -119,7 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="btn btn-primary auth-submit">Login as Admin</button>
             </form>
             <div class="auth-links">
-                <a href="admin_register.php">Need an admin account? Register</a>
                 <a href="login.php">Back to User Login</a>
             </div>
         </div>

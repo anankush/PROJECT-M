@@ -382,6 +382,7 @@ $base = '../';
         </main>
     </div>
 
+    <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
     <script>
         const API_URL = 'api/api.php';
         const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

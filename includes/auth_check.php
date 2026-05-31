@@ -93,6 +93,9 @@ function check_session_timeout() {
         return;
     }
     if (time() - $_SESSION['last_activity'] > SESSION_LIFETIME) {
+        // Capture role BEFORE destroying session
+        $role = $_SESSION['role'] ?? 'user';
+
         session_unset();
         session_destroy();
         // Check if this is an API request
@@ -102,7 +105,9 @@ function check_session_timeout() {
             echo json_encode(['status' => 'error', 'message' => 'Session expired']);
             exit;
         }
-        header('Location: ' . BASE_URL . 'auth/login.php?error=session_expired');
+        // Redirect to the correct login page based on who timed out
+        $login_page = ($role === 'admin') ? 'auth/admin_login.php' : 'auth/login.php';
+        header('Location: ' . BASE_URL . $login_page . '?error=session_expired');
         exit;
     }
     $_SESSION['last_activity'] = time();

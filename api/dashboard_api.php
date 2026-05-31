@@ -108,7 +108,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             exit;
         }
     } catch (PDOException $e) {
-        echo json_encode(['status' => 'error', 'message' => 'Database operation failed: ' . $e->getMessage()]);
+        // Log real error server-side, never expose to client
+        error_log('[Dashboard API:quick_entry] ' . $e->getMessage());
+
+        // Risky DB error → terminate session immediately and redirect to error page
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        }
+        if (session_status() === PHP_SESSION_ACTIVE) session_destroy();
+
+        $base_url = defined('BASE_URL') ? BASE_URL : '/';
+        http_response_code(500);
+        echo json_encode([
+            'status'   => 'error',
+            'message'  => 'A critical error occurred. Session terminated.',
+            'redirect' => $base_url . 'error.php?code=db'
+        ]);
         exit;
     }
 }
