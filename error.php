@@ -33,8 +33,75 @@ if (ini_get('session.use_cookies')) {
 }
 session_destroy();
 
-$error_msg = isset($_GET['msg']) ? htmlspecialchars($_GET['msg']) : 'An unexpected system error occurred.';
-$error_type = isset($_GET['type']) ? htmlspecialchars($_GET['type']) : 'System Error';
+$code = isset($_GET['code']) ? trim($_GET['code']) : '';
+
+$errors = [
+    'db' => [
+        'type' => 'Service Interruption',
+        'msg' => 'The system is experiencing a temporary interruption. We are working to restore service as quickly as possible. Please try again later.'
+    ],
+    '500' => [
+        'type' => 'Service Interruption',
+        'msg' => 'The system is experiencing a temporary interruption. We are working to restore service as quickly as possible. Please try again later.'
+    ],
+    'security' => [
+        'type' => 'Security Alert',
+        'msg' => 'Session terminated due to IP or browser fingerprint mismatch to prevent unauthorized hijacking.'
+    ],
+    '403' => [
+        'type' => 'Security Alert',
+        'msg' => 'Session terminated due to IP or browser fingerprint mismatch to prevent unauthorized hijacking.'
+    ],
+    'unauthorized' => [
+        'type' => 'Unauthorized Access',
+        'msg' => 'You are not authorized to access this page. Please log in first.'
+    ],
+    '401' => [
+        'type' => 'Unauthorized Access',
+        'msg' => 'You are not authorized to access this page. Please log in first.'
+    ],
+    'session_expired' => [
+        'type' => 'Session Expired',
+        'msg' => 'Your session has expired due to inactivity. Please log in again.'
+    ],
+    'url_tamper' => [
+        'type' => 'Security Violation',
+        'msg' => 'URL tampering or invalid request detected. Access denied.'
+    ],
+    'csrf' => [
+        'type' => 'Verification Failed',
+        'msg' => 'Request validation failed due to a security token mismatch or session timeout. Please try again.'
+    ],
+    'idor' => [
+        'type' => 'Access Denied',
+        'msg' => 'You do not have permission to view or modify this resource.'
+    ],
+    'invalid_id' => [
+        'type' => 'Security Violation',
+        'msg' => 'Invalid resource signature or malformed identifier detected.'
+    ],
+    'admin_required' => [
+        'type' => 'Access Denied',
+        'msg' => 'Administrative privileges are required to access this resource.'
+    ],
+    'rate_limit' => [
+        'type' => 'Too Many Requests',
+        'msg' => 'We have detected unusual activity from your connection. Please wait a moment before trying again.'
+    ],
+    'bad_request' => [
+        'type' => 'Invalid Request',
+        'msg' => 'The request was malformed or could not be processed due to missing parameters.'
+    ]
+];
+
+
+if (array_key_exists($code, $errors)) {
+    $error_type = $errors[$code]['type'];
+    $error_msg = $errors[$code]['msg'];
+} else {
+    $error_type = 'System Error';
+    $error_msg = 'An unexpected system error occurred.';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

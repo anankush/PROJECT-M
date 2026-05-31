@@ -104,3 +104,102 @@ function log_security_event($pdo, $email, $action, $user_id = null) {
         error_log('Security log failed: ' . $e->getMessage());
     }
 }
+
+function verify_ownership($pdo, $table, $id, $user_id, $action) {
+    if (!$id) return false;
+    
+    // Check if the table is allowed
+    $allowed_tables = ['expenses', 'user_categories', 'user_notes', 'savings_goals', 'savings_transactions', 'category_monthly_budgets'];
+    if (!in_array($table, $allowed_tables, true)) {
+        return false;
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT user_id FROM `{$table}` WHERE id = ? LIMIT 1");
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+        
+        if (!$row) {
+            // Not found at all (could be deleted or bad input, not necessarily IDOR)
+            return false;
+        }
+        
+        if (intval($row['user_id']) !== intval($user_id)) {
+            // IDOR ATTEMPT DETECTED!
+            log_security_event($pdo, $_SESSION['user_email'] ?? 'unknown', "idor_tampering_{$table}_{$action}", $user_id);
+            
+            // Terminate session securely
+            $_SESSION = [];
+            if (ini_get('session.use_cookies')) {
+                $params = session_get_cookie_params();
+                setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+            }
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_destroy();
+            }
+            
+            // Check if AJAX request
+            $is_json = (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false 
+                     || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false 
+                     || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'));
+            
+            $base_url = defined('BASE_URL') ? BASE_URL : '/';
+            if ($is_json) {
+                http_response_code(403);
+                echo json_encode([
+                    'status' => 'error', 
+                    'message' => 'Security Violation: Tampering detected. Session terminated.',
+                    'redirect' => $base_url . 'error.php?code=idor'
+                ]);
+                exit;
+            } else {
+                header('Location: ' . $base_url . 'error.php?code=idor');
+                exit;
+            }
+        }
+        return true;
+    } catch (PDOException $e) {
+        error_log("verify_ownership error: " . $e->getMessage());
+        return false;
+    }
+}
+
+function verify_decoded_id($pdo, $token, $action) {
+    if (!function_exists('decode_id')) {
+        require_once __DIR__ . '/id_obfuscate.php';
+    }
+    $uid = decode_id($token);
+    if ($uid === null) {
+        log_security_event($pdo, $_SESSION['user_email'] ?? 'unknown', "signature_tampering_{$action}");
+        
+        // Terminate session securely
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        }
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+
+        $is_json = (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false 
+                 || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false 
+                 || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'));
+
+        $base_url = defined('BASE_URL') ? BASE_URL : '/';
+        if ($is_json) {
+            http_response_code(403);
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Security Violation: Signature verification failed.',
+                'redirect' => $base_url . 'error.php?code=invalid_id'
+            ]);
+            exit;
+        } else {
+            header('Location: ' . $base_url . 'error.php?code=invalid_id');
+            exit;
+        }
+    }
+    return $uid;
+}
+

@@ -49,7 +49,7 @@ function session_start_secure() {
                     echo json_encode(['status' => 'error', 'message' => 'Security check failed. Session terminated.']);
                     exit;
                 }
-                header('Location: ' . BASE_URL . 'error.php?type=Security%20Alert&msg=Session%20terminated%20due%20to%20IP%20or%20browser%20fingerprint%20mismatch%20to%20prevent%20unauthorized%20hijacking.');
+                header('Location: ' . BASE_URL . 'error.php?code=security');
                 exit;
             }
         }
@@ -123,7 +123,48 @@ function require_login() {
 }
 
 function require_admin() {
+    $is_json = (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false 
+             || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false 
+             || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'));
+
     if (empty($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+        if (!empty($_SESSION['user_id'])) {
+            global $pdo;
+            log_security_event($pdo, $_SESSION['user_email'] ?? 'unknown', 'admin_privilege_escalation_attempt', $_SESSION['user_id']);
+            
+            // Terminate session securely
+            $_SESSION = [];
+            if (ini_get('session.use_cookies')) {
+                $params = session_get_cookie_params();
+                setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+            }
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_destroy();
+            }
+
+            if ($is_json) {
+                http_response_code(403);
+                echo json_encode([
+                    'status' => 'error', 
+                    'message' => 'Access denied. Administrative privileges required.',
+                    'redirect' => BASE_URL . 'error.php?code=admin_required'
+                ]);
+                exit;
+            }
+            header('Location: ' . BASE_URL . 'error.php?code=admin_required');
+            exit;
+        }
+
+        // Not logged in at all, redirect to admin login page
+        if ($is_json) {
+            http_response_code(401);
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Unauthorized. Admin login required.',
+                'redirect' => BASE_URL . 'auth/admin_login.php'
+            ]);
+            exit;
+        }
         header('Location: ' . BASE_URL . 'auth/admin_login.php');
         exit;
     }

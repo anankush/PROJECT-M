@@ -9,8 +9,37 @@ function generate_csrf_token() {
 
 function verify_csrf_token($token) {
     if (empty($token) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+        global $pdo;
+        if (isset($pdo)) {
+            log_security_event($pdo, $_SESSION['user_email'] ?? 'unknown', 'csrf_validation_failed', $_SESSION['user_id'] ?? null);
+        }
+        
+        // Terminate session securely
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        }
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+
         http_response_code(403);
-        echo json_encode(['status' => 'error', 'message' => 'Invalid CSRF token.']);
+        
+        $is_json = (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false 
+                 || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false 
+                 || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'));
+
+        $base_url = defined('BASE_URL') ? BASE_URL : '/';
+        if ($is_json) {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Verification Failed: Session expired or invalid request signature.',
+                'redirect' => $base_url . 'error.php?code=csrf'
+            ]);
+        } else {
+            header('Location: ' . $base_url . 'error.php?code=csrf');
+        }
         exit;
     }
 }

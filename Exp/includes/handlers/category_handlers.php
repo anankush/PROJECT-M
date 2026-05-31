@@ -57,8 +57,7 @@ function handle_add_category($pdo) {
     $input = json_decode(file_get_contents('php://input'), true);
 
     if ($is_admin && isset($input['target_user_id'])) {
-        $uid = decode_id(sanitize_input($input['target_user_id']));
-        if (!$uid) { http_response_code(404); echo json_encode(['status' => 'error', 'message' => 'Invalid user ID']); return; }
+        $uid = verify_decoded_id($pdo, sanitize_input($input['target_user_id']), 'add_category');
     } elseif (!$uid && !$is_admin) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
@@ -86,14 +85,14 @@ function handle_rename_category($pdo) {
     $input = json_decode(file_get_contents('php://input'), true);
 
     if ($is_admin && isset($input['target_user_id'])) {
-        $uid = decode_id(sanitize_input($input['target_user_id']));
-        if (!$uid) { http_response_code(404); echo json_encode(['status' => 'error', 'message' => 'Invalid user ID']); return; }
+        $uid = verify_decoded_id($pdo, sanitize_input($input['target_user_id']), 'rename_category');
     } elseif (!$uid && !$is_admin) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
     }
 
     $category_id = sanitize_input($input['category_id'] ?? '');
+    verify_ownership($pdo, 'user_categories', $category_id, $uid, 'rename_category');
     $category_name = sanitize_input($input['category_name'] ?? '');
 
     if (empty($category_id) || empty($category_name)) {
@@ -117,14 +116,14 @@ function handle_delete_category($pdo) {
     $input = json_decode(file_get_contents('php://input'), true);
 
     if ($is_admin && isset($input['target_user_id'])) {
-        $uid = decode_id(sanitize_input($input['target_user_id']));
-        if (!$uid) { http_response_code(404); echo json_encode(['status' => 'error', 'message' => 'Invalid user ID']); return; }
+        $uid = verify_decoded_id($pdo, sanitize_input($input['target_user_id']), 'delete_category');
     } elseif (!$uid && !$is_admin) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
     }
 
     $category_id = sanitize_input($input['category_id'] ?? '');
+    verify_ownership($pdo, 'user_categories', $category_id, $uid, 'delete_category');
     if (empty($category_id)) {
         echo json_encode(['status' => 'error', 'message' => 'Section ID is required']);
         return;
@@ -157,14 +156,14 @@ function handle_update_category_budget($pdo) {
     $input = json_decode(file_get_contents('php://input'), true);
 
     if ($is_admin && isset($input['target_user_id'])) {
-        $uid = decode_id(sanitize_input($input['target_user_id']));
-        if (!$uid) { http_response_code(404); echo json_encode(['status' => 'error', 'message' => 'Invalid user ID']); return; }
+        $uid = verify_decoded_id($pdo, sanitize_input($input['target_user_id']), 'update_category_budget');
     } elseif (!$uid && !$is_admin) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
     }
 
     $category_id = sanitize_input($input['category_id'] ?? '');
+    verify_ownership($pdo, 'user_categories', $category_id, $uid, 'update_category_budget');
     $budget = floatval($input['budget'] ?? 0);
     $month = sanitize_input($input['month'] ?? '');
     $months = $input['months'] ?? null;
@@ -206,14 +205,8 @@ function handle_get_user_categories_admin($pdo) {
     }
 
     $encoded_uid = sanitize_input($_GET['target_user_id'] ?? '');
-    $uid = decode_id($encoded_uid);
+    $uid = verify_decoded_id($pdo, $encoded_uid, 'get_user_categories_admin');
     $month = sanitize_input($_GET['month'] ?? '');
-
-    if (!$uid) {
-        http_response_code(404);
-        echo json_encode(['status' => 'error', 'message' => 'Invalid user ID']);
-        return;
-    }
 
     try {
         if (!empty($month)) {
@@ -252,6 +245,7 @@ function handle_get_note($pdo) {
 
     $uid = $_SESSION['user_id'];
     $category_id = sanitize_input($_GET['category_id'] ?? '');
+    verify_ownership($pdo, 'user_categories', $category_id, $uid, 'get_note');
 
     if (empty($category_id)) {
         echo json_encode(['status' => 'error', 'message' => 'Section ID is required']);
@@ -282,6 +276,7 @@ function handle_save_note($pdo) {
     }
 
     $category_id = sanitize_input($input['category_id'] ?? '');
+    verify_ownership($pdo, 'user_categories', $category_id, $uid, 'save_note');
     $note = isset($input['note']) ? $input['note'] : '';
 
     if (strlen($note) > 1000) {

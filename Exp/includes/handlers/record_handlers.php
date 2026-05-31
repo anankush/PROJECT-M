@@ -6,8 +6,7 @@ function handle_get_records($pdo) {
     $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
 
     if ($is_admin && isset($_GET['target_user_id'])) {
-        $uid = decode_id(sanitize_input($_GET['target_user_id']));
-        if (!$uid) { http_response_code(404); echo json_encode(['status' => 'error', 'message' => 'Invalid user ID']); return; }
+        $uid = verify_decoded_id($pdo, sanitize_input($_GET['target_user_id']), 'get_records');
     } elseif ($is_admin) {
         echo json_encode(['status' => 'error', 'message' => 'Target user ID is required for admin']);
         return;
@@ -17,6 +16,7 @@ function handle_get_records($pdo) {
     }
 
     $category_id = sanitize_input($_GET['category_id'] ?? '');
+    verify_ownership($pdo, 'user_categories', $category_id, $uid, 'get_records');
     if (empty($category_id)) {
         echo json_encode(['status' => 'error', 'message' => 'Category ID is required']);
         return;
@@ -70,14 +70,14 @@ function handle_add_record($pdo) {
     $input = json_decode(file_get_contents('php://input'), true);
 
     if ($is_admin && isset($input['target_user_id'])) {
-        $uid = decode_id(sanitize_input($input['target_user_id']));
-        if (!$uid) { http_response_code(404); echo json_encode(['status' => 'error', 'message' => 'Invalid user ID']); return; }
+        $uid = verify_decoded_id($pdo, sanitize_input($input['target_user_id']), 'add_record');
     } elseif (!$uid && !$is_admin) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
     }
 
     $category_id = sanitize_input($input['category_id'] ?? '');
+    verify_ownership($pdo, 'user_categories', $category_id, $uid, 'add_record');
     $entry_date = sanitize_input($input['entry_date'] ?? '');
     $entry_time = sanitize_input($input['entry_time'] ?? '');
     $amount = floatval($input['amount'] ?? 0);
@@ -119,14 +119,14 @@ function handle_update_record($pdo) {
     $input = json_decode(file_get_contents('php://input'), true);
 
     if ($is_admin && isset($input['target_user_id'])) {
-        $uid = decode_id(sanitize_input($input['target_user_id']));
-        if (!$uid) { http_response_code(404); echo json_encode(['status' => 'error', 'message' => 'Invalid user ID']); return; }
+        $uid = verify_decoded_id($pdo, sanitize_input($input['target_user_id']), 'update_record');
     } elseif (!$uid && !$is_admin) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
     }
 
     $id = sanitize_input($input['id'] ?? '');
+    verify_ownership($pdo, 'expenses', $id, $uid, 'update_record');
     $entry_date = sanitize_input($input['entry_date'] ?? '');
     $entry_time = sanitize_input($input['entry_time'] ?? '');
     $amount = floatval($input['amount'] ?? 0);
@@ -167,14 +167,14 @@ function handle_delete_record($pdo) {
     $input = json_decode(file_get_contents('php://input'), true);
 
     if ($is_admin && isset($input['target_user_id'])) {
-        $uid = decode_id(sanitize_input($input['target_user_id']));
-        if (!$uid) { http_response_code(404); echo json_encode(['status' => 'error', 'message' => 'Invalid user ID']); return; }
+        $uid = verify_decoded_id($pdo, sanitize_input($input['target_user_id']), 'delete_record');
     } elseif (!$uid && !$is_admin) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
     }
 
     $id = sanitize_input($input['id'] ?? '');
+    verify_ownership($pdo, 'expenses', $id, $uid, 'delete_record');
     if (empty($id)) {
         echo json_encode(['status' => 'error', 'message' => 'ID is required']);
         return;
@@ -413,6 +413,7 @@ function handle_get_cumulative_stats($pdo) {
 
     $uid = $_SESSION['user_id'];
     $category_id = sanitize_input($_GET['category_id'] ?? '');
+    verify_ownership($pdo, 'user_categories', $category_id, $uid, 'get_cumulative_stats');
     $month = sanitize_input($_GET['month'] ?? '');
 
     if (empty($category_id) || empty($month)) {

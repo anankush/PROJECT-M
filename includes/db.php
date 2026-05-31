@@ -63,7 +63,7 @@ try {
         echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
     } else {
         $base_path = defined('BASE_URL') ? BASE_URL : '/';
-        header('Location: ' . $base_path . 'error.php?type=Database%20Error&msg=Database%20connection%20failed.%20Please%20verify%20your%20credentials%20and%20server%20status.');
+        header('Location: ' . $base_path . 'error.php?code=db');
     }
     exit;
 }

@@ -91,9 +91,7 @@ function handle_update_goal($pdo) {
     
     try {
         // Verify goal belongs to user
-        $stmtCheck = $pdo->prepare("SELECT id FROM savings_goals WHERE id = ? AND user_id = ?");
-        $stmtCheck->execute([$goal_id, $uid]);
-        if ($stmtCheck->rowCount() === 0) {
+        if (!verify_ownership($pdo, 'savings_goals', $goal_id, $uid, 'update_goal')) {
             echo json_encode(['status' => 'error', 'message' => 'Goal not found.']);
             return;
         }
@@ -118,6 +116,10 @@ function handle_delete_goal($pdo) {
     }
 
     try {
+        if (!verify_ownership($pdo, 'savings_goals', $goal_id, $uid, 'delete_goal')) {
+            echo json_encode(['status' => 'error', 'message' => 'Goal not found.']);
+            return;
+        }
         $stmt = $pdo->prepare("DELETE FROM savings_goals WHERE id = ? AND user_id = ?");
         $stmt->execute([$goal_id, $uid]);
         echo json_encode(['status' => 'success', 'message' => 'Goal deleted successfully.']);
@@ -151,9 +153,7 @@ function handle_add_deposit($pdo) {
 
     try {
         // Verify goal belongs to user
-        $stmtCheck = $pdo->prepare("SELECT id FROM savings_goals WHERE id = ? AND user_id = ?");
-        $stmtCheck->execute([$goal_id, $uid]);
-        if ($stmtCheck->rowCount() === 0) {
+        if (!verify_ownership($pdo, 'savings_goals', $goal_id, $uid, 'add_deposit')) {
             echo json_encode(['status' => 'error', 'message' => 'Goal not found.']);
             return;
         }
@@ -173,6 +173,7 @@ function handle_get_history($pdo) {
     
     try {
         if ($goal_id) {
+            verify_ownership($pdo, 'savings_goals', $goal_id, $uid, 'get_history');
             $stmt = $pdo->prepare("
                 SELECT t.id, t.amount, t.type, t.transaction_date, t.notes, g.goal_name 
                 FROM savings_transactions t
