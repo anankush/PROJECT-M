@@ -842,109 +842,20 @@
             }
         }
 
-        async function editSectionBudget() {
-            if (!currentCategoryId) { Swal.fire('Info', 'Please select a section first.', 'info'); return; }
-            
-            const choice = await Swal.fire({
-                title: 'Budget Type',
-                text: 'Do you want to set this budget for the overall section, or just for a specific month?',
-                icon: 'question',
-                html: `
-                    <div style="display:flex; flex-direction:column; gap:15px; margin-top:20px; align-items:center; width:100%;">
-                        <div style="display:flex; gap:15px; width:100%; justify-content:center;">
-                            <button type="button" id="btn-swal-monthly" class="btn btn-primary" style="flex:1; max-width:180px; justify-content:center; padding: 0.75rem;">Specific Month</button>
-                            <button type="button" id="btn-swal-overall" class="btn btn-ghost" style="flex:1; max-width:180px; justify-content:center; padding: 0.75rem; background:rgba(99, 102, 241, 0.15); border:1px solid rgba(99, 102, 241, 0.3); color:#818cf8;">Overall</button>
-                        </div>
-                        <button type="button" id="btn-swal-back" class="btn btn-ghost" style="width:120px; font-size:0.85rem; padding:0.4rem 1rem; justify-content:center; border-color:rgba(255,255,255,0.15);">Back</button>
-                    </div>
-                `,
-                showConfirmButton: false,
-                showDenyButton: false,
-                showCancelButton: false,
-                didOpen: () => {
-                    document.getElementById('btn-swal-monthly').addEventListener('click', () => Swal.clickConfirm());
-                    document.getElementById('btn-swal-overall').addEventListener('click', () => Swal.clickDeny());
-                    document.getElementById('btn-swal-back').addEventListener('click', () => Swal.clickCancel());
-                }
-            });
-            
-            if (choice.isDismissed || choice.dismiss === Swal.DismissReason.backdrop || choice.dismiss === Swal.DismissReason.esc || choice.dismiss === Swal.DismissReason.close) {
-                return;
-            }
-            
-            let budgetType = choice.isConfirmed ? 'monthly' : 'overall';
-            let targetMonth = '';
-
-            if (budgetType === 'monthly') {
-                const defaultMonth = document.getElementById('monthFilter') ? document.getElementById('monthFilter').value : '';
-                const monthPrompt = await Swal.fire({
-                    title: 'Select Month',
-                    html: `<input type="text" id="swalMonthInput" class="theme-input-select swal-input" placeholder="Select Month" readonly style="text-align:center;">`,
-                    showCancelButton: true,
-                    confirmButtonText: 'Next',
-                    confirmButtonColor: '#8b5cf6',
-                    didOpen: () => {
-                        flatpickr("#swalMonthInput", {
-                            plugins: [
-                                new monthSelectPlugin({
-                                    shorthand: true,
-                                    dateFormat: "Y-m",
-                                    altFormat: "F Y",
-                                    theme: "dark"
-                                })
-                            ],
-                            disableMobile: "true",
-                            defaultDate: defaultMonth || null
-                        });
-                    },
-                    preConfirm: () => {
-                        const val = document.getElementById('swalMonthInput').value;
-                        if (!val) { Swal.showValidationMessage('Please select a month'); return false; }
-                        return val;
-                    }
-                });
-                if (!monthPrompt.isConfirmed) return;
-                targetMonth = monthPrompt.value;
-            }
-
-            let currentCat = categories.find(c => c.id === currentCategoryId);
-            let currentBudget = currentCat ? parseFloat(currentCat.budget) || 0 : 0;
-            let budgetTitle = `Set Overall Budget for ${currentCategoryName}`;
-            
-            if (budgetType === 'monthly') { 
-                const [y, m] = targetMonth.split('-'); 
-                const monthName = new Date(y, m - 1).toLocaleString('default', { month: 'long' }); 
-                budgetTitle = `Set Budget for ${currentCategoryName} in ${monthName} ${y}`; 
-            }
-
-            const { value: newBudget } = await Swal.fire({
-                title: budgetTitle,
-                html: `<div class="swal-form-container"><input id="budgetInput" type="number" step="0.01" class="theme-input-select swal-input" value="${currentBudget === 0 ? '' : currentBudget}" placeholder="0.00" style="text-align:center;"></div>`,
-                width: 380,
+        function editSectionBudget() {
+            Swal.fire({
+                title: 'Manage Budgets',
+                html: 'To edit or manage budgets, please go to <b>Settings > Manage Budgets</b>.',
+                icon: 'info',
                 showCancelButton: true,
+                confirmButtonText: 'Go to Manage Budgets',
                 confirmButtonColor: '#8b5cf6',
-                focusConfirm: false,
-                didOpen: () => {
-                    const bInput = document.getElementById('budgetInput');
-                    bInput.focus();
-                    bInput.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            Swal.clickConfirm();
-                        }
-                    });
-                },
-                preConfirm: () => {
-                    const v = document.getElementById('budgetInput').value;
-                    if (!v) { Swal.showValidationMessage('Please enter a valid amount'); return false; }
-                    return v;
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    loadView('budgets.php');
                 }
             });
-            if (newBudget !== undefined && newBudget !== null && newBudget !== '') {
-                const res = await fetch(`${API_URL}?action=update_category_budget`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN }, body: JSON.stringify({ category_id: currentCategoryId, budget: newBudget, month: targetMonth }) });
-                const result = await res.json();
-                if (result.status === 'success') { await fetchCategories(); if (currentCategoryId) loadCategory(currentCategoryId, currentCategoryName); Swal.fire('Saved!', '', 'success'); }
-                else Swal.fire('Error', result.message, 'error');
-            }
         }
 
         async function changePasswordModal() {
