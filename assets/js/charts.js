@@ -526,7 +526,7 @@ async function openQuickLog() {
                     </div>
                     <div class="swal-field">
                         <label class="swal-label">Date</label>
-                        <input id="ql-date" type="date" class="theme-input-select swal-input" value="${new Date().toISOString().slice(0, 10)}">
+                        <input id="ql-date" type="date" class="theme-input-select swal-input" value="${getLocalDateString()}">
                     </div>
                 </div>
             `,
@@ -580,7 +580,7 @@ async function openQuickLog() {
                     </div>
                     <div class="swal-field">
                         <label class="swal-label">Date</label>
-                        <input id="ql-date" type="date" class="theme-input-select swal-input" value="${new Date().toISOString().slice(0, 10)}">
+                        <input id="ql-date" type="date" class="theme-input-select swal-input" value="${getLocalDateString()}">
                     </div>
                 </div>
             `,

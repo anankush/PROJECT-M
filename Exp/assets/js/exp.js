@@ -636,7 +636,7 @@
         }
 
         function getFormHtml(data = null) {
-            const date = data ? data.entry_date : new Date().toISOString().split('T')[0];
+            const date = data ? data.entry_date : getLocalDateString();
             // Native type="time" expects HH:MM (24-hour) format
             const now = new Date();
             const timeVal = data
@@ -1466,7 +1466,7 @@
                 if (formValues) {
                     Swal.fire({ title: 'Processing Sweep...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-                    const currentDateStr = now.toISOString().split('T')[0];
+                    const currentDateStr = getLocalDateString(now);
                     const currentTimeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
                     // 1. Add deposit to Savings Goal

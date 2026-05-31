@@ -305,7 +305,7 @@ async function addNewGoal() {
                         
                         const targetDate = new Date();
                         targetDate.setMonth(targetDate.getMonth() + months);
-                        document.getElementById('sg-date').value = targetDate.toISOString().split('T')[0];
+                        document.getElementById('sg-date').value = getLocalDateString(targetDate);
                     } else {
                         result.innerHTML = `Enter a target amount to estimate time.`;
                     }
@@ -426,7 +426,7 @@ async function editGoal(id) {
                         
                         const targetDate = new Date();
                         targetDate.setMonth(targetDate.getMonth() + months);
-                        document.getElementById('sg-date').value = targetDate.toISOString().split('T')[0];
+                        document.getElementById('sg-date').value = getLocalDateString(targetDate);
                     } else {
                         result.innerHTML = `Enter a target amount to estimate time.`;
                     }
@@ -508,7 +508,7 @@ async function openDepositModal(goalId, type) {
                 </div>
                 <div class="swal-field">
                     <label class="swal-label">Date</label>
-                    <input id="st-date" type="date" class="theme-input-select swal-input" value="${new Date().toISOString().split('T')[0]}" onclick="this.showPicker()">
+                    <input id="st-date" type="date" class="theme-input-select swal-input" value="${getLocalDateString()}" onclick="this.showPicker()">
                 </div>
                 <div class="swal-field">
                     <label class="swal-label">Notes / Remarks (Optional)</label>
