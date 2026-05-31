@@ -910,31 +910,92 @@ body:has(.sidebar) { overflow: hidden; }
     background: rgba(239, 68, 68, 0.1) !important;
 }
 
-.swal2-confirm {
-    background: linear-gradient(135deg, var(--aurora-1), var(--aurora-deep)) !important;
-    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.5) !important;
-    border-radius: 12px !important;
-    font-weight: 700 !important;
-    padding: 0.85rem 2.5rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-    font-size: 1rem !important;
-    transition: transform 0.2s, box-shadow 0.2s !important;
+/* ── SWEETALERT2 UNIFIED BUTTONS ── */
+.swal2-confirm,
+.swal2-cancel,
+.swal2-deny,
+.swal2-popup .btn {
+    height: 44px !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    padding: 0.8rem 2rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    box-sizing: border-box !important;
+    font-family: var(--font-body) !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    letter-spacing: 0.5px !important;
+    margin: 0 !important;
 }
 
+/* Specific button style overrides */
+.swal2-confirm {
+    background: linear-gradient(135deg, var(--aurora-1), var(--aurora-deep)) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4) !important;
+}
 .swal2-confirm:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.7) !important;
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6) !important;
 }
-/* ── SWEETALERT2 ACTIONS FLEXBOX FIX ── */
+
+.swal2-cancel {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-secondary) !important;
+    border: 1px solid var(--glass-border) !important;
+}
+.swal2-cancel:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    transform: translateY(-2px) !important;
+}
+
+.swal2-deny {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #f87171 !important;
+    border: 1px solid rgba(239, 68, 68, 0.2) !important;
+}
+.swal2-deny:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border-color: rgba(239, 68, 68, 0.35) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Actions layout */
 .swal2-actions {
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 1rem !important;
     justify-content: center !important;
     margin-top: 1.5rem !important;
+    width: 100% !important;
 }
 
-.swal2-actions .btn {
-    margin: 0 !important;
+/* Mobile responsive styles */
+@media (max-width: 480px) {
+    .swal2-popup {
+        padding: 2.25rem 1.25rem 1.75rem !important;
+        width: 92% !important;
+    }
+    .swal2-title {
+        font-size: 1.4rem !important;
+    }
+    .swal2-actions {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+    .swal2-confirm,
+    .swal2-cancel,
+    .swal2-deny,
+    .swal2-popup .btn {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 }
