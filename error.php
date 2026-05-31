@@ -189,6 +189,32 @@ if (array_key_exists($code, $errors)) {
             </div>
         </div>
     </div>
+    <script>
+        try {
+            const errorData = localStorage.getItem('last_fetch_error');
+            if (errorData) {
+                const err = JSON.parse(errorData);
+                if (Date.now() - err.time < 15000) {
+                    const debugDiv = document.createElement('div');
+                    debugDiv.style.marginTop = '20px';
+                    debugDiv.style.padding = '12px';
+                    debugDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+                    debugDiv.style.border = '1px solid rgba(239, 68, 68, 0.2)';
+                    debugDiv.style.borderRadius = '8px';
+                    debugDiv.style.fontSize = '0.85rem';
+                    debugDiv.style.color = '#f87171';
+                    debugDiv.style.textAlign = 'left';
+                    debugDiv.style.fontFamily = 'monospace';
+                    debugDiv.style.wordBreak = 'break-all';
+                    debugDiv.innerHTML = '<strong>Debug Info (Last Failed Request):</strong><br>' +
+                                         'URL: ' + err.url + '<br>' +
+                                         'Status: ' + err.status + '<br>' +
+                                         'Method: ' + err.method;
+                    document.querySelector('.error-card').appendChild(debugDiv);
+                }
+            }
+        } catch(e) {}
+    </script>
 </body>
 
 </html>

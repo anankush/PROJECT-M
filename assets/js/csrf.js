@@ -14,6 +14,12 @@ window.fetch = async function () {
 
     if (response.status === 401 || response.status === 403) {
         try {
+            localStorage.setItem('last_fetch_error', JSON.stringify({
+                url: resource,
+                status: response.status,
+                method: config?.method || 'GET',
+                time: Date.now()
+            }));
             const clone = response.clone();
             const data = await clone.json();
             if (data && data.redirect) {
