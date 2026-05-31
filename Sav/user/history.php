@@ -26,6 +26,7 @@
                 <th>Goal</th>
                 <th>Type</th>
                 <th>Amount</th>
+                <th>Notes</th>
             </tr>
         </thead>
         <tbody id="historyTableBody"></tbody>

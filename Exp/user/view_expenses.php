@@ -38,9 +38,14 @@
         <span class="metric-label">Section Expenditure</span>
         <div class="metric-value" id="sectionAmount">0.00</div>
     </div>
-    <div class="summary-card" id="sectionBalanceBox" style="background:rgba(14, 165, 233, 0.1); border:1px solid rgba(14, 165, 233, 0.3); color:#0ea5e9; display:none;">
+    <div class="summary-card" id="sectionBalanceBox" style="background:rgba(14, 165, 233, 0.1); border:1px solid rgba(14, 165, 233, 0.3); color:#0ea5e9; display:none; flex-direction:column; justify-content:space-between;">
         <span class="metric-label">Section Remaining</span>
-        <div class="metric-value" id="sectionBalanceDisplay">0.00</div>
+        <div style="display:flex; align-items:baseline; justify-content:space-between; width:100%; gap:8px;">
+            <div class="metric-value" id="sectionBalanceDisplay" style="margin:0;">0.00</div>
+            <button class="btn btn-ghost" id="sweepSavingsBtn" style="font-size: 0.7rem; padding: 0.25rem 0.5rem; height: auto; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; display: none; align-items: center; gap: 4px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onclick="triggerSweepToSavings()" title="Sweep remaining balance to a Savings Goal">
+                <i class="fas fa-piggy-bank"></i> Sweep
+            </button>
+        </div>
     </div>
 </div>
 

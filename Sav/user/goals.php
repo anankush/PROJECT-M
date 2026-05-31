@@ -4,7 +4,10 @@
         <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
         <h1>My Savings Goals</h1>
     </div>
-    <div class="header-controls">
+    <div class="header-controls" style="display:flex; gap:10px;">
+        <button class="btn btn-ghost" onclick="openEmergencyCalculator()" style="background:rgba(6, 182, 212, 0.1); color:#06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); display:flex; align-items:center; justify-content:center; gap:6px;">
+            <i class="fas fa-shield-alt"></i> <span>Emergency Calculator</span>
+        </button>
         <button class="btn btn-ghost desktop-refresh-btn" onclick="fetchGoals()">
             <i class="fas fa-sync-alt refresh-icon"></i> <span class="refresh-text">Refresh</span>
         </button>

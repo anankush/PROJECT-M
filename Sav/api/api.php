@@ -18,6 +18,11 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+if (!isset($_SESSION['sav_db_migrated'])) {
+    check_savings_db_migration($pdo);
+    $_SESSION['sav_db_migrated'] = true;
+}
+
 switch ($action) {
     case 'check_session':
         echo json_encode(['is_user' => true, 'email' => $_SESSION['user_name'], 'currency' => $_SESSION['currency'] ?? '₹']);
@@ -28,6 +33,9 @@ switch ($action) {
     case 'add_goal':
         handle_add_goal($pdo);
         break;
+    case 'update_goal':
+        handle_update_goal($pdo);
+        break;
     case 'delete_goal':
         handle_delete_goal($pdo);
         break;
@@ -36,6 +44,9 @@ switch ($action) {
         break;
     case 'get_history':
         handle_get_history($pdo);
+        break;
+    case 'get_average_expense':
+        handle_get_average_expense($pdo);
         break;
     default:
         echo json_encode(['status' => 'error', 'message' => 'Unknown action']);

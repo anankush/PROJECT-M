@@ -491,6 +491,17 @@
                     secBalEl.innerHTML = `${userCurrency}${secBal.toFixed(2)}`;
                     secBalEl.style.color = secBal < 0 ? 'var(--danger)' : secBal > 0 ? 'var(--success)' : '#0ea5e9';
 
+                    const sweepBtn = document.getElementById('sweepSavingsBtn');
+                    if (sweepBtn) {
+                        if (secBal > 0) {
+                            sweepBtn.style.display = 'inline-flex';
+                            sweepBtn.dataset.amount = secBal;
+                            sweepBtn.dataset.section = name;
+                        } else {
+                            sweepBtn.style.display = 'none';
+                        }
+                    }
+
                     if (window.innerWidth <= 768) {
                         const sidebar = document.getElementById('appSidebar');
                         if (sidebar.classList.contains('open')) toggleSidebar();
@@ -1521,6 +1532,182 @@
                 }
             } catch (error) {
                 Swal.fire('Error', 'An error occurred during password reset.', 'error');
+            }
+        }
+
+        async function triggerSweepToSavings() {
+            const sweepBtn = document.getElementById('sweepSavingsBtn');
+            if (!sweepBtn) return;
+
+            const remAmount = parseFloat(sweepBtn.dataset.amount) || 0;
+            const secName = sweepBtn.dataset.section || '';
+
+            if (remAmount <= 0) {
+                Swal.fire('Info', 'There is no remaining budget to sweep.', 'info');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Fetching Savings Goals...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                const res = await fetch('../../Sav/api/api.php?action=get_goals');
+                const result = await res.json();
+                Swal.close();
+
+                if (result.status !== 'success') {
+                    Swal.fire('Error', 'Failed to retrieve savings goals.', 'error');
+                    return;
+                }
+
+                const goalsList = result.data || [];
+                // Keep only active goals (unachieved)
+                const activeGoals = goalsList.filter(g => {
+                    const target = parseFloat(g.target_amount) || 0;
+                    const current = parseFloat(g.current_amount) || 0;
+                    return current < target;
+                });
+
+                if (activeGoals.length === 0) {
+                    Swal.fire({
+                        title: 'No Active Goals',
+                        html: `You do not have any active (unachieved) savings goals. Please create one in the Savings module first.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Go to Savings',
+                        confirmButtonColor: '#8b5cf6',
+                        cancelButtonText: 'Cancel'
+                    }).then((r) => {
+                        if (r.isConfirmed) {
+                            window.location.href = '../../Sav/user/index.php';
+                        }
+                    });
+                    return;
+                }
+
+                let goalOptionsHtml = '';
+                activeGoals.forEach(g => {
+                    const target = parseFloat(g.target_amount) || 0;
+                    const current = parseFloat(g.current_amount) || 0;
+                    const remaining = target - current;
+                    goalOptionsHtml += `<option value="${g.id}" data-name="${escapeHtml(g.goal_name)}" style="background:var(--bg-deep); color:var(--text-primary);">${escapeHtml(g.goal_name)} (Needs ${userCurrency}${remaining.toFixed(2)})</option>`;
+                });
+
+                const now = new Date();
+                const currentMonthStr = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+                const { value: formValues } = await Swal.fire({
+                    title: 'Sweep to Savings',
+                    html: `
+                        <div class="swal-form-container">
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:15px;">
+                                Move your excess budget of <strong>${userCurrency}${remAmount.toFixed(2)}</strong> from <strong>${escapeHtml(secName)}</strong> directly into a savings goal.
+                            </p>
+                            <div class="swal-field">
+                                <label class="swal-label">Select Savings Goal</label>
+                                <select id="sweep-goal-id" class="theme-input-select swal-input" style="background:var(--bg-deep);">
+                                    ${goalOptionsHtml}
+                                </select>
+                            </div>
+                            <div class="swal-field">
+                                <label class="swal-label">Sweep Amount (${userCurrency})</label>
+                                <input id="sweep-amount" type="number" step="0.01" max="${remAmount}" min="0.01" class="theme-input-select swal-input" value="${remAmount.toFixed(2)}">
+                            </div>
+                            <div class="swal-field">
+                                <label class="swal-label">Remarks / Description</label>
+                                <input id="sweep-notes" type="text" class="theme-input-select swal-input" value="Sweep remaining budget from ${escapeHtml(secName)} (${currentMonthStr})">
+                            </div>
+                        </div>
+                    `,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'Confirm Sweep 💸',
+                    confirmButtonColor: '#10b981',
+                    preConfirm: () => {
+                        const goalId = document.getElementById('sweep-goal-id').value;
+                        const amt = parseFloat(document.getElementById('sweep-amount').value) || 0;
+                        const notes = document.getElementById('sweep-notes').value.trim();
+
+                        const selectEl = document.getElementById('sweep-goal-id');
+                        const selectedOption = selectEl.options[selectEl.selectedIndex];
+                        const goalName = selectedOption.getAttribute('data-name');
+
+                        if (!goalId) {
+                            Swal.showValidationMessage('Please select a savings goal.');
+                            return false;
+                        }
+                        if (amt <= 0 || amt > remAmount) {
+                            Swal.showValidationMessage(`Please enter a valid amount between ${userCurrency}0.01 and ${userCurrency}${remAmount.toFixed(2)}`);
+                            return false;
+                        }
+                        return { goal_id: goalId, goal_name: goalName, amount: amt, notes: notes };
+                    }
+                });
+
+                if (formValues) {
+                    Swal.fire({ title: 'Processing Sweep...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+                    const currentDateStr = now.toISOString().split('T')[0];
+                    const currentTimeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+                    // 1. Add deposit to Savings Goal
+                    const savRes = await fetch('../../Sav/api/api.php?action=add_deposit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+                        body: JSON.stringify({
+                            goal_id: formValues.goal_id,
+                            amount: formValues.amount,
+                            type: 'deposit',
+                            date: currentDateStr,
+                            notes: formValues.notes
+                        })
+                    });
+                    const savResult = await savRes.json();
+
+                    if (savResult.status !== 'success') {
+                        Swal.fire('Error', 'Failed to deposit to Savings goal: ' + savResult.message, 'error');
+                        return;
+                    }
+
+                    // 2. Add record (expense) to current section/category
+                    const expRes = await fetch(`${API_URL}?action=add_record`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+                        body: JSON.stringify({
+                            category_id: currentCategoryId,
+                            entry_date: currentDateStr,
+                            entry_time: currentTimeStr,
+                            amount: formValues.amount,
+                            description: `Sweep: ${formValues.goal_name}`,
+                            custom_data: {
+                                "Sweep Destination": { type: "text", value: formValues.goal_name }
+                            }
+                        })
+                    });
+                    const expResult = await expRes.json();
+
+                    if (expResult.status === 'success') {
+                        Swal.fire({
+                            title: 'Sweep Successful! 🎉',
+                            html: `Successfully swept <strong>${userCurrency}${formValues.amount.toFixed(2)}</strong> to <strong>${escapeHtml(formValues.goal_name)}</strong>.`,
+                            icon: 'success',
+                            confirmButtonColor: '#8b5cf6'
+                        });
+                        // Reload current category view to reflect updated budgets
+                        loadCategory(currentCategoryId, currentCategoryName);
+                        fetchTotalExpenditure();
+                    } else {
+                        Swal.fire('Partial Success', 'Deposit recorded in Savings, but failed to log record in Expense module: ' + expResult.message, 'warning');
+                        loadCategory(currentCategoryId, currentCategoryName);
+                        fetchTotalExpenditure();
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Error', 'Failed to process the sweep operation.', 'error');
             }
         }
     
