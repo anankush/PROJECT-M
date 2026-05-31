@@ -1,13 +1,15 @@
 <?php
 require_once __DIR__ . '/db.php';
 
-function session_start_secure() {
-    if (session_status() === PHP_SESSION_ACTIVE) return;
+function session_start_secure()
+{
+    if (session_status() === PHP_SESSION_ACTIVE)
+        return;
 
     $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-             || (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
-             || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
-             || (!empty($_SERVER['HTTP_X_FORWARDED_PORT']) && $_SERVER['HTTP_X_FORWARDED_PORT'] == 443);
+        || (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
+        || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+        || (!empty($_SERVER['HTTP_X_FORWARDED_PORT']) && $_SERVER['HTTP_X_FORWARDED_PORT'] == 443);
 
     session_set_cookie_params(SESSION_LIFETIME, '/', '', $is_https, true);
     session_name('PROJECTM_SID');
@@ -37,8 +39,10 @@ function session_start_secure() {
                 setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
             }
             session_destroy();
-            if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
-             || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
+            if (
+                strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
+                || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false
+            ) {
                 http_response_code(401);
                 echo json_encode(['status' => 'error', 'message' => 'Concurrent login detected. Session terminated.', 'redirect' => BASE_URL . 'error.php?code=concurrent_login']);
                 exit;
@@ -63,8 +67,10 @@ function session_start_secure() {
                     setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
                 }
                 session_destroy();
-                if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
-                 || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
+                if (
+                    strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
+                    || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false
+                ) {
                     http_response_code(401);
                     echo json_encode(['status' => 'error', 'message' => 'Security check failed. Session terminated.']);
                     exit;
@@ -78,16 +84,21 @@ function session_start_secure() {
 
 session_start_secure();
 
-function generate_ott($module) {
-    if (session_status() !== PHP_SESSION_ACTIVE) session_start_secure();
+function generate_ott($module)
+{
+    if (session_status() !== PHP_SESSION_ACTIVE)
+        session_start_secure();
     $token = bin2hex(random_bytes(16));
     $_SESSION[$module . '_ott'] = ['token' => $token, 'created_at' => time()];
     return $token;
 }
 
-function validate_ott($module, $token) {
-    if (session_status() !== PHP_SESSION_ACTIVE) session_start_secure();
-    if (!isset($_SESSION[$module . '_ott'])) return false;
+function validate_ott($module, $token)
+{
+    if (session_status() !== PHP_SESSION_ACTIVE)
+        session_start_secure();
+    if (!isset($_SESSION[$module . '_ott']))
+        return false;
     $stored = $_SESSION[$module . '_ott'];
     if ($stored['token'] === $token && (time() - $stored['created_at'] <= 15)) {
         unset($_SESSION[$module . '_ott']);
@@ -96,7 +107,8 @@ function validate_ott($module, $token) {
     return false;
 }
 
-function check_session_timeout() {
+function check_session_timeout()
+{
     if (!isset($_SESSION['last_activity'])) {
         $_SESSION['last_activity'] = time();
         return;
@@ -105,8 +117,10 @@ function check_session_timeout() {
         $role = $_SESSION['role'] ?? 'user';
         session_unset();
         session_destroy();
-        if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
-         || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
+        if (
+            strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
+            || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false
+        ) {
             http_response_code(401);
             echo json_encode(['status' => 'error', 'message' => 'Session expired']);
             exit;
@@ -118,7 +132,8 @@ function check_session_timeout() {
     $_SESSION['last_activity'] = time();
 }
 
-function require_login() {
+function require_login()
+{
     if (empty($_SESSION['user_id'])) {
         if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false) {
             http_response_code(401);
@@ -131,10 +146,11 @@ function require_login() {
     check_session_timeout();
 }
 
-function require_admin() {
+function require_admin()
+{
     $is_json = (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
-             || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false
-             || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'));
+        || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false
+        || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'));
 
     if (empty($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
         if (!empty($_SESSION['user_id'])) {
@@ -145,7 +161,8 @@ function require_admin() {
                 $params = session_get_cookie_params();
                 setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
             }
-            if (session_status() === PHP_SESSION_ACTIVE) session_destroy();
+            if (session_status() === PHP_SESSION_ACTIVE)
+                session_destroy();
             if ($is_json) {
                 http_response_code(403);
                 echo json_encode(['status' => 'error', 'message' => 'Access denied. Administrative privileges required.', 'redirect' => BASE_URL . 'error.php?code=admin_required']);
@@ -165,7 +182,8 @@ function require_admin() {
     check_session_timeout();
 }
 
-function get_logout_url($base_path = '../') {
+function get_logout_url($base_path = '../')
+{
     $token = $_SESSION['logout_token'] ?? '';
     return $base_path . 'auth/logout.php?token=' . urlencode($token);
 }

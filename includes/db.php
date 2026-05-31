@@ -22,8 +22,8 @@ if (!empty($missing)) {
 if (!defined('SESSION_LIFETIME')) define('SESSION_LIFETIME', 900);
 if (!defined('BASE_URL'))         define('BASE_URL',         '/');
 
-error_reporting(0);
-ini_set('display_errors', 0);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 try {
     $pdo = new PDO(

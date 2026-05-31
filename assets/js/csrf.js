@@ -57,3 +57,25 @@ if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
         window.location.href = logoutUrl;
     }
 }
+
+const pathLower = window.location.pathname.toLowerCase();
+const isAuthArea = /\/(dashboard|exp\/user|sav\/user|admin|admin_portal)/i.test(pathLower)
+                && !pathLower.includes('/auth/')
+                && !pathLower.includes('error.php');
+
+if (isAuthArea) {
+    let depth = 0;
+    if (pathLower.includes('/admin/')) depth = 1;
+    else if (pathLower.includes('/exp/user/')) depth = 2;
+    else if (pathLower.includes('/sav/user/')) depth = 2;
+    else if (pathLower.includes('/dashboard/')) depth = 1;
+
+    let prefix = '';
+    for (let i = 0; i < depth; i++) prefix += '../';
+
+    setInterval(() => {
+        fetch(prefix + 'includes/session_ping.php', {
+            headers: { 'Accept': 'application/json' }
+        }).catch(() => {});
+    }, 5000);
+}
