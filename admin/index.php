@@ -167,6 +167,17 @@ $base = '../';
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
+        @media (max-width: 768px) {
+            .header-controls {
+                display: flex;
+                justify-content: flex-end;
+                width: 100%;
+            }
+            .hide-mobile {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -300,13 +311,13 @@ $base = '../';
                     </div>
                 </div>
 
-                <div class="control-row">
-                    <div class="search-input-wrapper">
+                <div class="control-row" style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; width: 100%;">
+                    <div class="search-input-wrapper" style="flex: 1; max-width: none;">
                         <i class="fas fa-search"></i>
                         <input type="text" id="userSearchInput" placeholder="Search users by email..." onkeyup="filterUsersTable()">
                     </div>
-                    <button class="btn btn-ghost" onclick="fetchUsers()">
-                        <i class="fas fa-sync-alt"></i> Refresh Users
+                    <button class="btn btn-ghost" onclick="fetchUsers()" style="flex-shrink: 0; padding: 0.6rem 1rem;">
+                        <i class="fas fa-sync-alt"></i> <span class="hide-mobile">Refresh Users</span>
                     </button>
                 </div>
 
@@ -341,13 +352,13 @@ $base = '../';
                     </div>
                 </div>
 
-                <div class="control-row">
-                    <div class="search-input-wrapper">
+                <div class="control-row" style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; width: 100%;">
+                    <div class="search-input-wrapper" style="flex: 1; max-width: none;">
                         <i class="fas fa-search"></i>
                         <input type="text" id="logSearchInput" placeholder="Filter logs by email or action..." onkeyup="filterLogsTable()">
                     </div>
-                    <button class="btn btn-ghost" onclick="fetchLogs()">
-                        <i class="fas fa-sync-alt"></i> Refresh Logs
+                    <button class="btn btn-ghost" onclick="fetchLogs()" style="flex-shrink: 0; padding: 0.6rem 1rem;">
+                        <i class="fas fa-sync-alt"></i> <span class="hide-mobile">Refresh Logs</span>
                     </button>
                 </div>
 
