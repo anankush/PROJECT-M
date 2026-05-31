@@ -78,7 +78,7 @@ if (activeLogoutUrl && activeLogoutUrl !== '#') {
     for (let i = 0; i < depth; i++) prefix += '../';
 
     setInterval(() => {
-        fetch(prefix + 'includes/session_ping.php', {
+        fetch(prefix + 'session_ping.php', {
             headers: { 'Accept': 'application/json' }
         }).catch(() => {});
     }, 5000);
