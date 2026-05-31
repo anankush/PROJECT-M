@@ -84,21 +84,16 @@ $base = '../';
         /* Charts Layout */
         .admin-charts-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr;
             gap: 1.5rem;
             margin-bottom: 2rem;
-        }
-        @media (max-width: 1024px) {
-            .admin-charts-grid {
-                grid-template-columns: 1fr;
-            }
         }
         .chart-wrapper {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-xl);
             padding: 1.5rem;
-            height: 350px;
+            height: 400px;
         }
         .chart-wrapper h3 {
             font-size: 1.05rem;
@@ -256,16 +251,25 @@ $base = '../';
                         </div>
                     </div>
                     <div class="admin-stat-card">
-                        <div class="stat-card-icon" style="background:rgba(6, 182, 212, 0.15); color:#06b6d4;">
-                            <i class="fas fa-dollar-sign"></i>
+                        <div class="stat-card-icon" style="background:rgba(239, 68, 68, 0.15); color:var(--danger);">
+                            <i class="fas fa-wallet"></i>
                         </div>
                         <div>
-                            <span class="metric-label">Total Cash Vol.</span>
-                            <div class="metric-value" id="stat-system-cash" style="font-size:1.15rem; font-weight:700;"><i class="fas fa-circle-notch fa-spin fa-xs"></i></div>
+                            <span class="metric-label">Total Spent</span>
+                            <div class="metric-value" id="stat-system-spent"><i class="fas fa-circle-notch fa-spin fa-xs"></i></div>
                         </div>
                     </div>
                     <div class="admin-stat-card">
-                        <div class="stat-card-icon" style="background:rgba(239, 68, 68, 0.15); color:var(--danger);">
+                        <div class="stat-card-icon" style="background:rgba(16, 185, 129, 0.15); color:var(--success);">
+                            <i class="fas fa-piggy-bank"></i>
+                        </div>
+                        <div>
+                            <span class="metric-label">Total Saved</span>
+                            <div class="metric-value" id="stat-system-saved"><i class="fas fa-circle-notch fa-spin fa-xs"></i></div>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-card-icon" style="background:rgba(245, 158, 11, 0.15); color:#f59e0b;">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div>
@@ -279,14 +283,8 @@ $base = '../';
                 <div class="admin-charts-grid">
                     <div class="chart-wrapper">
                         <h3>User Registrations & Logins Trend</h3>
-                        <div style="height:270px; width:100%; position:relative;">
+                        <div style="height:320px; width:100%; position:relative;">
                             <canvas id="registrationsChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-wrapper">
-                        <h3>Top Budget Categories</h3>
-                        <div style="height:270px; width:100%; position:relative;">
-                            <canvas id="categoriesChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -458,7 +456,8 @@ $base = '../';
                     
                     const spentFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(stats.system_spent);
                     const savedFormatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(stats.system_saved);
-                    document.getElementById('stat-system-cash').innerHTML = `<span style="color:#ef4444">${spentFormatted}</span> / <span style="color:#10b981">${savedFormatted}</span>`;
+                    document.getElementById('stat-system-spent').innerText = spentFormatted;
+                    document.getElementById('stat-system-saved').innerText = savedFormatted;
                 }
             } catch (e) {
                 console.error("Failed to load stats", e);
@@ -478,77 +477,67 @@ $base = '../';
         }
 
         function renderCharts(data) {
-            // 1. Line Chart: Registrations Trend
-            const regCtx = document.getElementById('registrationsChart').getContext('2d');
-            const trendData = data.registration_trend;
+            // Unified x-axis sorted months from both trends
+            const regData = data.registration_trend || [];
+            const logData = data.login_trend || [];
             
-            const labels = trendData.map(t => t.month);
-            const counts = trendData.map(t => t.count);
+            const allMonths = Array.from(new Set([
+                ...regData.map(d => d.month),
+                ...logData.map(d => d.month)
+            ])).sort();
+
+            const regCounts = allMonths.map(m => {
+                const found = regData.find(d => d.month === m);
+                return found ? found.count : 0;
+            });
+
+            const logCounts = allMonths.map(m => {
+                const found = logData.find(d => d.month === m);
+                return found ? found.count : 0;
+            });
+
+            const regCtx = document.getElementById('registrationsChart').getContext('2d');
 
             if (regChartInstance) regChartInstance.destroy();
             regChartInstance = new Chart(regCtx, {
                 type: 'line',
                 data: {
-                    labels: labels.length ? labels : ['No Data'],
-                    datasets: [{
-                        label: 'New Registrations',
-                        data: counts.length ? counts : [0],
-                        borderColor: '#8b5cf6',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }]
+                    labels: allMonths.length ? allMonths : ['No Data'],
+                    datasets: [
+                        {
+                            label: 'New Registrations',
+                            data: regCounts,
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 2.5,
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'User Logins',
+                            data: logCounts,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                            borderWidth: 2.5,
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: 'rgba(255, 255, 255, 0.6)', stepSize: 1 }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                        legend: { 
+                            display: true,
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.8)',
+                                font: {
+                                    size: 11
+                                }
+                            }
                         }
-                    }
-                }
-            });
-
-            // 2. Bar Chart: Categories popular
-            const catCtx = document.getElementById('categoriesChart').getContext('2d');
-            const catData = data.category_distribution;
-            
-            const catLabels = catData.map(c => c.category_name);
-            const catCounts = catData.map(c => c.count);
-
-            if (catChartInstance) catChartInstance.destroy();
-            catChartInstance = new Chart(catCtx, {
-                type: 'bar',
-                data: {
-                    labels: catLabels.length ? catLabels : ['No Categories'],
-                    datasets: [{
-                        label: 'Creation Count',
-                        data: catCounts.length ? catCounts : [0],
-                        backgroundColor: [
-                            'rgba(139, 92, 246, 0.6)',
-                            'rgba(6, 182, 212, 0.6)',
-                            'rgba(16, 185, 129, 0.6)',
-                            'rgba(245, 158, 11, 0.6)',
-                            'rgba(236, 72, 153, 0.6)'
-                        ],
-                        borderWidth: 0,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    },
                     scales: {
                         y: {
                             grid: { color: 'rgba(255, 255, 255, 0.05)' },

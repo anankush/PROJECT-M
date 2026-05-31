@@ -157,15 +157,16 @@ switch ($action) {
             ");
             $reg_trend = $regStmt->fetchAll();
 
-            // 2. Category distribution
-            $catStmt = $pdo->query("
-                SELECT category_name, COUNT(*) as count 
-                FROM user_categories 
-                GROUP BY category_name 
-                ORDER BY count DESC 
-                LIMIT 5
+            // 2. User logins trend (last 12 months)
+            $loginStmt = $pdo->query("
+                SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count 
+                FROM security_logs 
+                WHERE action IN ('login_success', 'admin_login_success')
+                GROUP BY month 
+                ORDER BY month ASC 
+                LIMIT 12
             ");
-            $cat_dist = $catStmt->fetchAll();
+            $login_trend = $loginStmt->fetchAll();
 
             // 3. Security Event Distribution
             $secStmt = $pdo->query("
@@ -179,7 +180,7 @@ switch ($action) {
                 'status' => 'success',
                 'data' => [
                     'registration_trend' => $reg_trend,
-                    'category_distribution' => $cat_dist,
+                    'login_trend' => $login_trend,
                     'security_distribution' => $sec_dist
                 ]
             ]);
