@@ -137,6 +137,9 @@ switch ($action) {
 
     case 'get_security_logs':
         try {
+            // Prune security logs older than 30 days
+            $pdo->query("DELETE FROM security_logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)");
+
             $stmt = $pdo->query("SELECT id, email, action, ip_address, user_agent, created_at FROM security_logs ORDER BY created_at DESC LIMIT 100");
             $logs = $stmt->fetchAll();
             echo json_encode(['status' => 'success', 'data' => $logs]);
