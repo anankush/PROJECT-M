@@ -23,3 +23,45 @@ function send_email($to, $subject, $body) {
     curl_close($ch);
     return ($httpCode >= 200 && $httpCode < 400);
 }
+
+function get_otp_email_body($otp, $is_reset = false) {
+    $title = $is_reset ? 'Password Reset OTP' : 'Registration OTP';
+    $message = $is_reset ? 'Use the verification code below to reset your password.' : 'Use the verification code below to complete your registration.';
+    return '<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#030014;font-family:\'Outfit\',\'Inter\',-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;color:#ffffff;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#030014;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:420px;background:rgba(20,14,50,0.65);border:1px solid rgba(139,92,246,0.3);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+          <tr>
+            <td style="padding:24px 24px 15px 24px;text-align:center;background:linear-gradient(135deg,#1e1b4b 0%,#0f172a 100%);border-bottom:1px solid rgba(139,92,246,0.15);">
+              <div style="font-size:20px;font-weight:700;color:#a78bfa;letter-spacing:1px;font-family:\'Outfit\',sans-serif;">MONEY MANAGEMENT</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px;text-align:center;">
+              <h2 style="margin:0 0 10px 0;font-size:18px;font-weight:600;color:#ffffff;font-family:\'Outfit\',sans-serif;">' . $title . '</h2>
+              <p style="margin:0 0 20px 0;font-size:14px;color:rgba(255,255,255,0.7);line-height:1.5;font-family:\'Inter\',sans-serif;">' . $message . '</p>
+              <div style="display:inline-block;margin:10px 0;padding:12px 30px;background:linear-gradient(135deg,rgba(139,92,246,0.2) 0%,rgba(59,130,246,0.2) 100%);border:1px solid rgba(139,92,246,0.4);border-radius:12px;">
+                <span style="font-family:\'JetBrains Mono\',\'Courier New\',Courier,monospace;font-size:32px;font-weight:700;letter-spacing:6px;color:#ffffff;text-shadow:0 0 10px rgba(139,92,246,0.5);">' . $otp . '</span>
+              </div>
+              <p style="margin:20px 0 0 0;font-size:12px;color:rgba(255,255,255,0.4);font-family:\'Inter\',sans-serif;">This code will expire in <strong style="color:#ef4444;">2 minutes</strong>. If you did not request this, please ignore this email.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 24px;background-color:rgba(10,10,26,0.8);text-align:center;border-top:1px solid rgba(139,92,246,0.15);">
+              <span style="font-size:11px;color:rgba(255,255,255,0.35);font-family:\'Inter\',sans-serif;">&copy; 2026 Money Management. Secured Portal.</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>';
+}

@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'password' => password_hash($password, PASSWORD_DEFAULT)
         ];
 
-        $body = "Your Registration OTP for Money Management is: $otp\n\nIt will expire in 2 minutes.";
+        $body = get_otp_email_body($otp, false);
         send_email($email, "Registration OTP", $body);
 
         echo json_encode(['status' => 'success', 'redirect' => 'otp_verify.php']);

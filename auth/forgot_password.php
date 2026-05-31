@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['reset_email'] = $email;
             log_security_event($pdo, $email, 'password_reset_request');
 
-            $body = "Your Password Reset OTP for Money Management is: $otp\n\nIt will expire in 2 minutes.";
+            $body = get_otp_email_body($otp, true);
             send_email($email, "Password Reset OTP", $body);
 
             echo json_encode(['status' => 'success', 'redirect' => 'reset_password.php']);
