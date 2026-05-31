@@ -19,6 +19,8 @@ set_security_headers();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/glassmorphism.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="../assets/css/dashboard.css?v=<?php echo time(); ?>">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 </head>
 
 <body>
@@ -28,6 +30,8 @@ set_security_headers();
         <div class="orb orb-3"></div>
     </div>
     <div class="noise-overlay"></div>
+
+    <input type="file" id="importFile" accept=".encrypted" style="display:none;" onchange="handleImport(event)">
 
     <div class="dashboard-container">
         <!-- Top Navigation Bar -->
@@ -43,6 +47,9 @@ set_security_headers();
             <div class="topbar-actions">
                 <button class="btn btn-ghost" id="refreshDashBtn" onclick="loadDashboardData()">
                     <i class="fas fa-sync-alt" id="refreshIcon"></i> Refresh
+                </button>
+                <button class="btn btn-ghost" id="openSettingsBtn" onclick="openGlobalSettings()">
+                    <i class="fas fa-cog"></i> <span class="hide-mobile">Settings</span>
                 </button>
                 <a href="../auth/logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
@@ -164,10 +171,17 @@ set_security_headers();
         </div>
     </div>
 
+    <script>
+        const API_URL = '../Exp/api/api.php';
+        const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        let userCurrency = '<?php echo htmlspecialchars($_SESSION['currency'] ?? "₹"); ?>';
+        let email = '<?php echo htmlspecialchars($_SESSION['user_email'] ?? ""); ?>';
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
     <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
     <script src="../assets/js/charts.js?v=<?php echo time(); ?>"></script>
+    <script src="../assets/js/settings.js?v=<?php echo time(); ?>"></script>
 </body>
 
 </html>

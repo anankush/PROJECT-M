@@ -69,10 +69,7 @@ $base = '../../';
                 <i class="fas fa-plus"></i> Create New Goal
             </button>
 
-            <input type="file" id="importFile" accept=".encrypted" style="display:none;" onchange="handleImport(event)">
-
             <div class="sidebar-bottom">
-                <button class="btn btn-ghost" onclick="openSavSettings()"><i class="fas fa-cog"></i> Settings</button>
                 <button class="btn btn-ghost" id="tab-manage-goals" onclick="loadSavView('manage_goals.php', 'tab-manage-goals')"><i class="fas fa-tasks"></i> Manage Goals</button>
                 <a href="../../dashboard/index.php" class="btn btn-ghost"><i class="fas fa-home"></i> Main Dashboard</a>
                 <a href="../../auth/logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
