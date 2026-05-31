@@ -860,6 +860,31 @@
 
         async function editSectionBudget() {
             if (!currentCategoryId) { Swal.fire('Info', 'Please select a section first.', 'info'); return; }
+
+            function getMonthName(monthStr) {
+                const [y, m] = monthStr.split('-');
+                return new Date(y, m - 1).toLocaleString('default', { month: 'long' });
+            }
+
+            function getMonthsRange(startStr, endStr) {
+                const months = [];
+                let [startYear, startMonth] = startStr.split('-').map(Number);
+                let [endYear, endMonth] = endStr.split('-').map(Number);
+                
+                let currentYear = startYear;
+                let currentMonth = startMonth;
+                
+                while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
+                    const monthStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+                    months.push(monthStr);
+                    currentMonth++;
+                    if (currentMonth > 12) {
+                        currentMonth = 1;
+                        currentYear++;
+                    }
+                }
+                return months;
+            }
             
             const choice = await Swal.fire({
                 title: 'Budget Type',
@@ -890,6 +915,7 @@
             
             let budgetType = choice.isConfirmed ? 'monthly' : 'overall';
             let targetMonth = '';
+            let targetMonths = null;
 
             if (budgetType === 'monthly') {
                 const defaultMonth = document.getElementById('monthFilter') ? document.getElementById('monthFilter').value : '';
@@ -921,6 +947,62 @@
                 });
                 if (!monthPrompt.isConfirmed) return;
                 targetMonth = monthPrompt.value;
+            } else {
+                const now = new Date();
+                const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                
+                const startMonthPrompt = await Swal.fire({
+                    title: 'Select Starting Month',
+                    html: `
+                        <div style="text-align:center; margin-bottom:10px; font-size:0.9rem; color:var(--text-secondary);">
+                            Select the starting month from which the overall budget should apply up to the current month (${getMonthName(currentMonthStr)} ${now.getFullYear()}).
+                        </div>
+                        <input type="text" id="swalStartMonthInput" class="theme-input-select swal-input" placeholder="Select Starting Month" readonly style="text-align:center;">
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Next',
+                    confirmButtonColor: '#8b5cf6',
+                    didOpen: () => {
+                        flatpickr("#swalStartMonthInput", {
+                            plugins: [
+                                new monthSelectPlugin({
+                                    shorthand: true,
+                                    dateFormat: "Y-m",
+                                    altFormat: "F Y",
+                                    theme: "dark"
+                                })
+                            ],
+                            disableMobile: "true",
+                            defaultDate: currentMonthStr
+                        });
+                    },
+                    preConfirm: () => {
+                        const val = document.getElementById('swalStartMonthInput').value;
+                        if (!val) { Swal.showValidationMessage('Please select a starting month'); return false; }
+                        if (val > currentMonthStr) {
+                            Swal.showValidationMessage(`Starting month cannot be after ${getMonthName(currentMonthStr)} ${now.getFullYear()}`);
+                            return false;
+                        }
+                        return val;
+                    }
+                });
+                if (!startMonthPrompt.isConfirmed) return;
+                
+                const startMonth = startMonthPrompt.value;
+                const monthsRange = getMonthsRange(startMonth, currentMonthStr);
+                
+                const confirmChoice = await Swal.fire({
+                    title: 'Are you sure?',
+                    html: `This will set the budget for <strong>${currentCategoryName}</strong> for all months from <strong>${getMonthName(startMonth)} ${startMonth.split('-')[0]}</strong> to <strong>${getMonthName(currentMonthStr)} ${now.getFullYear()}</strong> (${monthsRange.length} month(s) total).<br><br>Past months' budgets in this range will be updated.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, proceed',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#8b5cf6'
+                });
+                
+                if (!confirmChoice.isConfirmed) return;
+                targetMonths = monthsRange;
             }
 
             let currentCat = categories.find(c => c.id === currentCategoryId);
@@ -931,6 +1013,10 @@
                 const [y, m] = targetMonth.split('-'); 
                 const monthName = new Date(y, m - 1).toLocaleString('default', { month: 'long' }); 
                 budgetTitle = `Set Budget for ${currentCategoryName} in ${monthName} ${y}`; 
+            } else if (targetMonths && targetMonths.length > 0) {
+                const startM = targetMonths[0];
+                const endM = targetMonths[targetMonths.length - 1];
+                budgetTitle = `Set Budget for ${currentCategoryName} (${getMonthName(startM)} to ${getMonthName(endM)})`;
             }
 
             const { value: newBudget } = await Swal.fire({
@@ -942,12 +1028,14 @@
                 focusConfirm: false,
                 didOpen: () => {
                     const bInput = document.getElementById('budgetInput');
-                    bInput.focus();
-                    bInput.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            Swal.clickConfirm();
-                        }
-                    });
+                    if (bInput) {
+                        bInput.focus();
+                        bInput.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter') {
+                                Swal.clickConfirm();
+                            }
+                        });
+                    }
                 },
                 preConfirm: () => {
                     const v = document.getElementById('budgetInput').value;
@@ -955,11 +1043,31 @@
                     return v;
                 }
             });
+            
             if (newBudget !== undefined && newBudget !== null && newBudget !== '') {
-                const res = await fetch(`${API_URL}?action=update_category_budget`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN }, body: JSON.stringify({ category_id: currentCategoryId, budget: newBudget, month: targetMonth }) });
+                const payload = {
+                    category_id: currentCategoryId,
+                    budget: newBudget
+                };
+                if (budgetType === 'monthly') {
+                    payload.month = targetMonth;
+                } else {
+                    payload.months = targetMonths;
+                }
+                
+                const res = await fetch(`${API_URL}?action=update_category_budget`, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN }, 
+                    body: JSON.stringify(payload) 
+                });
                 const result = await res.json();
-                if (result.status === 'success') { await fetchCategories(); if (currentCategoryId) loadCategory(currentCategoryId, currentCategoryName); Swal.fire('Saved!', '', 'success'); }
-                else Swal.fire('Error', result.message, 'error');
+                if (result.status === 'success') { 
+                    await fetchCategories(); 
+                    if (currentCategoryId) loadCategory(currentCategoryId, currentCategoryName); 
+                    Swal.fire('Saved!', '', 'success'); 
+                } else {
+                    Swal.fire('Error', result.message, 'error');
+                }
             }
         }
 

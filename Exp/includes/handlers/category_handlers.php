@@ -167,6 +167,7 @@ function handle_update_category_budget($pdo) {
     $category_id = sanitize_input($input['category_id'] ?? '');
     $budget = floatval($input['budget'] ?? 0);
     $month = sanitize_input($input['month'] ?? '');
+    $months = $input['months'] ?? null;
 
     if (empty($category_id) || !isset($input['budget'])) {
         echo json_encode(['status' => 'error', 'message' => 'Category ID and budget are required']);
@@ -175,7 +176,15 @@ function handle_update_category_budget($pdo) {
 
     try {
         $catModel = new Model($pdo, 'user_categories', $uid);
-        if (!empty($month)) {
+        if (!empty($months) && is_array($months)) {
+            $pdo->beginTransaction();
+            $query = "INSERT INTO category_monthly_budgets (user_id, category_id, budget_month, budget) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE budget = VALUES(budget)";
+            foreach ($months as $m) {
+                $m_sanitized = sanitize_input($m);
+                $catModel->executeQuery($query, [$uid, $category_id, $m_sanitized, $budget]);
+            }
+            $pdo->commit();
+        } elseif (!empty($month)) {
             $query = "INSERT INTO category_monthly_budgets (user_id, category_id, budget_month, budget) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE budget = VALUES(budget)";
             $catModel->executeQuery($query, [$uid, $category_id, $month, $budget]);
         } else {
@@ -183,6 +192,9 @@ function handle_update_category_budget($pdo) {
         }
         echo json_encode(['status' => 'success', 'message' => 'Section budget updated successfully']);
     } catch (PDOException $e) {
+        if (!empty($months) && is_array($months) && $pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         echo json_encode(['status' => 'error', 'message' => 'Failed to update budget.']);
     }
 }
