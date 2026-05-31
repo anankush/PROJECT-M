@@ -11,7 +11,7 @@
         <button class="btn btn-ghost refresh-btn" onclick="fetchGoals()">
             <i class="fas fa-sync-alt refresh-icon"></i> <span>Refresh</span>
         </button>
-        <button class="btn btn-primary" id="addGoalBtn" onclick="addNewGoal()">
+        <button class="btn btn-primary hide-mobile" id="addGoalBtn" onclick="addNewGoal()">
             <i class="fas fa-plus"></i> <span class="hide-mobile">Create New Goal</span>
         </button>
     </div>
@@ -45,3 +45,7 @@
         <button class="btn btn-primary" style="margin-top:1rem;" onclick="addNewGoal()"><i class="fas fa-plus"></i> Create Goal</button>
     </div>
 </div>
+
+<button class="btn btn-primary" id="mobileAddGoalBtn" onclick="addNewGoal()">
+    <i class="fas fa-plus"></i>
+</button>

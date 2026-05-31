@@ -318,6 +318,10 @@
     white-space: nowrap;
 }
 
+#mobileAddGoalBtn {
+    display: none;
+}
+
 /* Mobile responsive fixes */
 @media (max-width: 768px) {
     .main-content {
@@ -393,7 +397,7 @@
     }
 
     /* Floating Action Button (FAB) for mobile to Create New Goal */
-    #addGoalBtn {
+    #mobileAddGoalBtn {
         display: flex !important;
         position: fixed !important;
         bottom: 24px !important;
@@ -408,11 +412,7 @@
         padding: 0 !important;
     }
 
-    #addGoalBtn .hide-mobile {
-        display: none !important;
-    }
-
-    #addGoalBtn i {
+    #mobileAddGoalBtn i {
         font-size: 1.5rem !important;
         margin: 0 !important;
     }
