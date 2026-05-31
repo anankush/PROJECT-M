@@ -4,6 +4,7 @@
 [![Database](https://img.shields.io/badge/Database-MySQL-4479A1.svg?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge)](#)
 [![Security](https://img.shields.io/badge/Security-Prepared%20Statements-success.svg?style=for-the-badge&logo=securityscorecard)](https://owasp.org/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Nayan-blue.svg?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan)
 
 **Project M** is a premium, proprietary personal finance command center designed to help users track expenses, set savings goals, and master their financial life with elegance. Featuring a custom glassmorphism user interface, the application delivers rich real-time analytics and detailed tracking metrics without compromising on security or performance.
 
@@ -55,3 +56,10 @@
 ├── includes/       # Core utility functions, DB connection, and headers
 └── index.php       # Main application landing page
 ```
+
+---
+
+## ✉️ Developer & Support
+
+For inquiries or professional updates:
+*   **LinkedIn:** [itznayan](https://linkedin.com/in/itznayan)
