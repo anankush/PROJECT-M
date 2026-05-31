@@ -123,7 +123,7 @@ $base = '../../';
     <script src="../../assets/js/main.js"></script>
     <script src="../assets/js/sav.js"></script>
     <!-- Floating Action Button for mobile to Create New Goal -->
-    <button class="floating-fab" onclick="addNewGoal()" id="mobileCreateGoalBtn" title="Create New Goal">
+    <button class="btn btn-primary floating-fab" onclick="addNewGoal()" id="mobileCreateGoalBtn" title="Create New Goal">
         <i class="fas fa-plus"></i>
     </button>
 </body>

@@ -10,7 +10,7 @@
             <!-- Injected dynamically -->
         </select>
         <button class="btn btn-ghost refresh-btn" onclick="fetchHistory()">
-            <i class="fas fa-sync-alt refresh-icon"></i> <span class="hide-mobile">Refresh</span>
+            <i class="fas fa-sync-alt refresh-icon"></i> <span>Refresh</span>
         </button>
     </div>
 </div>
