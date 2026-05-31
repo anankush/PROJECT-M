@@ -5,7 +5,7 @@ $_GET['month'] = '2026-05';
 
 require_once '../../includes/db.php';
 session_start();
-$_SESSION['user_id'] = 19; // Test user ID
+$_SESSION['user_id'] = 19; 
 
 ob_start();
 require_once 'api.php';

@@ -1,11 +1,11 @@
 <?php
-// admin/index.php
+
 require_once '../includes/db.php';
 require_once '../includes/auth_check.php';
 require_once '../includes/csrf.php';
 require_once '../includes/functions.php';
 
-// Enforce login at PHP level as fallback
+
 if (empty($_SESSION['admin_id']) || empty($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../auth/admin_login.php');
     exit;
@@ -41,7 +41,7 @@ $base = '../';
             justify-content: flex-start;
         }
 
-        /* Views */
+        
         .admin-view {
             display: none;
             animation: fadeIn 0.4s ease both;
@@ -50,7 +50,7 @@ $base = '../';
             display: block;
         }
 
-        /* Metric Pill Improvements */
+        
         .admin-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -82,7 +82,7 @@ $base = '../';
             font-size: 1.5rem;
         }
 
-        /* Charts Layout */
+        
         .admin-charts-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -102,7 +102,7 @@ $base = '../';
             color: var(--text-primary);
         }
 
-        /* Interactive Controls */
+        
         .control-row {
             display: flex;
             justify-content: space-between;
@@ -127,7 +127,7 @@ $base = '../';
             padding-left: 40px;
         }
 
-        /* Status badges */
+        
         .badge-status {
             display: inline-flex;
             align-items: center;
@@ -149,7 +149,7 @@ $base = '../';
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
-        /* Action Buttons */
+        
         .btn-table-action {
             padding: 0.4rem 0.8rem;
             font-size: 0.8rem;
@@ -157,7 +157,7 @@ $base = '../';
             font-weight: 600;
         }
         
-        /* Security logs styles */
+        
         .log-details {
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -419,13 +419,13 @@ $base = '../';
         }
 
         function switchTab(tabId) {
-            // Update sidebar tabs
+            
             document.querySelectorAll('#adminTabs .category-tab').forEach(btn => {
                 btn.classList.remove('active');
             });
             document.getElementById(`tab-${tabId}`).classList.add('active');
 
-            // Switch views
+            
             document.querySelectorAll('.admin-view').forEach(view => {
                 view.classList.remove('active');
             });
@@ -435,7 +435,7 @@ $base = '../';
                 toggleSidebar();
             }
 
-            // Load data accordingly
+            
             if (tabId === 'overview') {
                 refreshOverview();
             } else if (tabId === 'users') {
@@ -490,7 +490,7 @@ $base = '../';
         }
 
         function renderCharts(data) {
-            // Unified x-axis sorted months from both trends
+            
             const regData = data.registration_trend || [];
             const logData = data.login_trend || [];
             
@@ -595,7 +595,7 @@ $base = '../';
                 const badgeClass = user.status === 'blocked' ? 'blocked' : 'active';
                 const actionText = user.status === 'blocked' ? 'Unblock' : 'Block';
                 const actionBtnClass = user.status === 'blocked' ? 'btn-ghost' : 'btn-danger';
-                const actionValue = user.status !== 'blocked'; // true to block, false to unblock
+                const actionValue = user.status !== 'blocked'; 
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -703,7 +703,7 @@ $base = '../';
             }
 
             logs.forEach(log => {
-                // Event action formatting
+                
                 let actionBadgeColor = 'rgba(255, 255, 255, 0.05)';
                 let actionColor = 'var(--text-secondary)';
                 if (log.action.includes('success')) {

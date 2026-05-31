@@ -1512,7 +1512,7 @@
                             icon: 'success',
                             confirmButtonColor: '#8b5cf6'
                         });
-                        // Reload current category view to reflect updated budgets
+                        
                         loadCategory(currentCategoryId, currentCategoryName);
                         fetchTotalExpenditure();
                     } else {

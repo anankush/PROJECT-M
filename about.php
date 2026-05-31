@@ -1,5 +1,5 @@
 <?php
-// Money Management — About Page
+
 require_once 'includes/db.php';
 require_once 'includes/auth_check.php';
 require_once 'includes/functions.php';

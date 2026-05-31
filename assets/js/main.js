@@ -1,13 +1,13 @@
-// assets/js/main.js
 
-// Get YYYY-MM-DD formatted date in local timezone
+
+
 function getLocalDateString(d = new Date()) {
     const tzoffset = d.getTimezoneOffset() * 60000;
     return (new Date(d.getTime() - tzoffset)).toISOString().slice(0, 10);
 }
 
 
-// ── Toast Notifications ────────────────────────────────
+
 function showToast(message, type = 'success') {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
@@ -25,7 +25,7 @@ function showToast(message, type = 'success') {
     }
 }
 
-// ── XSS-safe HTML escaping ─────────────────────────────
+
 function escapeHtml(unsafe) {
     if (!unsafe) return '';
     return String(unsafe)

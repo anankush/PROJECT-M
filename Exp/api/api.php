@@ -1,5 +1,5 @@
 <?php
-// Exp/api/api.php
+
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
 require_once '../../includes/csrf.php';
@@ -13,7 +13,7 @@ require_once '../includes/handlers/user_handlers.php';
 
 header('Content-Type: application/json');
 
-// All API requests MUST have CSRF except checking session status
+
 $action = $_GET['action'] ?? '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'check_session') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
@@ -24,7 +24,7 @@ if (!isset($_SESSION['user_id']) && !isset($_SESSION['admin_id'])) {
     exit;
 }
 
-// Enforce session timeout on every API call
+
 check_session_timeout();
 
 switch ($action) {
@@ -32,7 +32,7 @@ switch ($action) {
         handle_check_session($pdo);
         break;
     
-    // Categories
+    
     case 'get_categories':
         handle_get_categories($pdo);
         break;
@@ -58,7 +58,7 @@ switch ($action) {
         handle_save_note($pdo);
         break;
 
-    // Records
+    
     case 'get_records':
         handle_get_records($pdo);
         break;
@@ -78,7 +78,7 @@ switch ($action) {
         handle_get_total_expenditure($pdo);
         break;
         
-    // User & Settings (Global features integrated into Exp)
+    
     case 'update_settings':
         handle_update_settings($pdo);
         break;
@@ -98,7 +98,7 @@ switch ($action) {
         handle_reset_password_with_otp($pdo);
         break;
         
-    // Export / Import
+    
     case 'check_existing_data':
         if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
             echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);

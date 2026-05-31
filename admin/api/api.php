@@ -107,7 +107,7 @@ switch ($action) {
         }
 
         try {
-            // Get user email for logging
+            
             $uStmt = $pdo->prepare("SELECT email FROM users WHERE id = ? LIMIT 1");
             $uStmt->execute([$user_id]);
             $user = $uStmt->fetch();
@@ -120,7 +120,7 @@ switch ($action) {
             $stmt = $pdo->prepare("UPDATE users SET status = ? WHERE id = ?");
             $stmt->execute([$new_status, $user_id]);
 
-            // Log administrative action
+            
             $log_action = $block ? 'user_blocked' : 'user_unblocked';
             log_security_event($pdo, $user['email'], $log_action, $_SESSION['admin_id']);
 

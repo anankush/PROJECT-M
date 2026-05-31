@@ -1,5 +1,5 @@
 <?php
-// Money Management — Landing Page
+
 require_once 'includes/db.php';
 require_once 'includes/auth_check.php';
 require_once 'includes/functions.php';
@@ -319,13 +319,13 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
 
     <!-- ═══ SCRIPTS ═══ -->
     <script>
-        // Navbar scroll effect
+        
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             navbar.classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        // Smooth scroll for anchor links
+        
         document.querySelectorAll('a[href^="#"]').forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
@@ -336,7 +336,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
             });
         });
 
-        // Scroll reveal
+        
         const revealElements = document.querySelectorAll('.reveal');
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach((entry, i) => {
@@ -351,7 +351,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
 
         revealElements.forEach(el => revealObserver.observe(el));
 
-        // Mobile Menu Toggle
+        
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const navLinks = document.querySelector('.nav-links');
         if (mobileMenuBtn && navLinks) {
@@ -360,7 +360,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
             });
         }
 
-        // Cursor glow
+        
         const glow = document.createElement('div');
         glow.className = 'cursor-glow';
         document.body.appendChild(glow);

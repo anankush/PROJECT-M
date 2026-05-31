@@ -1,5 +1,5 @@
 <?php
-// dev.php - Development & Quick Links
+
 require_once 'includes/db.php';
 require_once 'includes/auth_check.php';
 require_once 'includes/functions.php';
@@ -82,7 +82,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             line-height: 1.5;
         }
         
-        /* Unique Colors */
+        
         .card-admin { background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2); }
         .card-admin .dev-card-icon { color: #ef4444; }
         .card-admin:hover { box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); }
@@ -169,7 +169,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
     </div>
 
     <script>
-        // Mobile Menu Toggle
+        
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const navLinks = document.querySelector('.nav-links');
         if (mobileMenuBtn && navLinks) {

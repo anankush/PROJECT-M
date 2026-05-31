@@ -1,23 +1,23 @@
 <?php
-// error.php
-// Set default timezone to Indian Standard Time (IST)
+
+
 date_default_timezone_set('Asia/Kolkata');
 
-// Start session securely
+
 if (session_status() === PHP_SESSION_NONE) {
-    // PHP 7.2 compatible cookie params
+    
     session_set_cookie_params(
-        900,                    // lifetime
-        '/',                    // path
-        '',                     // domain
-        false,                  // secure
-        true                    // httponly
+        900,                    
+        '/',                    
+        '',                     
+        false,                  
+        true                    
     );
     session_name('PROJECTM_SID');
     session_start();
 }
 
-// Clear all session data (Session Close)
+
 $_SESSION = [];
 if (ini_get('session.use_cookies')) {
     $params = session_get_cookie_params();

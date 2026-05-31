@@ -1,5 +1,5 @@
-// assets/js/charts.js
-// Phase 7: Full Integration — fetches live data from Exp & Sav summary APIs
+
+
 
 Chart.defaults.color = 'rgba(255, 255, 255, 0.6)';
 Chart.defaults.font.family = 'Outfit, Inter, sans-serif';
@@ -7,7 +7,7 @@ Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.08)';
 
 let combinedChart = null;
 let donutChart = null;
-const CURRENCY = '₹'; // Fallback; overridden by API data
+const CURRENCY = '₹'; 
 
 let dashboardCategories = [];
 let dashboardGoals = [];
@@ -120,11 +120,11 @@ async function loadDashboardData(selectedMonth = 'all') {
         const result = await res.json().catch(() => null);
         const data = result?.status === 'success' ? result.data : null;
 
-        // Store globally for quick logger selectors
+        
         dashboardCategories = data?.categories || [];
         dashboardGoals = data?.goals || [];
 
-        // ── Exp Stat Pills ──────────────────────────────────────────────
+        
         const currency = result?.currency || CURRENCY;
         const budget   = data ? data.total_budget : null;
         const spent    = data ? data.total_spent  : null;
@@ -134,11 +134,11 @@ async function loadDashboardData(selectedMonth = 'all') {
         setStatPill('expSpentVal',  spent,  currency, false);
         setStatPill('expBalanceVal', balance, currency, true);
 
-        // ── Sav Stat Pill ───────────────────────────────────────────────
+        
         const totalSaved = data ? data.total_saved : null;
         setStatPill('savTotalVal', totalSaved, currency, false, '#06b6d4');
 
-        // ── Net Worth & Health Score Pills ──────────────────────────────
+        
         const netWorth = data ? data.net_worth : null;
         setStatPill('netWorthVal', netWorth, currency, true);
 
@@ -149,7 +149,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             scoreEl.innerHTML = `<span style="color:${scoreColor}">${score} <span style="font-size:0.8rem; font-weight:500; color:var(--text-muted);">/ 100</span></span>`;
         }
 
-        // ── Active Savings Goals Progress ──
+        
         const goalsList = document.getElementById('goalsProgressList');
         if (goalsList) {
             const goals = data?.goals || [];
@@ -185,7 +185,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             }
         }
 
-        // ── Upcoming Goal Deadlines ──
+        
         const deadlinesList = document.getElementById('upcomingDeadlinesList');
         if (deadlinesList) {
             const goals = data?.goals || [];
@@ -243,7 +243,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             }
         }
 
-        // ── Update Donut Chart ──────────────────────────────────────────
+        
         if (data && data.breakdown && data.breakdown.length > 0) {
             const donutEmpty = document.getElementById('donutEmpty');
             if (donutEmpty) donutEmpty.style.display = 'none';
@@ -285,7 +285,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             donutChart.update();
         }
 
-        // ── Update Combined Bar Chart ───────────────────────────────────
+        
         const now = new Date();
         const monthLabels = [];
         for (let i = 5; i >= 0; i--) {
@@ -307,7 +307,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             return new Date(y, mo - 1).toLocaleString('default', { month: 'short' }) + ` '${y.slice(2)}`;
         });
 
-        // Populate the Month Filter select dropdown if it only contains "All-Time"
+        
         const selectFilter = document.getElementById('dashboardMonthFilter');
         if (selectFilter && selectFilter.options.length <= 1) {
             monthLabels.forEach((m, idx) => {
@@ -342,7 +342,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             curMonthLabel.textContent = (selectedMonth === 'all') ? '(All-Time)' : `(${formatMonthYearLabel(selectedMonth)})`;
         }
 
-        // ── Populate Month-wise Summary Table ───────────────────────────
+        
         const tbody = document.getElementById('summaryTableBody');
         if (tbody) {
             tbody.innerHTML = '';
@@ -371,7 +371,7 @@ async function loadDashboardData(selectedMonth = 'all') {
             });
         }
 
-        // ── Populate Recent Combined Transactions ──
+        
         const txList = document.getElementById('recentTransactionsList');
         if (txList) {
             const txs = data?.recent_transactions || [];
@@ -475,7 +475,7 @@ function getThemeGradient(theme) {
     }
 }
 
-// ── Quick Entry Log Modal Implementation ──
+
 async function openQuickLog() {
     const { value: type } = await Swal.fire({
         title: 'Quick Log Entry',
@@ -642,7 +642,7 @@ async function submitQuickLog(payload) {
     }
 }
 
-// ── Interactive Dashboard Month Filtering & Redirection helpers ──
+
 function filterDashboardByMonth(month) {
     currentSelectedMonth = month;
     const selectFilter = document.getElementById('dashboardMonthFilter');

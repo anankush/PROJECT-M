@@ -1,16 +1,16 @@
 <?php
-// ProjectM/dashboard/index.php
+
 require_once '../includes/db.php';
 require_once '../includes/auth_check.php';
 require_once '../includes/csrf.php';
 require_once '../includes/functions.php';
 require_login();
 
-// Clear sub-module authorizations when landing back on the main dashboard
+
 unset($_SESSION['exp_authorized']);
 unset($_SESSION['sav_authorized']);
 
-// Generate OTTs for secure sub-module access
+
 $exp_ott = generate_ott('exp');
 $sav_ott = generate_ott('sav');
 

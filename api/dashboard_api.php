@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 exit;
             }
 
-            // Verify goal belongs to this user
+            
             $check = $pdo->prepare("SELECT id FROM savings_goals WHERE id = ? AND user_id = ?");
             $check->execute([$goal_id, $uid]);
             if (!$check->fetch()) {
@@ -101,10 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             exit;
         }
     } catch (PDOException $e) {
-        // Log real error server-side, never expose to client
+        
         error_log('[Dashboard API:quick_entry] ' . $e->getMessage());
 
-        // Risky DB error → terminate session immediately and redirect to error page
+        
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
@@ -128,19 +128,19 @@ $month = sanitize_input($_GET['month'] ?? 'all');
 try {
     $model = new Model($pdo, 'expenses', $uid);
 
-    // 1. Total Budget & 2. Total Expenditure
+    
     if ($month === 'all') {
-        // Budget = sum of categories' budgets
+        
         $budgetQuery = "SELECT COALESCE(SUM(budget), 0) as total_budget FROM user_categories WHERE user_id = ?";
         $budgetResult = $model->customQuery($budgetQuery, [$uid]);
         $totalBudget = floatval($budgetResult[0]['total_budget'] ?? 0);
 
-        // Spent = sum of all expenses all-time
+        
         $expQuery = "SELECT COALESCE(SUM(amount), 0) as total_spent FROM expenses WHERE user_id = ?";
         $expResult = $model->customQuery($expQuery, [$uid]);
         $totalSpent = floatval($expResult[0]['total_spent'] ?? 0);
 
-        // 3. Category Breakdown (All-Time)
+        
         $breakdownQuery = "
             SELECT c.id as category_id, c.category_name, COALESCE(SUM(e.amount), 0) as spent
             FROM user_categories c
@@ -151,7 +151,7 @@ try {
         ";
         $breakdown = $model->customQuery($breakdownQuery, [$uid]);
 
-        // Health Score calculations default to Current Month in overall mode
+        
         $curMonth = date('Y-m');
         $curBudgetQuery = "
             SELECT COALESCE(SUM(COALESCE(mb.budget, c.budget)), 0) as total_budget
@@ -167,7 +167,7 @@ try {
         $curSpent = floatval($curExpResult[0]['total_spent'] ?? 0);
 
     } else {
-        // Specific Month
+        
         $budgetQuery = "
             SELECT COALESCE(SUM(COALESCE(mb.budget, c.budget)), 0) as total_budget
             FROM user_categories c
@@ -181,7 +181,7 @@ try {
         $expResult = $model->customQuery($expQuery, [$uid, $month]);
         $totalSpent = floatval($expResult[0]['total_spent'] ?? 0);
 
-        // 3. Category Breakdown (Selected Month)
+        
         $breakdownQuery = "
             SELECT c.id as category_id, c.category_name, COALESCE(SUM(e.amount), 0) as spent
             FROM user_categories c
@@ -196,7 +196,7 @@ try {
         $curSpent = $totalSpent;
     }
 
-    // 4. Monthly Expenses (Last 6 Months)
+    
     $expMonthlyQuery = "
         SELECT DATE_FORMAT(entry_date, '%Y-%m') as month, SUM(amount) as total_spent
         FROM expenses
@@ -205,7 +205,7 @@ try {
     ";
     $expMonthly = $model->customQuery($expMonthlyQuery, [$uid]);
 
-    // 5. Total Savings & Monthly Savings (Last 6 Months)
+    
     $totalSaved = 0;
     $savMonthly = [];
     try {
@@ -224,10 +224,10 @@ try {
         ";
         $savMonthly = $model->customQuery($savMonthlyQuery, [$uid]);
     } catch (PDOException $e) {
-        // Handle gracefully if table does not exist
+        
     }
 
-    // 6. Active Savings Goals with Progress
+    
     $goals = [];
     try {
         $goalsQuery = "
@@ -241,10 +241,10 @@ try {
         ";
         $goals = $model->customQuery($goalsQuery, [$uid]);
     } catch (PDOException $e) {
-        // Handle gracefully
+        
     }
 
-    // 7. Recent Combined Transactions Feed (Union expenses and savings)
+    
     $recentTransactions = [];
     try {
         if ($month === 'all') {
@@ -289,10 +289,10 @@ try {
             $recentTransactions = $model->customQuery($recentQuery, [$uid, $month, $uid, $month]);
         }
     } catch (PDOException $e) {
-        // Handle gracefully
+        
     }
 
-    // 8. Financial Health Score Calculation
+    
     $healthScore = 100;
     if ($curBudget > 0) {
         $spendRatio = $curSpent / $curBudget;
@@ -332,10 +332,10 @@ try {
     $healthScore += ($achievedGoals * 5);
     $healthScore = max(0, min(100, round($healthScore)));
 
-    // 9. Net Worth
+    
     $netWorth = $totalSaved + ($totalBudget - $totalSpent);
 
-    // 10. Fetch Categories list (for Quick Log selection)
+    
     $categories = [];
     try {
         $catQuery = "SELECT id, category_name FROM user_categories WHERE user_id = ? ORDER BY category_name ASC";

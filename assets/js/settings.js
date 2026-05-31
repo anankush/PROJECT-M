@@ -1,4 +1,4 @@
-// PROJECT M/assets/js/settings.js
+
 
 window.tempCurrency = userCurrency;
 
@@ -37,7 +37,7 @@ const allCurrencies = [
 async function openGlobalSettings() {
     window.tempCurrency = userCurrency;
 
-    // Default: first 20 popular + current selected
+    
     const defaultList = allCurrencies.slice(0, 20).includes(userCurrency)
         ? allCurrencies.slice(0, 20)
         : [userCurrency, ...allCurrencies.slice(0, 20)];
