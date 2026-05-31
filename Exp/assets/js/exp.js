@@ -821,14 +821,26 @@
                 title: 'Budget Type',
                 text: 'Do you want to set this budget for the overall section, or just for a specific month?',
                 icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Specific Month',
-                cancelButtonText: 'Overall',
-                confirmButtonColor: '#8b5cf6',
-                cancelButtonColor: '#6366f1'
+                html: `
+                    <div style="display:flex; flex-direction:column; gap:15px; margin-top:20px; align-items:center; width:100%;">
+                        <div style="display:flex; gap:15px; width:100%; justify-content:center;">
+                            <button type="button" id="btn-swal-monthly" class="btn btn-primary" style="flex:1; max-width:180px; justify-content:center; padding: 0.75rem;">Specific Month</button>
+                            <button type="button" id="btn-swal-overall" class="btn btn-ghost" style="flex:1; max-width:180px; justify-content:center; padding: 0.75rem; background:rgba(99, 102, 241, 0.15); border:1px solid rgba(99, 102, 241, 0.3); color:#818cf8;">Overall</button>
+                        </div>
+                        <button type="button" id="btn-swal-back" class="btn btn-ghost" style="width:120px; font-size:0.85rem; padding:0.4rem 1rem; justify-content:center; border-color:rgba(255,255,255,0.15);">Back</button>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showDenyButton: false,
+                showCancelButton: false,
+                didOpen: () => {
+                    document.getElementById('btn-swal-monthly').addEventListener('click', () => Swal.clickConfirm());
+                    document.getElementById('btn-swal-overall').addEventListener('click', () => Swal.clickDeny());
+                    document.getElementById('btn-swal-back').addEventListener('click', () => Swal.clickCancel());
+                }
             });
             
-            if (choice.dismiss === Swal.DismissReason.backdrop || choice.dismiss === Swal.DismissReason.esc || choice.dismiss === Swal.DismissReason.close) {
+            if (choice.isDismissed || choice.dismiss === Swal.DismissReason.backdrop || choice.dismiss === Swal.DismissReason.esc || choice.dismiss === Swal.DismissReason.close) {
                 return;
             }
             
