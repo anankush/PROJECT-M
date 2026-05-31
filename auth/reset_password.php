@@ -75,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Clear reset session
             unset($_SESSION['reset_email']);
             unset($_SESSION['otp_verified']);
+            log_security_event($pdo, $email, 'password_reset_success');
 
             echo json_encode(['status' => 'success', 'redirect' => 'login.php']);
             exit;

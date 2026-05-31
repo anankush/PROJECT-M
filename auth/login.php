@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Check User
-        $stmt = $pdo->prepare("SELECT id, email, password, currency FROM users WHERE email = ? LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id, email, password, currency, status FROM users WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
         if ($user) {
@@ -44,6 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($isValid) {
+                if (isset($user['status']) && $user['status'] === 'blocked') {
+                    log_security_event($pdo, $email, 'login_failed', $user['id']);
+                    echo json_encode(['status' => 'error', 'message' => 'Your account has been blocked by the administrator.']);
+                    exit;
+                }
+
                 session_regenerate_id(true);
                 $_SESSION['user_id']     = $user['id'];
                 $_SESSION['role']        = 'user';
@@ -51,15 +57,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_email']  = $user['email'];
                 $_SESSION['currency']    = $user['currency'] ?? '₹';
                 $_SESSION['last_activity'] = time();
+                log_security_event($pdo, $email, 'login_success', $user['id']);
                 echo json_encode(['status' => 'success', 'redirect' => '../dashboard/index.php']);
                 exit;
             }
         }
 
+        log_security_event($pdo, $email, 'login_failed');
         // Constant-time failure response to prevent timing attacks
         password_verify('dummy', '$2y$10$dummyhashtopreventtimingattacks.......');
         echo json_encode(['status' => 'error', 'message' => 'Invalid credentials']);
     } catch (Exception $e) {
+        log_security_event($pdo, $email, 'login_failed');
         echo json_encode(['status' => 'error', 'message' => 'Login failed. Please try again.']);
     }
     exit;

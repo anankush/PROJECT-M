@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Store email in session for the next step
         $_SESSION['reset_email'] = $email;
+        log_security_event($pdo, $email, 'password_reset_request');
 
         // Send Email
         $body = "Your Password Reset OTP for Money Management is: $otp\n\nIt will expire in 2 minutes.";

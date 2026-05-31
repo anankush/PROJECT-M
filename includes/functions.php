@@ -71,3 +71,16 @@ function check_rate_limit($pdo, $action, $max_attempts = 10, $window_minutes = 1
         error_log('Rate limit check failed: ' . $e->getMessage());
     }
 }
+
+function log_security_event($pdo, $email, $action, $user_id = null) {
+    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    $ip_parts = explode(',', $ip);
+    $ip = trim($ip_parts[0]);
+    $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    try {
+        $stmt = $pdo->prepare("INSERT INTO security_logs (user_id, email, action, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$user_id, $email, $action, $ip, $user_agent]);
+    } catch (Exception $e) {
+        error_log('Security log failed: ' . $e->getMessage());
+    }
+}

@@ -7,7 +7,7 @@ require_once '../includes/functions.php';
 set_security_headers();
 
 if (isset($_SESSION['admin_id'])) {
-    header('Location: ../dashboard/index.php');
+    header('Location: ../admin/index.php');
     exit;
 }
 
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['currency']      = '₹';
         $_SESSION['last_activity'] = time();
 
-        echo json_encode(['status' => 'success', 'redirect' => '../dashboard/index.php']);
+        echo json_encode(['status' => 'success', 'redirect' => '../admin/index.php']);
     } catch (Exception $e) {
         echo json_encode(['status' => 'error', 'message' => 'Registration failed. Please try again.']);
     }

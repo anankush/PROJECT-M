@@ -7,7 +7,7 @@ require_once '../includes/functions.php';
 set_security_headers();
 
 if (isset($_SESSION['admin_id'])) {
-    header('Location: ../dashboard/index.php');
+    header('Location: ../admin/index.php');
     exit;
 }
 
@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $setting = $keyStmt->fetch();
 
         if (!$setting || !password_verify($admin_key, $setting['setting_value'])) {
+            log_security_event($pdo, $email, 'admin_login_failed');
             password_verify('dummy', '$2y$10$dummyhashtopreventtimingattacks.......');
             echo json_encode(['status' => 'error', 'message' => 'Invalid Admin Key']);
             exit;
@@ -49,10 +50,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_email']    = $admin['email'];
             $_SESSION['currency']      = $admin['currency'] ?? '₹';
             $_SESSION['last_activity'] = time();
-            echo json_encode(['status' => 'success', 'redirect' => '../dashboard/index.php']);
+            log_security_event($pdo, $email, 'admin_login_success', $admin['id']);
+            echo json_encode(['status' => 'success', 'redirect' => '../admin/index.php']);
             exit;
         }
 
+        log_security_event($pdo, $email, 'admin_login_failed');
         password_verify('dummy', '$2y$10$dummyhashtopreventtimingattacks.......');
         echo json_encode(['status' => 'error', 'message' => 'Invalid credentials']);
     } catch (Exception $e) {
