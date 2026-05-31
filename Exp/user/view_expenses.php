@@ -9,7 +9,9 @@
         </button>
     </div>
     <div class="header-controls">
-        <!-- Notes button moved to Manage Budgets page -->
+        <button class="btn btn-ghost" id="noteBtn" onclick="showReadOnlyNote()" style="display:none; background:rgba(245, 158, 11, 0.1); color:#f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); align-items:center; justify-content:center; gap:8px;">
+            <i class="far fa-sticky-note"></i> <span class="hide-mobile">Show Note</span>
+        </button>
         <input type="text" id="monthFilter" class="theme-input-select" placeholder="Select Month" readonly title="Select a month to filter">
         <select id="sortRecordsSelect" class="theme-input-select" onchange="sortRecords()" style="display:none;">
             <option value="newest" style="background:var(--bg-deep);">Date: Newest</option>

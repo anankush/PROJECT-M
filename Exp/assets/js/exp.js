@@ -1220,4 +1220,42 @@
                 Swal.fire('Error', 'Failed to fetch note.', 'error');
             }
         }
+
+        async function showReadOnlyNote() {
+            if (!currentCategoryId) return;
+            
+            Swal.fire({ title: 'Loading...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            try {
+                const res = await fetch(`${API_URL}?action=get_note&category_id=${currentCategoryId}`);
+                const result = await res.json();
+                let currentNote = '';
+                if (result.status === 'success') {
+                    currentNote = result.note;
+                }
+                
+                Swal.close();
+
+                if (!currentNote || !currentNote.trim()) {
+                    Swal.fire({
+                        title: `Note: ${currentCategoryName}`,
+                        html: `<div style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 20px;">No note added for this section. You can add one under Manage Budgets.</div>`,
+                        icon: 'info',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#8b5cf6'
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: `Note: ${currentCategoryName}`,
+                    html: `<div style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 10px; padding: 15px; max-height: 250px; overflow-y: auto; white-space: pre-wrap; font-family: var(--font-body); color: var(--text-primary); line-height: 1.6;">${escapeHtml(currentNote)}</div>`,
+                    icon: 'info',
+                    confirmButtonText: 'Close',
+                    confirmButtonColor: '#8b5cf6'
+                });
+            } catch (error) {
+                Swal.fire('Error', 'Failed to fetch note.', 'error');
+            }
+        }
     
