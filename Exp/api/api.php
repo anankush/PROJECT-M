@@ -99,6 +99,23 @@ switch ($action) {
         break;
         
     // Export / Import
+    case 'check_existing_data':
+        if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+            exit;
+        }
+        $uid = $_SESSION['user_id'];
+        
+        $cStmt = $pdo->prepare("SELECT COUNT(*) FROM user_categories WHERE user_id = ?");
+        $cStmt->execute([$uid]);
+        $cats = (int)$cStmt->fetchColumn();
+
+        $gStmt = $pdo->prepare("SELECT COUNT(*) FROM savings_goals WHERE user_id = ?");
+        $gStmt->execute([$uid]);
+        $goals = (int)$gStmt->fetchColumn();
+
+        echo json_encode(['status' => 'success', 'has_data' => ($cats > 0 || $goals > 0)]);
+        break;
     case 'export_data':
         handle_export_data($pdo);
         break;

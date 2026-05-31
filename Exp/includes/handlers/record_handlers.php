@@ -190,124 +190,197 @@ function handle_delete_record($pdo) {
 }
 
 function handle_import_data($pdo) {
-    if (!isset($_SESSION['user_id'])) {
-        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+    if (!isset($_SESSION['user_id']) || (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true)) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized. Only regular users are permitted to import data.']);
         return;
     }
 
-    // Security: limit import payload to 2MB to prevent server memory overload
+    // Security: limit import payload to 4MB to handle combined datasets
     $raw = file_get_contents('php://input');
-    if (strlen($raw) > 2 * 1024 * 1024) {
-        echo json_encode(['status' => 'error', 'message' => 'Import file is too large. Maximum allowed size is 2MB.']);
+    if (strlen($raw) > 4 * 1024 * 1024) {
+        echo json_encode(['status' => 'error', 'message' => 'Import file is too large. Maximum allowed size is 4MB.']);
         return;
     }
 
     $input = json_decode($raw, true);
-    if (empty($input['categories']) || !is_array($input['categories'])) {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid import data format']);
+    if (!is_array($input) || (empty($input['categories']) && empty($input['savings_goals']))) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid import data format.']);
         return;
     }
 
     try {
         $uid = $_SESSION['user_id'];
-        $mode = sanitize_input($input['mode'] ?? 'replace');
+        $mode = sanitize_input($input['mode'] ?? $_GET['mode'] ?? 'replace');
         $skipped_duplicates = 0;
         $pdo->beginTransaction();
 
         if ($mode === 'replace') {
-            // Clear existing data to prevent duplication during import
-            try {
-                $pdo->prepare("DELETE FROM user_notes WHERE user_id = ?")->execute([$uid]);
-            } catch (PDOException $e) {} // Ignore if table doesn't exist
+            // Clear existing Expense Data
+            try { $pdo->prepare("DELETE FROM user_notes WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
+            try { $pdo->prepare("DELETE FROM category_monthly_budgets WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
+            try { $pdo->prepare("DELETE FROM expenses WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
+            try { $pdo->prepare("DELETE FROM user_categories WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
             
-            $pdo->prepare("DELETE FROM expenses WHERE user_id = ?")->execute([$uid]);
-            $pdo->prepare("DELETE FROM category_monthly_budgets WHERE user_id = ?")->execute([$uid]);
-            $pdo->prepare("DELETE FROM user_categories WHERE user_id = ?")->execute([$uid]);
+            // Clear existing Savings Data
+            try { $pdo->prepare("DELETE FROM savings_transactions WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
+            try { $pdo->prepare("DELETE FROM savings_goals WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
         }
 
-        foreach ($input['categories'] as $cat) {
-            if (empty($cat['category_name'])) continue;
+        // 1. Process Expense Categories & Expenses
+        if (!empty($input['categories']) && is_array($input['categories'])) {
+            foreach ($input['categories'] as $cat) {
+                if (empty($cat['category_name'])) continue;
 
-            $cat_name = sanitize_input($cat['category_name']);
-            $new_cat_id = null;
+                $cat_name = sanitize_input($cat['category_name']);
+                $new_cat_id = null;
 
-            if ($mode === 'merge') {
-                $stmt_check = $pdo->prepare("SELECT id FROM user_categories WHERE user_id = ? AND category_name = ?");
-                $stmt_check->execute([$uid, $cat_name]);
-                $existing = $stmt_check->fetch();
-                if ($existing) {
-                    $new_cat_id = $existing['id'];
-                    // Optionally update budget if needed
-                    if (isset($cat['budget'])) {
-                        $pdo->prepare("UPDATE user_categories SET budget = ? WHERE id = ?")->execute([$cat['budget'], $new_cat_id]);
-                    }
-                }
-            }
-
-            if (!$new_cat_id) {
-                $stmt = $pdo->prepare("INSERT INTO user_categories (user_id, category_name, budget) VALUES (?, ?, ?)");
-                $stmt->execute([$uid, $cat_name, $cat['budget'] ?? null]);
-                $new_cat_id = $pdo->lastInsertId();
-            }
-
-            if (!empty($cat['note'])) {
-                try {
-                    $stmt_note = $pdo->prepare("INSERT INTO user_notes (user_id, category_id, note_content) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE note_content = VALUES(note_content)");
-                    $stmt_note->execute([$uid, $new_cat_id, sanitize_input($cat['note'])]);
-                } catch (PDOException $e) {
-                    // Ignore error if table doesn't exist yet
-                }
-            }
-
-            if (!empty($cat['records']) && is_array($cat['records'])) {
-                $stmt_rec = $pdo->prepare("INSERT INTO expenses (user_id, category_id, entry_date, entry_time, amount, description, custom_data) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                
-                $stmt_check_dup = null;
                 if ($mode === 'merge') {
-                    $stmt_check_dup = $pdo->prepare("SELECT id FROM expenses WHERE user_id = ? AND category_id = ? AND entry_date = ? AND entry_time = ? AND amount = ? AND description = ? LIMIT 1");
-                }
-
-                foreach ($cat['records'] as $rec) {
-                    if (!isset($rec['amount']) || $rec['amount'] === '') continue;
-
-                    $e_date = sanitize_input($rec['entry_date'] ?? date('Y-m-d'));
-                    $e_time = sanitize_input($rec['entry_time'] ?? date('H:i'));
-                    $amt = floatval($rec['amount']);
-                    $desc = sanitize_input($rec['description'] ?? '');
-
-                    if ($mode === 'merge' && $stmt_check_dup) {
-                        $stmt_check_dup->execute([$uid, $new_cat_id, $e_date, $e_time, $amt, $desc]);
-                        if ($stmt_check_dup->fetch()) {
-                            $skipped_duplicates++;
-                            continue; // Skip exact duplicate record
+                    $stmt_check = $pdo->prepare("SELECT id FROM user_categories WHERE user_id = ? AND category_name = ?");
+                    $stmt_check->execute([$uid, $cat_name]);
+                    $existing = $stmt_check->fetch();
+                    if ($existing) {
+                        $new_cat_id = $existing['id'];
+                        if (isset($cat['budget'])) {
+                            $pdo->prepare("UPDATE user_categories SET budget = ? WHERE id = ?")->execute([$cat['budget'], $new_cat_id]);
                         }
                     }
+                }
 
-                    if (!empty($rec['custom_data']) && is_array($rec['custom_data'])) {
-                        array_walk_recursive($rec['custom_data'], function(&$val) {
-                            if (is_string($val)) $val = sanitize_input($val);
-                        });
-                        $custom_data = json_encode($rec['custom_data']);
-                    } else {
-                        $custom_data = null;
+                if (!$new_cat_id) {
+                    $stmt = $pdo->prepare("INSERT INTO user_categories (user_id, category_name, budget) VALUES (?, ?, ?)");
+                    $stmt->execute([$uid, $cat_name, $cat['budget'] ?? null]);
+                    $new_cat_id = $pdo->lastInsertId();
+                }
+
+                if (!empty($cat['note'])) {
+                    try {
+                        $stmt_note = $pdo->prepare("INSERT INTO user_notes (user_id, category_id, note_content) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE note_content = VALUES(note_content)");
+                        $stmt_note->execute([$uid, $new_cat_id, sanitize_input($cat['note'])]);
+                    } catch (PDOException $e) {}
+                }
+
+                if (!empty($cat['records']) && is_array($cat['records'])) {
+                    $stmt_rec = $pdo->prepare("INSERT INTO expenses (user_id, category_id, entry_date, entry_time, amount, description, custom_data) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    
+                    $stmt_check_dup = null;
+                    if ($mode === 'merge') {
+                        $stmt_check_dup = $pdo->prepare("SELECT id FROM expenses WHERE user_id = ? AND category_id = ? AND entry_date = ? AND entry_time = ? AND amount = ? AND description = ? LIMIT 1");
                     }
-                    $stmt_rec->execute([
-                        $uid,
-                        $new_cat_id,
-                        $e_date,
-                        $e_time,
-                        $amt,
-                        $desc,
-                        $custom_data
-                    ]);
+
+                    foreach ($cat['records'] as $rec) {
+                        if (!isset($rec['amount']) || $rec['amount'] === '') continue;
+
+                        $e_date = sanitize_input($rec['entry_date'] ?? date('Y-m-d'));
+                        $e_time = sanitize_input($rec['entry_time'] ?? date('H:i:s'));
+                        $amt = floatval($rec['amount']);
+                        $desc = sanitize_input($rec['description'] ?? '');
+
+                        if ($mode === 'merge' && $stmt_check_dup) {
+                            $stmt_check_dup->execute([$uid, $new_cat_id, $e_date, $e_time, $amt, $desc]);
+                            if ($stmt_check_dup->fetch()) {
+                                $skipped_duplicates++;
+                                continue;
+                            }
+                        }
+
+                        $custom_data = null;
+                        if (!empty($rec['custom_data'])) {
+                            if (is_array($rec['custom_data'])) {
+                                array_walk_recursive($rec['custom_data'], function(&$val) {
+                                    if (is_string($val)) $val = sanitize_input($val);
+                                });
+                                $custom_data = json_encode($rec['custom_data']);
+                            } else {
+                                $custom_data = $rec['custom_data'];
+                            }
+                        }
+                        
+                        $stmt_rec->execute([$uid, $new_cat_id, $e_date, $e_time, $amt, $desc, $custom_data]);
+                    }
+                }
+
+                if (!empty($cat['monthly_budgets']) && is_array($cat['monthly_budgets'])) {
+                    $stmt_bud = $pdo->prepare("INSERT INTO category_monthly_budgets (user_id, category_id, budget_month, budget) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE budget = VALUES(budget)");
+                    foreach ($cat['monthly_budgets'] as $bud) {
+                        if (!empty($bud['budget_month']) && isset($bud['budget'])) {
+                            $stmt_bud->execute([$uid, $new_cat_id, sanitize_input($bud['budget_month']), floatval($bud['budget'])]);
+                        }
+                    }
                 }
             }
+        }
 
-            if (!empty($cat['monthly_budgets']) && is_array($cat['monthly_budgets'])) {
-                $stmt_bud = $pdo->prepare("INSERT INTO category_monthly_budgets (user_id, category_id, budget_month, budget) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE budget = VALUES(budget)");
-                foreach ($cat['monthly_budgets'] as $bud) {
-                    if (!empty($bud['budget_month']) && isset($bud['budget'])) {
-                        $stmt_bud->execute([$uid, $new_cat_id, sanitize_input($bud['budget_month']), floatval($bud['budget'])]);
+        // 2. Process Savings Goals & Transactions
+        if (!empty($input['savings_goals']) && is_array($input['savings_goals'])) {
+            foreach ($input['savings_goals'] as $goal) {
+                if (empty($goal['goal_name'])) continue;
+
+                $goal_name = sanitize_input($goal['goal_name']);
+                $new_goal_id = null;
+
+                if ($mode === 'merge') {
+                    $stmt_check = $pdo->prepare("SELECT id FROM savings_goals WHERE user_id = ? AND goal_name = ?");
+                    $stmt_check->execute([$uid, $goal_name]);
+                    $existing = $stmt_check->fetch();
+                    if ($existing) {
+                        $new_goal_id = $existing['id'];
+                        $pdo->prepare("UPDATE savings_goals SET target_amount = ?, deadline = ?, category = ?, theme_color = ?, priority = ? WHERE id = ? AND user_id = ?")
+                            ->execute([
+                                floatval($goal['target_amount'] ?? 0),
+                                !empty($goal['deadline']) ? sanitize_input($goal['deadline']) : null,
+                                sanitize_input($goal['category'] ?? 'others'),
+                                sanitize_input($goal['theme_color'] ?? 'purple'),
+                                sanitize_input($goal['priority'] ?? 'medium'),
+                                $new_goal_id,
+                                $uid
+                            ]);
+                    }
+                }
+
+                if (!$new_goal_id) {
+                    $stmt = $pdo->prepare("INSERT INTO savings_goals (user_id, goal_name, target_amount, deadline, category, theme_color, priority) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $uid,
+                        $goal_name,
+                        floatval($goal['target_amount'] ?? 0),
+                        !empty($goal['deadline']) ? sanitize_input($goal['deadline']) : null,
+                        sanitize_input($goal['category'] ?? 'others'),
+                        sanitize_input($goal['theme_color'] ?? 'purple'),
+                        sanitize_input($goal['priority'] ?? 'medium')
+                    ]);
+                    $new_goal_id = $pdo->lastInsertId();
+                }
+
+                if (!empty($goal['transactions']) && is_array($goal['transactions'])) {
+                    $stmt_tx = $pdo->prepare("INSERT INTO savings_transactions (goal_id, user_id, amount, type, transaction_date, notes) VALUES (?, ?, ?, ?, ?, ?)");
+                    
+                    $stmt_check_tx = null;
+                    if ($mode === 'merge') {
+                        $stmt_check_tx = $pdo->prepare("
+                            SELECT id FROM savings_transactions 
+                            WHERE goal_id = ? AND user_id = ? AND amount = ? AND type = ? AND transaction_date = ? 
+                              AND (notes = ? OR (notes IS NULL AND ? IS NULL)) 
+                            LIMIT 1
+                        ");
+                    }
+
+                    foreach ($goal['transactions'] as $tx) {
+                        if (!isset($tx['amount']) || $tx['amount'] === '') continue;
+
+                        $amt = floatval($tx['amount']);
+                        $type = sanitize_input($tx['type'] ?? 'deposit');
+                        $tx_date = sanitize_input($tx['transaction_date'] ?? date('Y-m-d'));
+                        $notes = !empty($tx['notes']) ? sanitize_input($tx['notes']) : null;
+
+                        if ($mode === 'merge' && $stmt_check_tx) {
+                            $stmt_check_tx->execute([$new_goal_id, $uid, $amt, $type, $tx_date, $notes, $notes]);
+                            if ($stmt_check_tx->fetch()) {
+                                $skipped_duplicates++;
+                                continue;
+                            }
+                        }
+
+                        $stmt_tx->execute([$new_goal_id, $uid, $amt, $type, $tx_date, $notes]);
                     }
                 }
             }
@@ -316,29 +389,28 @@ function handle_import_data($pdo) {
         $pdo->commit();
         echo json_encode(['status' => 'success', 'message' => 'Data imported successfully', 'skipped_duplicates' => $skipped_duplicates]);
     } catch (Exception $e) {
-        $pdo->rollBack();
-        echo json_encode(['status' => 'error', 'message' => 'Import failed.']);
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        echo json_encode(['status' => 'error', 'message' => 'Import failed: ' . $e->getMessage()]);
     }
 }
 
 function handle_export_data($pdo) {
-    if (!isset($_SESSION['user_id'])) {
-        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+    if (!isset($_SESSION['user_id']) || (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true)) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized. Only regular users are permitted to backup data.']);
         return;
     }
 
     try {
         $uid = $_SESSION['user_id'];
+        
+        // 1. Fetch Expense categories, budgets, and records
         $stmt = $pdo->prepare("SELECT id, category_name, budget FROM user_categories WHERE user_id = ?");
         $stmt->execute([$uid]);
         $categories = $stmt->fetchAll();
 
-        $export_data = [
-            'version' => '1.0',
-            'exported_at' => date('Y-m-d H:i:s'),
-            'categories' => []
-        ];
-
+        $categories_export = [];
         foreach ($categories as $cat) {
             $cat_data = [
                 'category_name' => $cat['category_name'],
@@ -355,26 +427,74 @@ function handle_export_data($pdo) {
                 if ($note_row) {
                     $cat_data['note'] = $note_row['note_content'];
                 }
-            } catch (PDOException $e) {
-                // Ignore if table doesn't exist
-            }
+            } catch (PDOException $e) {}
 
-            $stmt_budgets = $pdo->prepare("SELECT budget_month, budget FROM category_monthly_budgets WHERE user_id = ? AND category_id = ?");
-            $stmt_budgets->execute([$uid, $cat['id']]);
-            $cat_data['monthly_budgets'] = $stmt_budgets->fetchAll();
+            try {
+                $stmt_budgets = $pdo->prepare("SELECT budget_month, budget FROM category_monthly_budgets WHERE user_id = ? AND category_id = ?");
+                $stmt_budgets->execute([$uid, $cat['id']]);
+                $cat_data['monthly_budgets'] = $stmt_budgets->fetchAll();
+            } catch (PDOException $e) {}
 
-            $stmt_rec = $pdo->prepare("SELECT entry_date, entry_time, amount, description, custom_data FROM expenses WHERE user_id = ? AND category_id = ?");
-            $stmt_rec->execute([$uid, $cat['id']]);
-            $records = $stmt_rec->fetchAll();
+            try {
+                $stmt_rec = $pdo->prepare("SELECT entry_date, entry_time, amount, description, custom_data FROM expenses WHERE user_id = ? AND category_id = ?");
+                $stmt_rec->execute([$uid, $cat['id']]);
+                $records = $stmt_rec->fetchAll();
 
-            foreach ($records as $rec) {
-                $rec['custom_data'] = $rec['custom_data'] ? json_decode($rec['custom_data'], true) : [];
-                $cat_data['records'][] = $rec;
-            }
-            $export_data['categories'][] = $cat_data;
+                foreach ($records as $rec) {
+                    $rec['custom_data'] = $rec['custom_data'] ? json_decode($rec['custom_data'], true) : [];
+                    $cat_data['records'][] = $rec;
+                }
+            } catch (PDOException $e) {}
+            
+            $categories_export[] = $cat_data;
         }
 
-        header('Content-Disposition: attachment; filename="expense_backup_' . date('Ymd_His') . '.json"');
+        // 2. Fetch Savings goals and transactions
+        $savings_export = [];
+        try {
+            $stmt_goals = $pdo->prepare("SELECT id, goal_name, target_amount, deadline, category, theme_color, priority FROM savings_goals WHERE user_id = ?");
+            $stmt_goals->execute([$uid]);
+            $goals = $stmt_goals->fetchAll();
+
+            foreach ($goals as $goal) {
+                $goal_data = [
+                    'goal_name' => $goal['goal_name'],
+                    'target_amount' => $goal['target_amount'],
+                    'deadline' => $goal['deadline'],
+                    'category' => $goal['category'],
+                    'theme_color' => $goal['theme_color'],
+                    'priority' => $goal['priority'],
+                    'transactions' => []
+                ];
+
+                $stmt_tx = $pdo->prepare("SELECT amount, type, transaction_date, notes FROM savings_transactions WHERE goal_id = ? AND user_id = ?");
+                $stmt_tx->execute([$goal['id'], $uid]);
+                $transactions = $stmt_tx->fetchAll();
+
+                foreach ($transactions as $tx) {
+                    $goal_data['transactions'][] = [
+                        'amount' => $tx['amount'],
+                        'type' => $tx['type'],
+                        'transaction_date' => $tx['transaction_date'],
+                        'notes' => $tx['notes']
+                    ];
+                }
+                $savings_export[] = $goal_data;
+            }
+        } catch (PDOException $e) {
+            // Ignore if tables don't exist
+        }
+
+        // 3. Combine into final export structure
+        $export_data = [
+            'version' => '1.1',
+            'exported_at' => date('Y-m-d H:i:s'),
+            'categories' => $categories_export,
+            'savings_goals' => $savings_export
+        ];
+
+        header('Content-Type: application/json');
+        header('Content-Disposition: attachment; filename="money_management_backup_' . date('Ymd_His') . '.json"');
         echo json_encode($export_data, JSON_PRETTY_PRINT);
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Export failed.']);

@@ -361,19 +361,19 @@ async function handleImport(event) {
             const jsonText = decrypted.toString(CryptoJS.enc.Utf8);
             if (!jsonText) throw new Error('Wrong password');
             const data = JSON.parse(jsonText);
-            if (!data.categories) throw new Error("Invalid format");
+            if (!data.categories && !data.savings_goals) throw new Error("Invalid format");
 
-            let existingCategories = [];
+            let hasExistingData = false;
             try {
-                const checkRes = await fetch(`${API_URL}?action=get_categories`);
+                const checkRes = await fetch(`${API_URL}?action=check_existing_data`);
                 const checkData = await checkRes.json();
                 if (checkData.status === 'success') {
-                    existingCategories = checkData.data || [];
+                    hasExistingData = checkData.has_data;
                 }
             } catch (err) {}
 
             let mode = 'replace';
-            if (existingCategories && existingCategories.length > 0) {
+            if (hasExistingData) {
                 const choice = await Swal.fire({
                     title: 'Existing Data Detected',
                     text: 'Your account already contains some records. How would you like to proceed with the imported data?',
