@@ -41,6 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($admin && password_verify($password, $admin['password'])) {
             session_regenerate_id(true);
+            $token = bin2hex(random_bytes(16));
+            $_SESSION['active_session_token'] = $token;
+            $pdo->prepare("UPDATE admin_users SET active_session_id = ? WHERE id = ?")->execute([$token, $admin['id']]);
             unset($_SESSION['user_id']);
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['role'] = 'admin';

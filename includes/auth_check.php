@@ -14,16 +14,46 @@ function session_start_secure() {
     session_start();
 
     if (isset($_SESSION['user_id']) || isset($_SESSION['admin_id'])) {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        $ip_parts = explode('.', $ip);
-        $ip_subnet = (count($ip_parts) >= 2) ? $ip_parts[0] . '.' . $ip_parts[1] : $ip;
-        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        global $pdo;
+        $session_invalid = false;
+        if (isset($_SESSION['user_id'])) {
+            $stmt = $pdo->prepare("SELECT active_session_id FROM users WHERE id = ?");
+            $stmt->execute([$_SESSION['user_id']]);
+            $db_token = $stmt->fetchColumn();
+            if (empty($_SESSION['active_session_token']) || $db_token !== $_SESSION['active_session_token']) {
+                $session_invalid = true;
+            }
+        } elseif (isset($_SESSION['admin_id'])) {
+            $stmt = $pdo->prepare("SELECT active_session_id FROM admin_users WHERE id = ?");
+            $stmt->execute([$_SESSION['admin_id']]);
+            $db_token = $stmt->fetchColumn();
+            if (empty($_SESSION['active_session_token']) || $db_token !== $_SESSION['active_session_token']) {
+                $session_invalid = true;
+            }
+        }
 
-        if (!isset($_SESSION['secure_subnet'])) {
-            $_SESSION['secure_subnet'] = $ip_subnet;
+        if ($session_invalid) {
+            $_SESSION = [];
+            if (ini_get('session.use_cookies')) {
+                $params = session_get_cookie_params();
+                setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+            }
+            session_destroy();
+            if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
+             || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
+                http_response_code(401);
+                echo json_encode(['status' => 'error', 'message' => 'Concurrent login detected. Session terminated.', 'redirect' => BASE_URL . 'error.php?code=concurrent_login']);
+                exit;
+            }
+            header('Location: ' . BASE_URL . 'error.php?code=concurrent_login');
+            exit;
+        }
+
+        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        if (!isset($_SESSION['secure_user_agent'])) {
             $_SESSION['secure_user_agent'] = $user_agent;
         } else {
-            if ($_SESSION['secure_subnet'] !== $ip_subnet || $_SESSION['secure_user_agent'] !== $user_agent) {
+            if ($_SESSION['secure_user_agent'] !== $user_agent) {
                 $_SESSION = [];
                 if (ini_get('session.use_cookies')) {
                     $params = session_get_cookie_params();
