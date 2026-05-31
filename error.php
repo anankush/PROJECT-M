@@ -179,7 +179,7 @@ if (array_key_exists($code, $errors)) {
             </div>
             <div style="margin-top: 25px; text-align: center;">
                 <a href="<?php echo $base_path; ?>index.php" class="btn btn-error"
-                    style="text-decoration: none; padding: 12px 28px; border-radius: var(--radius-l); display: inline-flex; align-items: center; gap: 8px; font-weight: 600;">
+                    style="text-decoration: none; padding: 12px 28px; border-radius: 50px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;">
                     <i class="fas fa-home"></i> Back to Home
                 </a>
             </div>
