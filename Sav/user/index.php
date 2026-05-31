@@ -96,8 +96,8 @@ $base = '../../';
         const API_URL = '../api/api.php';
         const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     </script>
-    <script src="../../assets/js/csrf.js"></script>
-    <script src="../../assets/js/main.js"></script>
-    <script src="../assets/js/sav.js"></script>
+    <script src="../../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
+    <script src="../../assets/js/main.js?v=<?php echo time(); ?>"></script>
+    <script src="../assets/js/sav.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
