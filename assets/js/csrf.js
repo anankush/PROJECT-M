@@ -18,8 +18,9 @@ window.fetch = async function () {
             const clone = response.clone();
             const data = await clone.json();
             if (data && data.redirect) {
+                if (typeof Swal !== 'undefined') Swal.close();
                 window.location.href = data.redirect;
-                return response;
+                return new Promise(() => {}); // Suspend caller during redirect
             }
         } catch (e) {}
         
@@ -36,11 +37,13 @@ window.fetch = async function () {
             prefix += '../';
         }
         
+        if (typeof Swal !== 'undefined') Swal.close();
         if (response.status === 403) {
             window.location.href = prefix + 'error.php?code=security';
         } else if (response.status === 401) {
             window.location.href = prefix + 'error.php?code=unauthorized';
         }
+        return new Promise(() => {}); // Suspend caller during redirect
     }
     
     return response;
