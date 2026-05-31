@@ -358,7 +358,6 @@
         padding-bottom: 80px !important;
     }
 
-    /* Floating Action Button (FAB) for mobile to Create New Goal */
     #addGoalBtn {
         display: flex !important;
         position: fixed !important;
@@ -370,7 +369,7 @@
         align-items: center !important;
         justify-content: center !important;
         box-shadow: 0 10px 25px rgba(139, 92, 246, 0.5) !important;
-        z-index: 999 !important;
+        z-index: 9999 !important;
         padding: 0 !important;
     }
     #addGoalBtn .hide-mobile {
