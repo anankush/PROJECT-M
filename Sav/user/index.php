@@ -21,7 +21,7 @@ $base = '../../';
     <link rel="stylesheet" href="../assets/css/sav.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        #appUI { display: flex; width: 100%; height: 100%; }
+        #appUI { display: flex; width: 100%; }
         
         
         .sidebar-bottom {
