@@ -114,9 +114,29 @@
             const monthParam = urlParams.get('month');
             // Only pre-fill if coming from a month-specific link (e.g. dashboard chart click)
             const monthInput = document.getElementById('monthFilter');
-            if (monthInput && !monthInput.value && monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
-                monthInput.value = monthParam;
+            let initialMonth = '';
+            if (monthInput && monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
+                initialMonth = monthParam;
             }
+            
+            if (monthInput) {
+                window.monthFlatpickr = flatpickr("#monthFilter", {
+                    plugins: [
+                        new monthSelectPlugin({
+                            shorthand: true,
+                            dateFormat: "Y-m",
+                            altFormat: "F Y",
+                            theme: "dark"
+                        })
+                    ],
+                    disableMobile: "true",
+                    defaultDate: initialMonth || null,
+                    onChange: function(selectedDates, dateStr, instance) {
+                        handleMonthChange();
+                    }
+                });
+            }
+
             // Otherwise leave blank — user selects month manually
             if (document.getElementById('budgetsTableBody')) {
                 renderBudgetsTable();
@@ -202,7 +222,12 @@
                     Swal.fire({ icon: 'warning', title: 'Hold up, Time Traveler!', text: 'You cannot manage expenses for the future.' });
                     const currentYear = now.getFullYear();
                     const currentMonthStr = String(now.getMonth() + 1).padStart(2, '0');
-                    monthInput.value = `${currentYear}-${currentMonthStr}`;
+                    const targetMonthVal = `${currentYear}-${currentMonthStr}`;
+                    if (window.monthFlatpickr) {
+                        window.monthFlatpickr.setDate(targetMonthVal, false);
+                    } else {
+                        monthInput.value = targetMonthVal;
+                    }
                     await applyMonthFilter();
                     return;
                 }
@@ -398,8 +423,11 @@
                 if (!monthVal) {
                     const now = new Date();
                     monthVal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-                    document.getElementById('monthFilter').type = 'month';
-                    document.getElementById('monthFilter').value = monthVal;
+                    if (window.monthFlatpickr) {
+                        window.monthFlatpickr.setDate(monthVal, false);
+                    } else {
+                        document.getElementById('monthFilter').value = monthVal;
+                    }
                     await applyMonthFilter();
                     return;
                 }
@@ -851,10 +879,24 @@
                 const defaultMonth = document.getElementById('monthFilter') ? document.getElementById('monthFilter').value : '';
                 const monthPrompt = await Swal.fire({
                     title: 'Select Month',
-                    html: `<input type="month" id="swalMonthInput" class="theme-input-select swal-input" value="${defaultMonth}" style="text-align:center;">`,
+                    html: `<input type="text" id="swalMonthInput" class="theme-input-select swal-input" placeholder="Select Month" readonly style="text-align:center;">`,
                     showCancelButton: true,
                     confirmButtonText: 'Next',
                     confirmButtonColor: '#8b5cf6',
+                    didOpen: () => {
+                        flatpickr("#swalMonthInput", {
+                            plugins: [
+                                new monthSelectPlugin({
+                                    shorthand: true,
+                                    dateFormat: "Y-m",
+                                    altFormat: "F Y",
+                                    theme: "dark"
+                                })
+                            ],
+                            disableMobile: "true",
+                            defaultDate: defaultMonth || null
+                        });
+                    },
                     preConfirm: () => {
                         const val = document.getElementById('swalMonthInput').value;
                         if (!val) { Swal.showValidationMessage('Please select a month'); return false; }

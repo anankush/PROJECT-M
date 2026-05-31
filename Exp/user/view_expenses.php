@@ -10,7 +10,7 @@
     </div>
     <div class="header-controls">
         <!-- Notes button moved to Manage Budgets page -->
-        <input type="month" id="monthFilter" class="theme-input-select" onchange="handleMonthChange()" onclick="this.showPicker()" title="Select a month to filter">
+        <input type="text" id="monthFilter" class="theme-input-select" placeholder="Select Month" readonly title="Select a month to filter">
         <select id="sortRecordsSelect" class="theme-input-select" onchange="sortRecords()" style="display:none;">
             <option value="newest" style="background:var(--bg-deep);">Date: Newest</option>
             <option value="oldest" style="background:var(--bg-deep);">Date: Oldest</option>
