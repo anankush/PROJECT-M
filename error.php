@@ -34,6 +34,7 @@ if (ini_get('session.use_cookies')) {
 session_destroy();
 
 $code = isset($_GET['code']) ? trim($_GET['code']) : '';
+$base_path = str_replace('error.php', '', $_SERVER['SCRIPT_NAME']);
 
 $errors = [
     'db' => [
@@ -113,8 +114,8 @@ if (array_key_exists($code, $errors)) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/glassmorphism.css">
-    <link rel="stylesheet" href="assets/css/auth.css">
+    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/glassmorphism.css">
+    <link rel="stylesheet" href="<?php echo $base_path; ?>assets/css/auth.css">
     <style>
         .error-card {
             border-color: rgba(239, 68, 68, 0.3) !important;
@@ -164,7 +165,7 @@ if (array_key_exists($code, $errors)) {
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted);">The session has been terminated for your safety.</p>
             </div>
             <div style="margin-top: 25px; text-align: center;">
-                <a href="index.php" class="btn btn-error" style="text-decoration: none; padding: 12px 28px; border-radius: var(--radius-l); display: inline-flex; align-items: center; gap: 8px; font-weight: 600;">
+                <a href="<?php echo $base_path; ?>index.php" class="btn btn-error" style="text-decoration: none; padding: 12px 28px; border-radius: var(--radius-l); display: inline-flex; align-items: center; gap: 8px; font-weight: 600;">
                     <i class="fas fa-home"></i> Back to Home
                 </a>
             </div>
