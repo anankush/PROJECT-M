@@ -289,6 +289,26 @@
 
 /* Mobile responsive fixes */
 @media (max-width: 768px) {
+    .main-content {
+        padding: 1rem 1rem 8rem 1rem !important;
+    }
+
+    .dashboard-header {
+        position: sticky !important;
+        top: -1rem !important;
+        margin-top: -1rem !important;
+        margin-left: -1rem !important;
+        margin-right: -1rem !important;
+        margin-bottom: 1.5rem !important;
+        padding: 1rem !important;
+        background: rgba(10, 6, 30, 0.85) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-bottom: 1px solid var(--glass-border) !important;
+        z-index: 100 !important;
+        gap: 8px !important;
+    }
+
     .goal-actions {
         flex-direction: column;
         gap: 8px;

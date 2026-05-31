@@ -515,15 +515,26 @@ select option {
 
     .main-content {
         margin-left: 0;
-        padding: 1.25rem;
+        padding: 1.25rem 1.25rem 8rem 1.25rem !important;
         width: 100%;
     }
 
     .dashboard-header {
+        position: sticky !important;
+        top: -1.25rem !important;
+        margin-top: -1.25rem !important;
+        margin-left: -1.25rem !important;
+        margin-right: -1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        padding: 1.25rem !important;
+        background: rgba(10, 6, 30, 0.85) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-bottom: 1px solid var(--glass-border) !important;
+        z-index: 100 !important;
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
-        margin-bottom: 1.25rem;
     }
 
     .header-left {
