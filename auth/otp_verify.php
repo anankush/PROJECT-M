@@ -61,6 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Auto login with session fixation prevention
             session_regenerate_id(true);
+            unset($_SESSION['admin_id']); // Clear any active admin session to prevent contamination
+            unset($_SESSION['is_admin']);
             $_SESSION['user_id']       = $userId;
             $_SESSION['role']          = 'user';
             $_SESSION['user_name']     = explode('@', $email)[0];

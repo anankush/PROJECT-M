@@ -51,6 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 session_regenerate_id(true);
+                unset($_SESSION['admin_id']); // Clear any active admin session to prevent contamination
+                unset($_SESSION['is_admin']);
                 $_SESSION['user_id']     = $user['id'];
                 $_SESSION['role']        = 'user';
                 $_SESSION['user_name']   = explode('@', $user['email'])[0];

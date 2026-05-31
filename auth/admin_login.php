@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($admin && password_verify($password, $admin['password'])) {
             session_regenerate_id(true);
+            unset($_SESSION['user_id']); // Clear any active user session to prevent contamination
             $_SESSION['admin_id']      = $admin['id'];
             $_SESSION['role']          = 'admin';
             $_SESSION['is_admin']      = true;

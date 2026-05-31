@@ -109,7 +109,7 @@ function check_session_timeout() {
 }
 
 function require_login() {
-    if (empty($_SESSION['user_id']) && empty($_SESSION['admin_id'])) {
+    if (empty($_SESSION['user_id'])) {
         // Check if API request
         if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false) {
             http_response_code(401);
