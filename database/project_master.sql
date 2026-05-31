@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
   `password` varchar(255) NOT NULL,
   `currency` varchar(10) DEFAULT '₹',
   `language` varchar(10) DEFAULT 'en',
-  `active_session_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -47,7 +46,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `last_active_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `total_budget` decimal(10,2) DEFAULT 0.00,
-  `active_session_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -1,6 +1,7 @@
 <?php
 
-function handle_update_settings($pdo) {
+function handle_update_settings($pdo)
+{
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
@@ -19,16 +20,17 @@ function handle_update_settings($pdo) {
             $stmt = $pdo->prepare("UPDATE users SET currency = ?, language = ? WHERE id = ?");
             $stmt->execute([$currency, $language, $_SESSION['user_id']]);
         }
-        
+
         $_SESSION['currency'] = $currency;
-        
+
         echo json_encode(['status' => 'success', 'message' => 'Settings saved successfully']);
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to save settings.']);
     }
 }
 
-function handle_change_password($pdo) {
+function handle_change_password($pdo)
+{
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
@@ -68,19 +70,19 @@ function handle_change_password($pdo) {
         $newHash = password_hash($new_password, PASSWORD_DEFAULT);
         $update = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
         $update->execute([$newHash, $_SESSION['user_id']]);
-        
+
         session_regenerate_id(true);
-        $pdo->prepare("UPDATE users SET active_session_id = ? WHERE id = ?")->execute([session_id(), $_SESSION['user_id']]);
         unset($_SESSION['csrf_token']);
         generate_csrf_token();
-        
+
         echo json_encode(['status' => 'success', 'message' => 'Password updated successfully']);
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to update password.']);
     }
 }
 
-function handle_delete_user_account($pdo) {
+function handle_delete_user_account($pdo)
+{
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
@@ -136,17 +138,18 @@ function handle_delete_user_account($pdo) {
     }
 }
 
-function handle_check_session($pdo) {
+function handle_check_session($pdo)
+{
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(['is_user' => false]);
         return;
     }
-    
+
     try {
         $stmt = $pdo->prepare("SELECT email, currency, total_budget FROM users WHERE id = ?");
         $stmt->execute([$_SESSION['user_id']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if ($user) {
             echo json_encode([
                 'status' => 'success',
@@ -163,7 +166,8 @@ function handle_check_session($pdo) {
     }
 }
 
-function handle_send_reset_otp($pdo) {
+function handle_send_reset_otp($pdo)
+{
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
@@ -196,7 +200,8 @@ function handle_send_reset_otp($pdo) {
     }
 }
 
-function handle_verify_reset_otp($pdo) {
+function handle_verify_reset_otp($pdo)
+{
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
@@ -226,10 +231,10 @@ function handle_verify_reset_otp($pdo) {
     try {
         $stmt = $pdo->prepare("SELECT * FROM password_resets WHERE email = ? AND otp = ? AND expires_at > NOW() LIMIT 1");
         $stmt->execute([$email, $otp]);
-        
+
         if ($stmt->fetch()) {
             $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
-            
+
             $_SESSION['otp_verified'] = true;
             echo json_encode(['status' => 'success', 'message' => 'OTP verified successfully']);
         } else {
@@ -240,7 +245,8 @@ function handle_verify_reset_otp($pdo) {
     }
 }
 
-function handle_reset_password_with_otp($pdo) {
+function handle_reset_password_with_otp($pdo)
+{
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         return;
@@ -268,11 +274,10 @@ function handle_reset_password_with_otp($pdo) {
         $newHash = password_hash($new_password, PASSWORD_DEFAULT);
         $update = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
         $update->execute([$newHash, $_SESSION['user_id']]);
-        
+
         unset($_SESSION['otp_verified']);
         unset($_SESSION['reset_email']);
         session_regenerate_id(true);
-        $pdo->prepare("UPDATE users SET active_session_id = ? WHERE id = ?")->execute([session_id(), $_SESSION['user_id']]);
         unset($_SESSION['csrf_token']);
         generate_csrf_token();
 

@@ -58,17 +58,15 @@ if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
     }
 }
 
-const pathLower = window.location.pathname.toLowerCase();
-const isAuthArea = /\/(dashboard|exp\/user|sav\/user|admin|admin_portal)/i.test(pathLower)
-                && !pathLower.includes('/auth/')
-                && !pathLower.includes('error.php');
-
-if (isAuthArea) {
+const activeLogoutUrl = getLogoutUrl();
+if (activeLogoutUrl && activeLogoutUrl !== '#') {
     let depth = 0;
-    if (pathLower.includes('/admin/')) depth = 1;
-    else if (pathLower.includes('/exp/user/')) depth = 2;
-    else if (pathLower.includes('/sav/user/')) depth = 2;
-    else if (pathLower.includes('/dashboard/')) depth = 1;
+    const path = window.location.pathname;
+    if (path.includes('/admin/')) depth = 1;
+    else if (path.includes('/Exp/user/')) depth = 2;
+    else if (path.includes('/Sav/user/')) depth = 2;
+    else if (path.includes('/auth/')) depth = 1;
+    else if (path.includes('/dashboard/')) depth = 1;
 
     let prefix = '';
     for (let i = 0; i < depth; i++) prefix += '../';
