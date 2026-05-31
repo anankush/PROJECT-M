@@ -13,3 +13,15 @@ window.fetch = async function () {
     }
     return await originalFetch(resource, config);
 };
+
+// Strict Logout on Page Refresh (Reload)
+if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
+    sessionStorage.clear();
+    let path = window.location.pathname;
+    if (path.includes('/user/') || path.includes('/Exp/') || path.includes('/Sav/')) {
+        window.location.href = '../../auth/logout.php';
+    } else {
+        window.location.href = '../auth/logout.php';
+    }
+}
+

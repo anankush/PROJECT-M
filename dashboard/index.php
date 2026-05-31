@@ -5,6 +5,15 @@ require_once '../includes/auth_check.php';
 require_once '../includes/csrf.php';
 require_once '../includes/functions.php';
 require_login();
+
+// Clear sub-module authorizations when landing back on the main dashboard
+unset($_SESSION['exp_authorized']);
+unset($_SESSION['sav_authorized']);
+
+// Generate OTTs for secure sub-module access
+$exp_ott = generate_ott('exp');
+$sav_ott = generate_ott('sav');
+
 set_security_headers();
 ?>
 <!DOCTYPE html>
@@ -45,6 +54,9 @@ set_security_headers();
                 </div>
             </div>
             <div class="topbar-actions">
+                <button class="btn btn-primary" id="quickLogBtn" onclick="openQuickLog()">
+                    <i class="fas fa-plus-circle"></i> <span class="hide-mobile">Quick Log</span>
+                </button>
                 <button class="btn btn-ghost" id="refreshDashBtn" onclick="loadDashboardData()">
                     <i class="fas fa-sync-alt" id="refreshIcon"></i> Refresh
                 </button>
@@ -92,24 +104,65 @@ set_security_headers();
                             class="fas fa-circle-notch fa-spin fa-xs"></i></span>
                 </div>
             </div>
+            <div class="stat-pill glass-card">
+                <div class="stat-pill-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6;"><i
+                        class="fas fa-chart-line"></i></div>
+                <div class="stat-pill-info">
+                    <span class="stat-pill-label">Net Worth</span>
+                    <span class="stat-pill-value" id="netWorthVal"><i
+                            class="fas fa-circle-notch fa-spin fa-xs"></i></span>
+                </div>
+            </div>
+            <div class="stat-pill glass-card">
+                <div class="stat-pill-icon" style="background:rgba(16,185,129,0.15);color:#10b981;"><i
+                        class="fas fa-heartbeat"></i></div>
+                <div class="stat-pill-info">
+                    <span class="stat-pill-label">Health Score</span>
+                    <span class="stat-pill-value" id="healthScoreVal"><i
+                            class="fas fa-circle-notch fa-spin fa-xs"></i></span>
+                </div>
+            </div>
         </div>
 
         <!-- Module Navigation Cards -->
         <div class="module-cards fadeInUp stagger-2">
-            <a href="../Exp/dashboard.php" class="glass-card module-card exp-module">
+            <a href="../Exp/dashboard.php?ott=<?php echo $exp_ott; ?>" class="glass-card module-card exp-module">
                 <i class="fas fa-wallet"></i>
                 <h3>Expense Management</h3>
                 <p class="text-secondary">Track, categorize, and analyze your daily expenses.</p>
                 <div class="btn btn-ghost" style="margin-top:auto;"> Expense Panel <i class="fas fa-arrow-right"></i>
                 </div>
             </a>
-            <a href="../Sav/dashboard.php" class="glass-card module-card sav-module">
+            <a href="../Sav/dashboard.php?ott=<?php echo $sav_ott; ?>" class="glass-card module-card sav-module">
                 <i class="fas fa-piggy-bank"></i>
                 <h3>Savings Management</h3>
                 <p class="text-secondary">Set goals, track deposits, and achieve financial freedom.</p>
                 <div class="btn btn-ghost" style="margin-top:auto;"> Savings Panel <i class="fas fa-arrow-right"></i>
                 </div>
             </a>
+        </div>
+
+        <!-- New Goal Progress & Alerts Section -->
+        <div class="dashboard-widgets fadeInUp stagger-3" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+            <!-- Active Savings Goals -->
+            <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                    <i class="fas fa-bullseye" style="color: var(--aurora-1);"></i> Active Savings Goals
+                </h3>
+                <div id="goalsProgressList" style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; max-height: 220px; padding-right: 4px;">
+                    <div style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i> Loading goals...</div>
+                </div>
+            </div>
+            
+            <!-- Upcoming Deadlines -->
+            <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                    <i class="fas fa-hourglass-half" style="color: var(--danger);"></i> Upcoming Deadlines
+                </h3>
+                <div id="upcomingDeadlinesList" style="display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 220px; padding-right: 4px;">
+                    <div style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i> Loading deadlines...</div>
+                </div>
+            </div>
         </div>
 
         <!-- Financial Charts -->

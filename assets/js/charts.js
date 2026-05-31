@@ -2,12 +2,15 @@
 // Phase 7: Full Integration — fetches live data from Exp & Sav summary APIs
 
 Chart.defaults.color = 'rgba(255, 255, 255, 0.6)';
-Chart.defaults.font.family = 'Inter, sans-serif';
+Chart.defaults.font.family = 'Outfit, Inter, sans-serif';
 Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.08)';
 
 let combinedChart = null;
 let donutChart = null;
 const CURRENCY = '₹'; // Fallback; overridden by API data
+
+let dashboardCategories = [];
+let dashboardGoals = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     initCharts();
@@ -116,6 +119,10 @@ async function loadDashboardData() {
         const result = await res.json().catch(() => null);
         const data = result?.status === 'success' ? result.data : null;
 
+        // Store globally for quick logger selectors
+        dashboardCategories = data?.categories || [];
+        dashboardGoals = data?.goals || [];
+
         // ── Exp Stat Pills ──────────────────────────────────────────────
         const currency = result?.currency || CURRENCY;
         const budget   = data ? data.total_budget : null;
@@ -129,6 +136,111 @@ async function loadDashboardData() {
         // ── Sav Stat Pill ───────────────────────────────────────────────
         const totalSaved = data ? data.total_saved : null;
         setStatPill('savTotalVal', totalSaved, currency, false, '#06b6d4');
+
+        // ── Net Worth & Health Score Pills ──────────────────────────────
+        const netWorth = data ? data.net_worth : null;
+        setStatPill('netWorthVal', netWorth, currency, true);
+
+        const scoreEl = document.getElementById('healthScoreVal');
+        if (scoreEl) {
+            const score = data ? data.health_score : 100;
+            const scoreColor = score >= 80 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+            scoreEl.innerHTML = `<span style="color:${scoreColor}">${score} <span style="font-size:0.8rem; font-weight:500; color:var(--text-muted);">/ 100</span></span>`;
+        }
+
+        // ── Active Savings Goals Progress ──
+        const goalsList = document.getElementById('goalsProgressList');
+        if (goalsList) {
+            const goals = data?.goals || [];
+            if (goals.length > 0) {
+                goalsList.innerHTML = '';
+                goals.forEach(g => {
+                    const current = parseFloat(g.current_amount);
+                    const target = parseFloat(g.target_amount);
+                    const pct = Math.min(100, Math.round((current / target) * 100));
+                    
+                    const div = document.createElement('div');
+                    div.className = 'dash-goal-item';
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; font-weight:600; margin-bottom:2px;">
+                            <span style="color:var(--text-primary);"><i class="fas fa-dot-circle" style="color: ${getThemeColorHex(g.theme_color)}; margin-right:6px;"></i>${escapeHtml(g.goal_name)}</span>
+                            <span style="color:${getThemeColorHex(g.theme_color)};">${pct}%</span>
+                        </div>
+                        <div class="dash-progress-container">
+                            <div class="dash-progress-bar" style="width: ${pct}%; background: ${getThemeGradient(g.theme_color)};"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-secondary);">
+                            <span>Saved: ${currency}${current.toFixed(2)}</span>
+                            <span>Target: ${currency}${target.toFixed(2)}</span>
+                        </div>
+                    `;
+                    goalsList.appendChild(div);
+                });
+            } else {
+                goalsList.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-muted);">
+                    <i class="fas fa-bullseye fa-2x" style="margin-bottom:0.5rem; opacity:0.5;"></i><br>
+                    No active savings goals found.
+                </div>`;
+            }
+        }
+
+        // ── Upcoming Goal Deadlines ──
+        const deadlinesList = document.getElementById('upcomingDeadlinesList');
+        if (deadlinesList) {
+            const goals = data?.goals || [];
+            const now = new Date();
+            now.setHours(0,0,0,0);
+            
+            const upcoming = goals.filter(g => {
+                const current = parseFloat(g.current_amount);
+                const target = parseFloat(g.target_amount);
+                return (current < target) && g.deadline;
+            }).map(g => {
+                const dl = new Date(g.deadline);
+                dl.setHours(0,0,0,0);
+                const diffTime = dl - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return { ...g, diffDays };
+            }).filter(g => g.diffDays <= 30)
+            .sort((a,b) => a.diffDays - b.diffDays);
+            
+            if (upcoming.length > 0) {
+                deadlinesList.innerHTML = '';
+                upcoming.forEach(g => {
+                    let badgeColor = 'var(--text-muted)';
+                    let badgeText = '';
+                    if (g.diffDays < 0) {
+                        badgeColor = '#ef4444';
+                        badgeText = `Overdue ${Math.abs(g.diffDays)}d`;
+                    } else if (g.diffDays === 0) {
+                        badgeColor = '#f59e0b';
+                        badgeText = 'Today';
+                    } else {
+                        badgeColor = g.diffDays <= 7 ? '#f59e0b' : '#3b82f6';
+                        badgeText = `${g.diffDays}d left`;
+                    }
+                    
+                    const formattedDate = new Date(g.deadline).toLocaleDateString('default', { month: 'short', day: 'numeric' });
+                    
+                    const div = document.createElement('div');
+                    div.className = 'dash-deadline-item';
+                    div.innerHTML = `
+                        <div style="font-size:1rem; color:${badgeColor};"><i class="fas fa-exclamation-circle"></i></div>
+                        <div style="display:flex; flex-direction:column; min-width:0; flex:1;">
+                            <span style="font-size:0.85rem; font-weight:600; color:var(--text-primary); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${escapeHtml(g.goal_name)}</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Deadline: ${formattedDate}</span>
+                        </div>
+                        <span style="background:${badgeColor}15; color:${badgeColor}; border:1px solid ${badgeColor}30; font-size:0.65rem; padding: 2px 6px; border-radius: 12px; font-weight: 700; white-space:nowrap;">${badgeText}</span>
+                    `;
+                    deadlinesList.appendChild(div);
+                });
+            } else {
+                deadlinesList.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-muted);">
+                    <i class="fas fa-calendar-check fa-2x" style="margin-bottom:0.5rem; opacity:0.5;"></i><br>
+                    No deadlines within 30 days.
+                </div>`;
+            }
+        }
 
         // ── Update Donut Chart ──────────────────────────────────────────
         if (data && data.breakdown && data.breakdown.length > 0) {
@@ -157,7 +269,6 @@ async function loadDashboardData() {
         }
 
         // ── Update Combined Bar Chart ───────────────────────────────────
-        // Build a unified month map over last 6 months
         const now = new Date();
         const monthLabels = [];
         for (let i = 5; i >= 0; i--) {
@@ -165,7 +276,6 @@ async function loadDashboardData() {
             monthLabels.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
         }
 
-        // Map API monthly arrays to the labels
         const expMonthly = data?.exp_monthly || [];
         const savMonthly = data?.sav_monthly || [];
 
@@ -175,7 +285,6 @@ async function loadDashboardData() {
         const expValues = monthLabels.map(m => expMap[m] || 0);
         const savValues = monthLabels.map(m => savMap[m] || 0);
 
-        // Pretty labels: "May '26"
         const prettyLabels = monthLabels.map(m => {
             const [y, mo] = m.split('-');
             return new Date(y, mo - 1).toLocaleString('default', { month: 'short' }) + ` '${y.slice(2)}`;
@@ -186,12 +295,11 @@ async function loadDashboardData() {
         combinedChart.data.datasets[1].data = savValues;
         combinedChart.update('active');
 
-        // Make chart clickable to redirect to that month
         if (combinedChart.options.onClick === undefined) {
             combinedChart.options.onClick = (e, activeEls) => {
                 if (activeEls.length > 0) {
                     const idx = activeEls[0].index;
-                    const monthRaw = monthLabels[idx]; // YYYY-MM
+                    const monthRaw = monthLabels[idx];
                     window.location.href = `../Exp/dashboard.php?month=${monthRaw}`;
                 }
             };
@@ -208,7 +316,6 @@ async function loadDashboardData() {
         const tbody = document.getElementById('summaryTableBody');
         if (tbody) {
             tbody.innerHTML = '';
-            // Render from newest to oldest
             const reversedLabels = [...monthLabels].reverse();
             const reversedPretty = [...prettyLabels].reverse();
             
@@ -218,7 +325,6 @@ async function loadDashboardData() {
                 tr.title = `Click to view details for ${reversedPretty[idx]}`;
                 tr.onclick = () => { window.location.href = `../Exp/dashboard.php?month=${m}`; };
                 
-                // If it's the current month, show the actual budget, else '-'
                 const isCurrentMonth = (idx === 0); 
                 const budgetStr = (isCurrentMonth && budget !== null) ? `${currency}${Number(budget).toFixed(2)}` : `<span style="color:var(--text-muted)">-</span>`;
                 
@@ -235,35 +341,60 @@ async function loadDashboardData() {
             });
         }
 
-        // ── Populate Recent Transactions ──────────────────────────────
+        // ── Populate Recent Combined Transactions ──
         const txList = document.getElementById('recentTransactionsList');
         if (txList) {
-            if (data && data.recent_transactions && data.recent_transactions.length > 0) {
+            const txs = data?.recent_transactions || [];
+            if (txs.length > 0) {
                 txList.innerHTML = '';
-                data.recent_transactions.forEach(tx => {
-                    // Formatting time if entry_date includes it, or just use date
-                    const d = new Date(tx.entry_date);
+                txs.forEach(tx => {
+                    const d = new Date(tx.activity_date);
                     const formattedDate = d.toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' });
+                    
+                    let amtColor = '#ef4444';
+                    let amtSign = '-';
+                    let iconClass = 'fa-receipt';
+                    let bgIcon = 'rgba(239, 68, 68, 0.15)';
+                    
+                    if (tx.type === 'savings') {
+                        if (tx.subtype === 'deposit') {
+                            amtColor = '#10b981';
+                            amtSign = '+';
+                            iconClass = 'fa-piggy-bank';
+                            bgIcon = 'rgba(16, 185, 129, 0.15)';
+                        } else {
+                            amtColor = '#f59e0b';
+                            amtSign = '-';
+                            iconClass = 'fa-hand-holding-usd';
+                            bgIcon = 'rgba(245, 158, 11, 0.15)';
+                        }
+                    }
                     
                     const div = document.createElement('div');
                     div.className = 'tx-item';
+                    div.style.padding = '0.75rem 1rem';
                     div.innerHTML = `
-                        <div class="tx-info">
-                            <span class="tx-desc">${tx.description ? tx.description : '<i>No Description</i>'}</span>
-                            <div class="tx-meta">
-                                <span><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
-                                <span class="tx-cat">${tx.category_name}</span>
+                        <div style="display:flex; align-items:center; gap:12px; width:100%;">
+                            <div style="width:38px; height:38px; border-radius:10px; background:${bgIcon}; color:${amtColor}; display:flex; align-items:center; justify-content:center; font-size:1.05rem; flex-shrink:0;">
+                                <i class="fas ${iconClass}"></i>
                             </div>
-                        </div>
-                        <div class="tx-amount">
-                            -${currency}${Number(tx.amount).toFixed(2)}
+                            <div class="tx-info" style="flex:1; min-width:0;">
+                                <span class="tx-desc" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; display:block;">${tx.description ? escapeHtml(tx.description) : '<i>No Description</i>'}</span>
+                                <div class="tx-meta" style="margin-top:2px;">
+                                    <span><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
+                                    <span class="tx-cat" style="background:${bgIcon}; color:${amtColor}; font-size:0.7rem; padding:1px 5px; border-radius:4px; font-weight:600;">${escapeHtml(tx.context)}</span>
+                                </div>
+                            </div>
+                            <div class="tx-amount" style="color:${amtColor}; font-weight:700; white-space:nowrap; margin-left:10px; font-size:0.95rem;">
+                                ${amtSign}${currency}${Number(tx.amount).toFixed(2)}
+                            </div>
                         </div>
                     `;
                     txList.appendChild(div);
                 });
             } else {
                 txList.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-muted);">
-                    <i class="fas fa-receipt fa-2x" style="margin-bottom:1rem; opacity:0.5;"></i><br>
+                    <i class="fas fa-receipt fa-2x" style="margin-bottom:0.5rem; opacity:0.5;"></i><br>
                     No recent transactions found.
                 </div>`;
             }
@@ -291,5 +422,192 @@ function setStatPill(elId, value, currency = '₹', isBalance = false, color = n
         el.innerHTML = `<span style="color:${color}">${formatted}</span>`;
     } else {
         el.textContent = formatted;
+    }
+}
+
+function getThemeColorHex(theme) {
+    switch (theme) {
+        case 'purple': return '#8b5cf6';
+        case 'emerald': return '#10b981';
+        case 'sunset': return '#f43f5e';
+        case 'ocean': return '#0ea5e9';
+        default: return '#8b5cf6';
+    }
+}
+
+function getThemeGradient(theme) {
+    switch (theme) {
+        case 'purple': return 'linear-gradient(90deg, #8b5cf6, #d946ef)';
+        case 'emerald': return 'linear-gradient(90deg, #10b981, #34d399)';
+        case 'sunset': return 'linear-gradient(90deg, #f43f5e, #f97316)';
+        case 'ocean': return 'linear-gradient(90deg, #0ea5e9, #22d3ee)';
+        default: return 'linear-gradient(90deg, #8b5cf6, #d946ef)';
+    }
+}
+
+// ── Quick Entry Log Modal Implementation ──
+async function openQuickLog() {
+    const { value: type } = await Swal.fire({
+        title: 'Quick Log Entry',
+        html: `
+            <div style="margin-bottom: 10px; text-align: left;">
+                <label style="font-weight:600; color:var(--text-primary); font-size:0.9rem;">Select Entry Type</label>
+                <select id="quickLogType" class="theme-input-select swal-input" style="margin-top:6px; font-size:0.9rem; padding:8px 10px; height:40px;">
+                    <option value="expense">Expense (খরচ)</option>
+                    <option value="savings">Savings Deposit (সঞ্চয় জমা)</option>
+                </select>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Next <i class="fas fa-arrow-right"></i>',
+        confirmButtonColor: '#8b5cf6',
+        preConfirm: () => {
+            return document.getElementById('quickLogType').value;
+        }
+    });
+
+    if (!type) return;
+
+    if (type === 'expense') {
+        if (dashboardCategories.length === 0) {
+            Swal.fire('No Categories', 'Please create an expense category first in the Expense panel.', 'warning');
+            return;
+        }
+        
+        const catOptions = dashboardCategories.map(c => 
+            `<option value="${c.id}">${escapeHtml(c.category_name)}</option>`
+        ).join('');
+
+        const { value: expenseForm } = await Swal.fire({
+            title: 'Log New Expense',
+            html: `
+                <div class="swal-form-container">
+                    <div class="swal-field">
+                        <label class="swal-label">Category</label>
+                        <select id="ql-cat" class="theme-input-select swal-input">${catOptions}</select>
+                    </div>
+                    <div class="swal-field">
+                        <label class="swal-label">Amount (পরিমাণ)</label>
+                        <input id="ql-amount" type="number" step="0.01" min="0.01" class="theme-input-select swal-input" placeholder="e.g. 150.00">
+                    </div>
+                    <div class="swal-field">
+                        <label class="swal-label">Description (বিবরণ)</label>
+                        <input id="ql-desc" type="text" class="theme-input-select swal-input" placeholder="e.g. Lunch at restaurant">
+                    </div>
+                    <div class="swal-field">
+                        <label class="swal-label">Date</label>
+                        <input id="ql-date" type="date" class="theme-input-select swal-input" value="${new Date().toISOString().slice(0, 10)}">
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Log Expense',
+            confirmButtonColor: '#ef4444',
+            preConfirm: () => {
+                const category_id = document.getElementById('ql-cat').value;
+                const amount = parseFloat(document.getElementById('ql-amount').value);
+                const description = document.getElementById('ql-desc').value;
+                const date = document.getElementById('ql-date').value;
+
+                if (isNaN(amount) || amount <= 0) {
+                    Swal.showValidationMessage('Please enter a valid amount');
+                    return false;
+                }
+                return { type: 'expense', category_id, amount, description, date };
+            }
+        });
+
+        if (expenseForm) {
+            submitQuickLog(expenseForm);
+        }
+
+    } else if (type === 'savings') {
+        const activeGoals = dashboardGoals.filter(g => parseFloat(g.current_amount) < parseFloat(g.target_amount));
+        if (activeGoals.length === 0) {
+            Swal.fire('No Active Goals', 'Please create an active savings goal first in the Savings panel.', 'warning');
+            return;
+        }
+
+        const goalOptions = activeGoals.map(g => 
+            `<option value="${g.id}">${escapeHtml(g.goal_name)} (Target: ${CURRENCY}${g.target_amount})</option>`
+        ).join('');
+
+        const { value: savingsForm } = await Swal.fire({
+            title: 'Log Goal Deposit',
+            html: `
+                <div class="swal-form-container">
+                    <div class="swal-field">
+                        <label class="swal-label">Select Savings Goal</label>
+                        <select id="ql-goal" class="theme-input-select swal-input">${goalOptions}</select>
+                    </div>
+                    <div class="swal-field">
+                        <label class="swal-label">Deposit Amount (জমার পরিমাণ)</label>
+                        <input id="ql-amount" type="number" step="0.01" min="0.01" class="theme-input-select swal-input" placeholder="e.g. 500.00">
+                    </div>
+                    <div class="swal-field">
+                        <label class="swal-label">Notes (মন্তব্য)</label>
+                        <input id="ql-notes" type="text" class="theme-input-select swal-input" placeholder="e.g. Monthly savings contribution">
+                    </div>
+                    <div class="swal-field">
+                        <label class="swal-label">Date</label>
+                        <input id="ql-date" type="date" class="theme-input-select swal-input" value="${new Date().toISOString().slice(0, 10)}">
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Log Deposit',
+            confirmButtonColor: '#10b981',
+            preConfirm: () => {
+                const goal_id = document.getElementById('ql-goal').value;
+                const amount = parseFloat(document.getElementById('ql-amount').value);
+                const notes = document.getElementById('ql-notes').value;
+                const date = document.getElementById('ql-date').value;
+
+                if (isNaN(amount) || amount <= 0) {
+                    Swal.showValidationMessage('Please enter a valid amount');
+                    return false;
+                }
+                return { type: 'savings', goal_id, amount, notes, date };
+            }
+        });
+
+        if (savingsForm) {
+            submitQuickLog(savingsForm);
+        }
+    }
+}
+
+async function submitQuickLog(payload) {
+    Swal.fire({
+        title: 'Saving entry...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+
+    try {
+        const res = await fetch('../api/dashboard_api.php?action=quick_entry', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': CSRF_TOKEN
+            },
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.status === 'success') {
+            Swal.fire({
+                title: 'Logged!',
+                text: result.message,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                loadDashboardData();
+            });
+        } else {
+            Swal.fire('Error', result.message, 'error');
+        }
+    } catch (e) {
+        Swal.fire('Error', 'Failed to log entry to server.', 'error');
     }
 }
