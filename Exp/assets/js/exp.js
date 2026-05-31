@@ -466,7 +466,7 @@
 
                     const [y, m] = monthVal.split('-');
                     const mName = new Date(y, m - 1).toLocaleString('default', { month: 'short' });
-                    document.querySelector('#sectionBudgetBox .metric-label').innerHTML = `Section Budget (${mName} ${y}) <i class="fas fa-edit" style="cursor:pointer; font-size:0.8rem; margin-left:5px;" onclick="editSectionBudget()" title="Edit Section Budget"></i>`;
+                    document.querySelector('#sectionBudgetBox .metric-label').innerHTML = `Section Budget (${mName} ${y}) <i class="fas fa-edit" style="cursor:pointer; font-size:0.8rem; margin-left:5px;" onclick="showBudgetManageInfo()" title="Edit Section Budget"></i>`;
                     document.querySelector('#sectionExpenditureBox .metric-label').innerText = `Section Expenditure (${mName} ${y})`;
                     document.querySelector('#sectionBalanceBox .metric-label').innerText = `Section Remaining (${mName} ${y})`;
 
