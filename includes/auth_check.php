@@ -52,8 +52,16 @@ function session_start_secure()
         }
 
         $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        $ip_parts = explode('.', $ip);
-        $ip_subnet = (count($ip_parts) >= 2) ? $ip_parts[0] . '.' . $ip_parts[1] : $ip;
+        if (strpos($ip, ',') !== false) {
+            $ip = trim(explode(',', $ip)[0]);
+        }
+        if (strpos($ip, ':') !== false) {
+            $ip_parts = explode(':', $ip);
+            $ip_subnet = (count($ip_parts) >= 4) ? implode(':', array_slice($ip_parts, 0, 4)) : $ip;
+        } else {
+            $ip_parts = explode('.', $ip);
+            $ip_subnet = (count($ip_parts) >= 2) ? $ip_parts[0] . '.' . $ip_parts[1] : $ip;
+        }
         $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
         if (!isset($_SESSION['secure_subnet'])) {
