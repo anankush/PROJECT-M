@@ -483,8 +483,8 @@ async function openQuickLog() {
             <div style="margin-bottom: 10px; text-align: left;">
                 <label style="font-weight:600; color:var(--text-primary); font-size:0.9rem;">Select Entry Type</label>
                 <select id="quickLogType" class="theme-input-select swal-input" style="margin-top:6px; font-size:0.9rem; padding:8px 10px; height:40px;">
-                    <option value="expense">Expense (খরচ)</option>
-                    <option value="savings">Savings Deposit (সঞ্চয় জমা)</option>
+                    <option value="expense">Expense</option>
+                    <option value="savings">Savings Deposit</option>
                 </select>
             </div>
         `,
@@ -517,11 +517,11 @@ async function openQuickLog() {
                         <select id="ql-cat" class="theme-input-select swal-input">${catOptions}</select>
                     </div>
                     <div class="swal-field">
-                        <label class="swal-label">Amount (পরিমাণ)</label>
+                        <label class="swal-label">Amount</label>
                         <input id="ql-amount" type="number" step="0.01" min="0.01" class="theme-input-select swal-input" placeholder="e.g. 150.00">
                     </div>
                     <div class="swal-field">
-                        <label class="swal-label">Description (বিবরণ)</label>
+                        <label class="swal-label">Description</label>
                         <input id="ql-desc" type="text" class="theme-input-select swal-input" placeholder="e.g. Lunch at restaurant">
                     </div>
                     <div class="swal-field">
@@ -571,11 +571,11 @@ async function openQuickLog() {
                         <select id="ql-goal" class="theme-input-select swal-input">${goalOptions}</select>
                     </div>
                     <div class="swal-field">
-                        <label class="swal-label">Deposit Amount (জমার পরিমাণ)</label>
+                        <label class="swal-label">Deposit Amount</label>
                         <input id="ql-amount" type="number" step="0.01" min="0.01" class="theme-input-select swal-input" placeholder="e.g. 500.00">
                     </div>
                     <div class="swal-field">
-                        <label class="swal-label">Notes (মন্তব্য)</label>
+                        <label class="swal-label">Notes</label>
                         <input id="ql-notes" type="text" class="theme-input-select swal-input" placeholder="e.g. Monthly savings contribution">
                     </div>
                     <div class="swal-field">
