@@ -55,6 +55,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
             <a href="#features" class="desktop-only">Features</a>
             <a href="#how-it-works" class="desktop-only">How It Works</a>
             <a href="about.php" class="desktop-only">About</a>
+            <a href="dev.php" class="desktop-only">Dev</a>
             <?php if ($isUserLoggedIn): ?>
                 <a href="dashboard/index.php" class="btn btn-primary">Go to Dashboard</a>
             <?php elseif ($isAdminLoggedIn): ?>
@@ -312,7 +313,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
         <div class="footer-inner" style="justify-content: center; text-align: center;">
             <div class="footer-copy">
                 made with love ❤️<br>
-                &copy; <?php echo date('Y'); ?> <a href="dev.php" style="color: inherit; text-decoration: none;">PROJECT M</a>
+                &copy; <?php echo date('Y'); ?> <a href="admin_portal.php" style="color: inherit; text-decoration: none;">PROJECT M</a>
             </div>
         </div>
     </footer>

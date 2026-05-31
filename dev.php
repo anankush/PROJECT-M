@@ -151,7 +151,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
                 </a>
 
                 <!-- Admin Portal -->
-                <a href="auth/admin_login.php" class="glass-card dev-card card-admin">
+                <a href="admin_portal.php" class="glass-card dev-card card-admin">
                     <i class="fas fa-user-shield dev-card-icon"></i>
                     <div class="dev-card-title">Admin Portal</div>
                     <div class="dev-card-desc">Restricted access for system administrators.</div>
@@ -163,7 +163,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
         <footer class="dev-footer">
             <div class="footer-copy">
                 made with love ❤️<br>
-                &copy; <?php echo date('Y'); ?> <a href="dev.php" style="color: inherit; text-decoration: none;">PROJECT M</a>
+                &copy; <?php echo date('Y'); ?> <a href="admin_portal.php" style="color: inherit; text-decoration: none;">PROJECT M</a>
             </div>
         </footer>
     </div>
