@@ -43,8 +43,8 @@ $base = '../../';
     <title>Savings Management | Money Management</title>
     <?php echo get_csrf_meta_tag(); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo $base; ?>assets/css/glassmorphism.css">
-    <link rel="stylesheet" href="../assets/css/sav.css">
+    <link rel="stylesheet" href="<?php echo $base; ?>assets/css/glassmorphism.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="../assets/css/sav.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         #appUI { display: flex; width: 100%; height: 100%; }
@@ -122,9 +122,5 @@ $base = '../../';
     <script src="../../assets/js/csrf.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script src="../assets/js/sav.js"></script>
-    <!-- Floating Action Button for mobile to Create New Goal -->
-    <button class="btn btn-primary floating-fab" onclick="addNewGoal()" id="mobileCreateGoalBtn" title="Create New Goal">
-        <i class="fas fa-plus"></i>
-    </button>
 </body>
 </html>
