@@ -47,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 session_regenerate_id(true);
+                $pdo->prepare("UPDATE users SET active_session_id = ? WHERE id = ?")->execute([session_id(), $user['id']]);
                 unset($_SESSION['admin_id']);
                 unset($_SESSION['is_admin']);
                 $_SESSION['user_id'] = $user['id'];

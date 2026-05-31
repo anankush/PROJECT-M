@@ -85,6 +85,10 @@ $errors = [
         'type' => 'Access Denied',
         'msg' => 'Administrative privileges are required to access this resource.'
     ],
+    'concurrent_login' => [
+        'type' => 'Session Terminated',
+        'msg' => 'You have been logged out because this account was logged in from another device or browser.'
+    ],
     'rate_limit' => [
         'type' => 'Too Many Requests',
         'msg' => 'We have detected unusual activity from your connection. Please wait a moment before trying again.'
