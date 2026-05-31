@@ -920,7 +920,6 @@ body:has(.sidebar) { overflow: hidden; }
     font-weight: 600 !important;
     border-radius: 10px !important;
     padding: 0.8rem 2rem !important;
-    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
@@ -930,6 +929,14 @@ body:has(.sidebar) { overflow: hidden; }
     text-decoration: none !important;
     letter-spacing: 0.5px !important;
     margin: 0 !important;
+}
+
+/* Apply inline-flex display only when buttons are not hidden by SweetAlert2 */
+.swal2-confirm:not([style*="display: none"]):not([style*="display:none"]),
+.swal2-cancel:not([style*="display: none"]):not([style*="display:none"]),
+.swal2-deny:not([style*="display: none"]):not([style*="display:none"]),
+.swal2-popup .btn:not([style*="display: none"]):not([style*="display:none"]) {
+    display: inline-flex !important;
 }
 
 /* Specific button style overrides */
