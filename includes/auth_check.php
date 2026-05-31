@@ -42,7 +42,7 @@ function session_start_secure() {
             $session_invalid ? 'YES' : 'NO',
             $_SERVER['HTTP_USER_AGENT'] ?? ''
         );
-        file_put_contents(__DIR__ . '/../session_debug.log', $log_msg, FILE_APPEND);
+        file_put_contents(__DIR__ . '/session_debug.log', $log_msg, FILE_APPEND);
 
         if ($session_invalid) {
             $_SESSION = [];
