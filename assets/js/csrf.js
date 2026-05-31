@@ -57,3 +57,16 @@ if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
         window.location.href = logoutUrl;
     }
 }
+
+const isAuthArea = window.location.pathname.includes('/dashboard/') 
+                || window.location.pathname.includes('/Exp/user/')
+                || window.location.pathname.includes('/Sav/user/')
+                || window.location.pathname.includes('/admin/');
+
+if (isAuthArea) {
+    setInterval(() => {
+        fetch(window.location.pathname + '?ping=1', {
+            headers: { 'Accept': 'application/json' }
+        }).catch(() => {});
+    }, 5000);
+}
