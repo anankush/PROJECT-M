@@ -4,6 +4,6 @@ require_once '../includes/db.php';
 require_once '../includes/auth_check.php';
 require_login();
 
-$ott = $_GET['ott'] ?? '';
-header('Location: user/index.php' . ($ott ? '?ott=' . urlencode($ott) : ''));
+$query_string = $_SERVER['QUERY_STRING'] ?? '';
+header('Location: user/index.php' . ($query_string ? '?' . $query_string : ''));
 exit;

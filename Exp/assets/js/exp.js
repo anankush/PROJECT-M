@@ -249,28 +249,35 @@
                 if (currentCategoryId) {
                     loadCategory(currentCategoryId, currentCategoryName);
                 } else {
-                    if (titleSpan) titleSpan.innerText = 'Please select a Section';
-                    const addBtn = document.getElementById('addRecordBtn');
-                    if (addBtn) addBtn.style.display = 'none';
-                    const secActions = document.getElementById('sectionActions');
-                    if (secActions) secActions.style.display = 'none';
-                    if(document.getElementById('noteBtn')) setElementDisplay('noteBtn', 'none');
-                    const rb = document.getElementById('refreshBtn');
-                    if(rb) rb.classList.remove('show');
-                    const rbm = document.getElementById('refreshBtnMobile');
-                    if(rbm) rbm.classList.remove('show');
-                    const dt = document.getElementById('dataTable');
-                    if(dt) dt.style.display = 'none';
-                    const es = document.getElementById('emptyState');
-                    if(es) es.style.display = 'none';
-                    const srs = document.getElementById('sortRecordsSelect');
-                    if(srs) srs.style.display = 'none';
-                    const sbb = document.getElementById('sectionBudgetBox');
-                    if(sbb) sbb.style.display = 'none';
-                    const seb = document.getElementById('sectionExpenditureBox');
-                    if(seb) seb.style.display = 'none';
-                    const sbalb = document.getElementById('sectionBalanceBox');
-                    if(sbalb) sbalb.style.display = 'none';
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const catParam = parseInt(urlParams.get('category_id'));
+                    const matchedCat = catParam ? categories.find(c => c.id === catParam) : null;
+                    if (matchedCat) {
+                        loadCategory(matchedCat.id, matchedCat.category_name);
+                    } else {
+                        if (titleSpan) titleSpan.innerText = 'Please select a Section';
+                        const addBtn = document.getElementById('addRecordBtn');
+                        if (addBtn) addBtn.style.display = 'none';
+                        const secActions = document.getElementById('sectionActions');
+                        if (secActions) secActions.style.display = 'none';
+                        if(document.getElementById('noteBtn')) setElementDisplay('noteBtn', 'none');
+                        const rb = document.getElementById('refreshBtn');
+                        if(rb) rb.classList.remove('show');
+                        const rbm = document.getElementById('refreshBtnMobile');
+                        if(rbm) rbm.classList.remove('show');
+                        const dt = document.getElementById('dataTable');
+                        if(dt) dt.style.display = 'none';
+                        const es = document.getElementById('emptyState');
+                        if(es) es.style.display = 'none';
+                        const srs = document.getElementById('sortRecordsSelect');
+                        if(srs) srs.style.display = 'none';
+                        const sbb = document.getElementById('sectionBudgetBox');
+                        if(sbb) sbb.style.display = 'none';
+                        const seb = document.getElementById('sectionExpenditureBox');
+                        if(seb) seb.style.display = 'none';
+                        const sbalb = document.getElementById('sectionBalanceBox');
+                        if(sbalb) sbalb.style.display = 'none';
+                    }
                 }
             } else {
                 if (summaryTitle) summaryTitle.innerText = 'Overall Budget';

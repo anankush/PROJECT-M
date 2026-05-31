@@ -57,7 +57,7 @@ set_security_headers();
                 <button class="btn btn-primary" id="quickLogBtn" onclick="openQuickLog()">
                     <i class="fas fa-plus-circle"></i> <span class="hide-mobile">Quick Log</span>
                 </button>
-                <button class="btn btn-ghost" id="refreshDashBtn" onclick="loadDashboardData()">
+                <button class="btn btn-ghost" id="refreshDashBtn" onclick="loadDashboardData(currentSelectedMonth)">
                     <i class="fas fa-sync-alt" id="refreshIcon"></i> Refresh
                 </button>
                 <button class="btn btn-ghost" id="openSettingsBtn" onclick="openGlobalSettings()">
@@ -126,14 +126,14 @@ set_security_headers();
 
         <!-- Module Navigation Cards -->
         <div class="module-cards fadeInUp stagger-2">
-            <a href="../Exp/dashboard.php?ott=<?php echo $exp_ott; ?>" class="glass-card module-card exp-module">
+            <a href="#" onclick="navigateSecurely('exp'); return false;" class="glass-card module-card exp-module" id="expModuleLink">
                 <i class="fas fa-wallet"></i>
                 <h3>Expense Management</h3>
                 <p class="text-secondary">Track, categorize, and analyze your daily expenses.</p>
                 <div class="btn btn-ghost" style="margin-top:auto;"> Expense Panel <i class="fas fa-arrow-right"></i>
                 </div>
             </a>
-            <a href="../Sav/dashboard.php?ott=<?php echo $sav_ott; ?>" class="glass-card module-card sav-module">
+            <a href="#" onclick="navigateSecurely('sav'); return false;" class="glass-card module-card sav-module" id="savModuleLink">
                 <i class="fas fa-piggy-bank"></i>
                 <h3>Savings Management</h3>
                 <p class="text-secondary">Set goals, track deposits, and achieve financial freedom.</p>
@@ -166,10 +166,20 @@ set_security_headers();
         </div>
 
         <!-- Financial Charts -->
-        <h2 style="margin-bottom:1.5rem;" class="fadeInUp stagger-3">Financial Overview
-            <span id="chartMonthLabel"
-                style="font-size:0.85rem; color:var(--text-muted); margin-left:0.75rem; font-weight:400;"></span>
-        </h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:10px;" class="fadeInUp stagger-3">
+            <h2 style="margin:0;">Financial Overview
+                <span id="chartMonthLabel"
+                    style="font-size:0.85rem; color:var(--text-muted); margin-left:0.75rem; font-weight:400;">(All-Time)</span>
+            </h2>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <select id="dashboardMonthFilter" class="theme-input-select" style="padding: 0.4rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-primary); font-size: 0.85rem; outline: none; height: auto;" onchange="filterDashboardByMonth(this.value)">
+                    <option value="all">All-Time</option>
+                </select>
+                <button id="resetFilterBtn" class="btn btn-ghost" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; display:none;" onclick="resetDashboardFilter()">
+                    <i class="fas fa-times-circle"></i> Clear Filter
+                </button>
+            </div>
+        </div>
         <div class="charts-container fadeInUp stagger-4">
             <div class="glass-card chart-card">
                 <h3>Monthly Cash Flow — Expenses vs Savings</h3>
@@ -215,7 +225,7 @@ set_security_headers();
             <div class="glass-card details-card recent-tx-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                     <h3 style="margin: 0;">Recent Transactions</h3>
-                    <a href="../Exp/dashboard.php" class="btn btn-ghost" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">View All <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" onclick="navigateSecurely('exp'); return false;" class="btn btn-ghost" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">View All <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="transaction-list" id="recentTransactionsList">
                     <div style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>

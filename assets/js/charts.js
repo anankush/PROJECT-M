@@ -11,10 +11,11 @@ const CURRENCY = '₹'; // Fallback; overridden by API data
 
 let dashboardCategories = [];
 let dashboardGoals = [];
+let currentSelectedMonth = 'all';
 
 document.addEventListener('DOMContentLoaded', () => {
     initCharts();
-    loadDashboardData();
+    loadDashboardData(currentSelectedMonth);
 });
 
 function initCharts() {
@@ -108,14 +109,14 @@ function initCharts() {
     }
 }
 
-async function loadDashboardData() {
+async function loadDashboardData(selectedMonth = 'all') {
     const refreshIcon = document.getElementById('refreshIcon');
     if (refreshIcon) {
         refreshIcon.classList.add('fa-spin');
     }
 
     try {
-        const res = await fetch('../api/dashboard_api.php');
+        const res = await fetch(`../api/dashboard_api.php?month=${encodeURIComponent(selectedMonth)}`);
         const result = await res.json().catch(() => null);
         const data = result?.status === 'success' ? result.data : null;
 
@@ -255,9 +256,25 @@ async function loadDashboardData() {
             ];
             donutChart.data.labels   = data.breakdown.map(b => b.category_name);
             donutChart.data.datasets[0].data            = data.breakdown.map(b => parseFloat(b.spent));
+            donutChart.data.datasets[0].categoryIds     = data.breakdown.map(b => parseInt(b.category_id));
             donutChart.data.datasets[0].backgroundColor = data.breakdown.map((_, i) => palette[i % palette.length]);
             donutChart.data.datasets[0].borderWidth     = 2;
             donutChart.data.datasets[0].borderColor     = 'rgba(10,10,20,0.6)';
+            
+            if (donutChart.options.onClick === undefined) {
+                donutChart.options.onClick = (e, activeEls) => {
+                    if (activeEls.length > 0) {
+                        const idx = activeEls[0].index;
+                        const catId = donutChart.data.datasets[0].categoryIds[idx];
+                        if (catId) {
+                            navigateSecurely('exp', catId);
+                        }
+                    }
+                };
+                donutChart.options.onHover = (e, activeEls) => {
+                    e.native.target.style.cursor = activeEls.length > 0 ? 'pointer' : 'default';
+                };
+            }
             donutChart.update('active');
         } else if (donutChart) {
             const donutEmpty = document.getElementById('donutEmpty');
@@ -290,6 +307,17 @@ async function loadDashboardData() {
             return new Date(y, mo - 1).toLocaleString('default', { month: 'short' }) + ` '${y.slice(2)}`;
         });
 
+        // Populate the Month Filter select dropdown if it only contains "All-Time"
+        const selectFilter = document.getElementById('dashboardMonthFilter');
+        if (selectFilter && selectFilter.options.length <= 1) {
+            monthLabels.forEach((m, idx) => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = prettyLabels[idx];
+                selectFilter.appendChild(opt);
+            });
+        }
+
         combinedChart.data.labels = prettyLabels;
         combinedChart.data.datasets[0].data = expValues;
         combinedChart.data.datasets[1].data = savValues;
@@ -300,7 +328,7 @@ async function loadDashboardData() {
                 if (activeEls.length > 0) {
                     const idx = activeEls[0].index;
                     const monthRaw = monthLabels[idx];
-                    window.location.href = `../Exp/dashboard.php?month=${monthRaw}`;
+                    filterDashboardByMonth(monthRaw);
                 }
             };
             combinedChart.options.onHover = (e, activeEls) => {
@@ -310,7 +338,9 @@ async function loadDashboardData() {
         }
 
         const curMonthLabel = document.getElementById('chartMonthLabel');
-        if (curMonthLabel) curMonthLabel.textContent = `(Last 6 Months)`;
+        if (curMonthLabel) {
+            curMonthLabel.textContent = (selectedMonth === 'all') ? '(All-Time)' : `(${formatMonthYearLabel(selectedMonth)})`;
+        }
 
         // ── Populate Month-wise Summary Table ───────────────────────────
         const tbody = document.getElementById('summaryTableBody');
@@ -322,8 +352,8 @@ async function loadDashboardData() {
             reversedLabels.forEach((m, idx) => {
                 const tr = document.createElement('tr');
                 tr.style.cursor = 'pointer';
-                tr.title = `Click to view details for ${reversedPretty[idx]}`;
-                tr.onclick = () => { window.location.href = `../Exp/dashboard.php?month=${m}`; };
+                tr.title = `Click to filter details for ${reversedPretty[idx]}`;
+                tr.onclick = () => { filterDashboardByMonth(m); };
                 
                 const isCurrentMonth = (idx === 0); 
                 const budgetStr = (isCurrentMonth && budget !== null) ? `${currency}${Number(budget).toFixed(2)}` : `<span style="color:var(--text-muted)">-</span>`;
@@ -602,12 +632,68 @@ async function submitQuickLog(payload) {
                 timer: 1500,
                 showConfirmButton: false
             }).then(() => {
-                loadDashboardData();
+                loadDashboardData(currentSelectedMonth);
             });
         } else {
             Swal.fire('Error', result.message, 'error');
         }
     } catch (e) {
         Swal.fire('Error', 'Failed to log entry to server.', 'error');
+    }
+}
+
+// ── Interactive Dashboard Month Filtering & Redirection helpers ──
+function filterDashboardByMonth(month) {
+    currentSelectedMonth = month;
+    const selectFilter = document.getElementById('dashboardMonthFilter');
+    if (selectFilter) selectFilter.value = month;
+
+    const resetBtn = document.getElementById('resetFilterBtn');
+    if (resetBtn) resetBtn.style.display = (month === 'all') ? 'none' : 'inline-block';
+
+    const curMonthLabel = document.getElementById('chartMonthLabel');
+    if (curMonthLabel) {
+        curMonthLabel.textContent = (month === 'all') ? '(All-Time)' : `(${formatMonthYearLabel(month)})`;
+    }
+
+    loadDashboardData(month);
+}
+
+function resetDashboardFilter() {
+    filterDashboardByMonth('all');
+}
+
+function formatMonthYearLabel(monthStr) {
+    if (!monthStr || monthStr === 'all') return 'All-Time';
+    const [y, mo] = monthStr.split('-');
+    return new Date(y, mo - 1).toLocaleString('default', { month: 'short' }) + ` '${y.slice(2)}`;
+}
+
+async function navigateSecurely(module) {
+    try {
+        const res = await fetch(`../api/dashboard_api.php?action=generate_ott&module=${module}`);
+        const result = await res.json().catch(() => null);
+        if (result && result.status === 'success') {
+            const token = result.token;
+            let targetUrl = '';
+            if (module === 'exp') {
+                targetUrl = `../Exp/dashboard.php?ott=${encodeURIComponent(token)}`;
+            } else if (module === 'sav') {
+                targetUrl = `../Sav/dashboard.php?ott=${encodeURIComponent(token)}`;
+            }
+            
+            if (currentSelectedMonth && currentSelectedMonth !== 'all') {
+                targetUrl += `&month=${encodeURIComponent(currentSelectedMonth)}`;
+            }
+            
+            window.location.href = targetUrl;
+        } else {
+            Swal.fire('Security Error', 'Could not generate a secure access token. Please log in again.', 'error').then(() => {
+                window.location.href = '../auth/logout.php';
+            });
+        }
+    } catch (e) {
+        console.error('Secure navigation failed:', e);
+        Swal.fire('Connection Error', 'Failed to communicate with secure gateway.', 'error');
     }
 }

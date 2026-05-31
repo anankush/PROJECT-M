@@ -18,6 +18,18 @@ if (!isset($_SESSION['user_id'])) {
 $uid = $_SESSION['user_id'];
 $currency = $_SESSION['currency'] ?? '₹';
 
+// ── Handle Action: Generate OTT (GET Request) ──
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'generate_ott') {
+    $module = sanitize_input($_GET['module'] ?? '');
+    if ($module === 'exp' || $module === 'sav') {
+        $token = generate_ott($module);
+        echo json_encode(['status' => 'success', 'token' => $token]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid module name.']);
+    }
+    exit;
+}
+
 // ── Handle CSRF for POST Requests ──
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
@@ -99,36 +111,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
 }
 
 // ── Default Action: Fetch Dashboard Statistics ──
-$month = sanitize_input($_GET['month'] ?? date('Y-m'));
+$month = sanitize_input($_GET['month'] ?? 'all');
 
 try {
     $model = new Model($pdo, 'expenses', $uid);
 
-    // 1. Total Budget
-    $budgetQuery = "
-        SELECT COALESCE(SUM(COALESCE(mb.budget, c.budget)), 0) as total_budget
-        FROM user_categories c
-        LEFT JOIN category_monthly_budgets mb ON c.id = mb.category_id AND mb.budget_month = ?
-        WHERE c.user_id = ?
-    ";
-    $budgetResult = $model->customQuery($budgetQuery, [$month, $uid]);
-    $totalBudget = floatval($budgetResult[0]['total_budget'] ?? 0);
+    // 1. Total Budget & 2. Total Expenditure
+    if ($month === 'all') {
+        // Budget = sum of categories' budgets
+        $budgetQuery = "SELECT COALESCE(SUM(budget), 0) as total_budget FROM user_categories WHERE user_id = ?";
+        $budgetResult = $model->customQuery($budgetQuery, [$uid]);
+        $totalBudget = floatval($budgetResult[0]['total_budget'] ?? 0);
 
-    // 2. Total Expenditure
-    $expQuery = "SELECT COALESCE(SUM(amount), 0) as total_spent FROM expenses WHERE user_id = ? AND DATE_FORMAT(entry_date, '%Y-%m') = ?";
-    $expResult = $model->customQuery($expQuery, [$uid, $month]);
-    $totalSpent = floatval($expResult[0]['total_spent'] ?? 0);
+        // Spent = sum of all expenses all-time
+        $expQuery = "SELECT COALESCE(SUM(amount), 0) as total_spent FROM expenses WHERE user_id = ?";
+        $expResult = $model->customQuery($expQuery, [$uid]);
+        $totalSpent = floatval($expResult[0]['total_spent'] ?? 0);
 
-    // 3. Category Breakdown
-    $breakdownQuery = "
-        SELECT c.category_name, COALESCE(SUM(e.amount), 0) as spent
-        FROM user_categories c
-        LEFT JOIN expenses e ON c.id = e.category_id AND DATE_FORMAT(e.entry_date, '%Y-%m') = ?
-        WHERE c.user_id = ?
-        GROUP BY c.id
-        HAVING spent > 0
-    ";
-    $breakdown = $model->customQuery($breakdownQuery, [$month, $uid]);
+        // 3. Category Breakdown (All-Time)
+        $breakdownQuery = "
+            SELECT c.id as category_id, c.category_name, COALESCE(SUM(e.amount), 0) as spent
+            FROM user_categories c
+            LEFT JOIN expenses e ON c.id = e.category_id
+            WHERE c.user_id = ?
+            GROUP BY c.id
+            HAVING spent > 0
+        ";
+        $breakdown = $model->customQuery($breakdownQuery, [$uid]);
+
+        // Health Score calculations default to Current Month in overall mode
+        $curMonth = date('Y-m');
+        $curBudgetQuery = "
+            SELECT COALESCE(SUM(COALESCE(mb.budget, c.budget)), 0) as total_budget
+            FROM user_categories c
+            LEFT JOIN category_monthly_budgets mb ON c.id = mb.category_id AND mb.budget_month = ?
+            WHERE c.user_id = ?
+        ";
+        $curBudgetResult = $model->customQuery($curBudgetQuery, [$curMonth, $uid]);
+        $curBudget = floatval($curBudgetResult[0]['total_budget'] ?? 0);
+
+        $curExpQuery = "SELECT COALESCE(SUM(amount), 0) as total_spent FROM expenses WHERE user_id = ? AND DATE_FORMAT(entry_date, '%Y-%m') = ?";
+        $curExpResult = $model->customQuery($curExpQuery, [$uid, $curMonth]);
+        $curSpent = floatval($curExpResult[0]['total_spent'] ?? 0);
+
+    } else {
+        // Specific Month
+        $budgetQuery = "
+            SELECT COALESCE(SUM(COALESCE(mb.budget, c.budget)), 0) as total_budget
+            FROM user_categories c
+            LEFT JOIN category_monthly_budgets mb ON c.id = mb.category_id AND mb.budget_month = ?
+            WHERE c.user_id = ?
+        ";
+        $budgetResult = $model->customQuery($budgetQuery, [$month, $uid]);
+        $totalBudget = floatval($budgetResult[0]['total_budget'] ?? 0);
+
+        $expQuery = "SELECT COALESCE(SUM(amount), 0) as total_spent FROM expenses WHERE user_id = ? AND DATE_FORMAT(entry_date, '%Y-%m') = ?";
+        $expResult = $model->customQuery($expQuery, [$uid, $month]);
+        $totalSpent = floatval($expResult[0]['total_spent'] ?? 0);
+
+        // 3. Category Breakdown (Selected Month)
+        $breakdownQuery = "
+            SELECT c.id as category_id, c.category_name, COALESCE(SUM(e.amount), 0) as spent
+            FROM user_categories c
+            LEFT JOIN expenses e ON c.id = e.category_id AND DATE_FORMAT(e.entry_date, '%Y-%m') = ?
+            WHERE c.user_id = ?
+            GROUP BY c.id
+            HAVING spent > 0
+        ";
+        $breakdown = $model->customQuery($breakdownQuery, [$month, $uid]);
+
+        $curBudget = $totalBudget;
+        $curSpent = $totalSpent;
+    }
 
     // 4. Monthly Expenses (Last 6 Months)
     $expMonthlyQuery = "
@@ -181,40 +235,62 @@ try {
     // 7. Recent Combined Transactions Feed (Union expenses and savings)
     $recentTransactions = [];
     try {
-        $recentQuery = "
-            (
-                SELECT 'expense' as type, amount, entry_date as activity_date, entry_time as activity_time, description, c.category_name as context, 'expense' as subtype
-                FROM expenses e
-                LEFT JOIN user_categories c ON e.category_id = c.id
-                WHERE e.user_id = ?
-            )
-            UNION ALL
-            (
-                SELECT 'savings' as type, amount, transaction_date as activity_date, '12:00:00' as activity_time, 
-                       notes as description, g.goal_name as context, t.type as subtype
-                FROM savings_transactions t
-                LEFT JOIN savings_goals g ON t.goal_id = g.id
-                WHERE t.user_id = ?
-            )
-            ORDER BY activity_date DESC, activity_time DESC
-            LIMIT 5
-        ";
-        $recentTransactions = $model->customQuery($recentQuery, [$uid, $uid]);
+        if ($month === 'all') {
+            $recentQuery = "
+                (
+                    SELECT 'expense' as type, amount, entry_date as activity_date, entry_time as activity_time, description, c.category_name as context, 'expense' as subtype
+                    FROM expenses e
+                    LEFT JOIN user_categories c ON e.category_id = c.id
+                    WHERE e.user_id = ?
+                )
+                UNION ALL
+                (
+                    SELECT 'savings' as type, amount, transaction_date as activity_date, '12:00:00' as activity_time, 
+                           notes as description, g.goal_name as context, t.type as subtype
+                    FROM savings_transactions t
+                    LEFT JOIN savings_goals g ON t.goal_id = g.id
+                    WHERE t.user_id = ?
+                )
+                ORDER BY activity_date DESC, activity_time DESC
+                LIMIT 5
+            ";
+            $recentTransactions = $model->customQuery($recentQuery, [$uid, $uid]);
+        } else {
+            $recentQuery = "
+                (
+                    SELECT 'expense' as type, amount, entry_date as activity_date, entry_time as activity_time, description, c.category_name as context, 'expense' as subtype
+                    FROM expenses e
+                    LEFT JOIN user_categories c ON e.category_id = c.id
+                    WHERE e.user_id = ? AND DATE_FORMAT(entry_date, '%Y-%m') = ?
+                )
+                UNION ALL
+                (
+                    SELECT 'savings' as type, amount, transaction_date as activity_date, '12:00:00' as activity_time, 
+                           notes as description, g.goal_name as context, t.type as subtype
+                    FROM savings_transactions t
+                    LEFT JOIN savings_goals g ON t.goal_id = g.id
+                    WHERE t.user_id = ? AND DATE_FORMAT(transaction_date, '%Y-%m') = ?
+                )
+                ORDER BY activity_date DESC, activity_time DESC
+                LIMIT 5
+            ";
+            $recentTransactions = $model->customQuery($recentQuery, [$uid, $month, $uid, $month]);
+        }
     } catch (PDOException $e) {
         // Handle gracefully
     }
 
     // 8. Financial Health Score Calculation
     $healthScore = 100;
-    if ($totalBudget > 0) {
-        $spendRatio = $totalSpent / $totalBudget;
+    if ($curBudget > 0) {
+        $spendRatio = $curSpent / $curBudget;
         if ($spendRatio > 1.0) {
             $healthScore -= min(40, 40 * ($spendRatio - 1) + 20);
         } else {
             $healthScore -= ($spendRatio * 25);
         }
     } else {
-        if ($totalSpent > 0) {
+        if ($curSpent > 0) {
             $healthScore -= 20;
         }
     }
