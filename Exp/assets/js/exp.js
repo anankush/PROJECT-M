@@ -506,7 +506,7 @@
                     }
                     rowHtml += `<td>${val}</td>`;
                 });
-                rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;"><div class="action-btns" style="justify-content:flex-end;"><button class="icon-btn edit" onclick='editRecord(${JSON.stringify(row).replace(/'/g, "&#39;")})' title="Edit"><i class="fas fa-pen"></i></button><button class="icon-btn delete" onclick="deleteRecord(${row.id})" title="Delete"><i class="fas fa-trash"></i></button></div></td>`;
+                rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;"><div class="action-btns" style="justify-content:flex-end;"><button class="icon-btn edit" onclick='editRecord(${JSON.stringify(row).replace(/'/g, "&#39;")})' title="Edit"><i class="fas fa-pen" style="font-size:0.85rem; pointer-events:none;"></i></button><button class="icon-btn delete" onclick="deleteRecord(${row.id})" title="Delete"><i class="fas fa-trash-alt" style="font-size:0.85rem; pointer-events:none;"></i></button></div></td>`;
                 tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
@@ -916,62 +916,64 @@
         }
 
         window.tempCurrency = userCurrency;
-        window.selCurr = function(el, val) { document.querySelectorAll('.curr-card').forEach(c => c.classList.remove('active')); el.classList.add('active'); window.tempCurrency = val; }
+        window.selCurr = function(el, val) {
+            document.querySelectorAll('.curr-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            window.tempCurrency = val;
+            const lbl = document.getElementById('selCurrLabel');
+            if (lbl) lbl.textContent = val;
+        };
+
+        // Global currency filter function — called from oninput (avoids inline escaping hell)
+        window.filterCurrencies = function(q) {
+            const grid = document.getElementById('currencyGrid');
+            if (!grid) return;
+            const matches = q.trim()
+                ? allCurrencies.filter(c => c.toLowerCase().includes(q.toLowerCase()))
+                : allCurrencies.slice(0, 20);
+            const list = matches.includes(window.tempCurrency) ? matches : [window.tempCurrency, ...matches];
+            grid.innerHTML = list.map(c =>
+                `<div class="set-card curr-card${window.tempCurrency === c ? ' active' : ''}" onclick="selCurr(this,'${c}')">${c}</div>`
+            ).join('');
+        };
 
         async function openSettings() {
             window.tempCurrency = userCurrency;
 
-            // Build currency search + card UI
-            function buildCurrencyGrid(filter = '') {
-                const filtered = filter.trim()
-                    ? allCurrencies.filter(c => c.toLowerCase().includes(filter.toLowerCase()))
-                    : allCurrencies.slice(0, 20); // default: first 20 popular
-                // Always show currently selected at top if not in list
-                const list = filtered.includes(userCurrency) ? filtered : [userCurrency, ...filtered];
-                return list.map(c =>
-                    `<div class="set-card curr-card ${window.tempCurrency === c ? 'active' : ''}" onclick="selCurr(this, '${c}')">${c}</div>`
-                ).join('');
-            }
+            // Default: first 20 popular + current selected
+            const defaultList = allCurrencies.slice(0, 20).includes(userCurrency)
+                ? allCurrencies.slice(0, 20)
+                : [userCurrency, ...allCurrencies.slice(0, 20)];
+
+            const initialGrid = defaultList.map(c =>
+                `<div class="set-card curr-card${userCurrency === c ? ' active' : ''}" onclick="selCurr(this,'${c}')">${c}</div>`
+            ).join('');
 
             const currencySection = `
                 <div style="text-align:left; margin-bottom:15px;">
                     <label style="font-weight:600; color:var(--text-primary);">Regional Settings</label>
-                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Select your preferred currency (160+ available)</div>
-                    <input type="text" id="currencySearch" placeholder="🔍 Search (e.g. USD, ₹, EUR)..." 
-                        class="theme-input-select" 
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Search from 160+ currencies below</div>
+                    <input type="text" id="currencySearch" placeholder="🔍 Type to search (e.g. USD, ₹, EUR)..."
+                        class="theme-input-select"
                         style="width:100%; box-sizing:border-box; margin-bottom:10px; font-size:0.9rem;"
-                        oninput="
-                            const grid = document.getElementById('currencyGrid');
-                            const q = this.value;
-                            const res = q.trim()
-                                ? allCurrencies.filter(c => c.toLowerCase().includes(q.toLowerCase()))
-                                : allCurrencies.slice(0, 20);
-                            const list = res.includes(userCurrency) ? res : [userCurrency, ...res];
-                            grid.innerHTML = list.map(c =>
-                                '<div class=\\'set-card curr-card ' + (window.tempCurrency===c?'active':'') + '\\' onclick=\\'selCurr(this,\\\"'+c+'\\\")\\'>'+c+'</div>'
-                            ).join('');
-                        ">
-                    <div id="currencyGrid" class="set-grid">${buildCurrencyGrid()}</div>
-                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px; text-align:right;">
+                        oninput="filterCurrencies(this.value)">
+                    <div id="currencyGrid" class="set-grid">${initialGrid}</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px; text-align:right;">
                         Selected: <strong id="selCurrLabel" style="color:var(--aurora-1);">${userCurrency}</strong>
                     </div>
                 </div>`;
-
-            // Override selCurr to also update label
-            window.selCurr = function(el, val) {
-                document.querySelectorAll('.curr-card').forEach(c => c.classList.remove('active'));
-                el.classList.add('active');
-                window.tempCurrency = val;
-                const lbl = document.getElementById('selCurrLabel');
-                if (lbl) lbl.textContent = val;
-            };
 
             const { value: formValues } = await Swal.fire({
                 title: 'Global Settings', width: 600,
                 html: currencySection +
                     `<hr style="border-color:rgba(255,255,255,0.1); margin:20px 0;"><div style="text-align:left; margin-bottom:15px;"><label style="font-weight:600; color:var(--text-primary);">Security</label><div style="margin-top:10px;"><button type="button" class="btn btn-ghost" style="width:100%; justify-content:flex-start; background:rgba(139, 92, 246, 0.1); border:1px solid rgba(139, 92, 246, 0.2);" onclick="Swal.close(); setTimeout(changePasswordModal, 300);"><i class="fas fa-key" style="color:var(--aurora-1);"></i> Change Account Password</button></div></div><hr style="border-color:rgba(255,255,255,0.1); margin:20px 0;"><div style="text-align:left; margin-bottom:15px;"><label style="font-weight:600; color:var(--text-primary);">Backup &amp; Restore</label><div style="display:flex; gap:10px; margin-top:10px;"><button type="button" class="btn btn-ghost" style="flex:1;" onclick="exportData()"><i class="fas fa-download"></i> Export Data</button><button type="button" class="btn btn-ghost" style="flex:1;" onclick="document.getElementById('importFile').click()"><i class="fas fa-upload"></i> Import Data</button></div></div><hr style="border-color:rgba(239,68,68,0.3); margin:20px 0;"><div style="text-align:left; margin-bottom:15px;"><label style="font-weight:600; color:var(--danger);">Danger Zone</label><div style="margin-top:10px;"><button type="button" class="btn btn-danger" style="width:100%; justify-content:flex-start;" onclick="deleteMyAccount()"><i class="fas fa-trash-alt"></i> Permanently Delete My Account</button></div></div>`,
                 focusConfirm: false, showCancelButton: true, confirmButtonText: 'Save Changes', confirmButtonColor: '#8b5cf6',
-                preConfirm: () => { return { currency: window.tempCurrency, language: 'en' } }
+                didOpen: () => {
+                    // Focus search box after modal opens
+                    const s = document.getElementById('currencySearch');
+                    if (s) setTimeout(() => s.focus(), 50);
+                },
+                preConfirm: () => { return { currency: window.tempCurrency, language: 'en' }; }
             });
             if (formValues) {
                 const res = await fetch(`${API_URL}?action=update_settings`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN }, body: JSON.stringify(formValues) });
