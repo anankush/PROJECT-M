@@ -62,4 +62,5 @@
 ## ✉️ Developer & Support
 
 For inquiries or professional updates:
-*   **LinkedIn:** [itznayan](https://linkedin.com/in/itznayan)
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-itznayan-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan)
