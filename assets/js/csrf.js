@@ -58,10 +58,11 @@ if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
     }
 }
 
-const isAuthArea = window.location.pathname.includes('/dashboard/') 
-                || window.location.pathname.includes('/Exp/user/')
-                || window.location.pathname.includes('/Sav/user/')
-                || window.location.pathname.includes('/admin/');
+const pathLower = window.location.pathname.toLowerCase();
+const isAuthArea = pathLower.includes('/dashboard/') 
+                || pathLower.includes('/exp/user/')
+                || pathLower.includes('/sav/user/')
+                || pathLower.includes('/admin/');
 
 if (isAuthArea) {
     setInterval(() => {
