@@ -244,7 +244,7 @@ async function addNewGoal() {
                 </div>
                 <div class="swal-field">
                     <label class="swal-label">Deadline (Optional)</label>
-                    <input id="sg-date" type="date" class="theme-input-select swal-input">
+                    <input id="sg-date" type="date" class="theme-input-select swal-input" onclick="this.showPicker()">
                 </div>
                 <div class="swal-field">
                     <label class="swal-label">Category</label>
@@ -365,7 +365,7 @@ async function editGoal(id) {
                 </div>
                 <div class="swal-field">
                     <label class="swal-label">Deadline (Optional)</label>
-                    <input id="sg-date" type="date" class="theme-input-select swal-input" value="${goal.deadline || ''}">
+                    <input id="sg-date" type="date" class="theme-input-select swal-input" value="${goal.deadline || ''}" onclick="this.showPicker()">
                 </div>
                 <div class="swal-field">
                     <label class="swal-label">Category</label>
@@ -508,7 +508,7 @@ async function openDepositModal(goalId, type) {
                 </div>
                 <div class="swal-field">
                     <label class="swal-label">Date</label>
-                    <input id="st-date" type="date" class="theme-input-select swal-input" value="${new Date().toISOString().split('T')[0]}">
+                    <input id="st-date" type="date" class="theme-input-select swal-input" value="${new Date().toISOString().split('T')[0]}" onclick="this.showPicker()">
                 </div>
                 <div class="swal-field">
                     <label class="swal-label">Notes / Remarks (Optional)</label>
@@ -715,7 +715,6 @@ async function openEmergencyCalculator() {
     try {
         const res = await fetch(`${API_URL}?action=get_average_expense`);
         const data = await res.json();
-        Swal.close();
 
         if (data.status !== 'success') {
             Swal.fire('Error', 'Could not retrieve expense history.', 'error');
@@ -856,8 +855,8 @@ function renderManageGoalsTable() {
                     <span style="font-weight:500;">${escapeHtml(g.goal_name)}</span>
                 </div>
             </td>
-            <td>${catName}</td>
-            <td><span class="priority-badge ${pClass}">${pLabel}</span></td>
+            <td class="hide-mobile">${catName}</td>
+            <td class="hide-mobile"><span class="priority-badge ${pClass}">${pLabel}</span></td>
             <td style="color:var(--aurora-2); font-weight:600;">${userCurrency}${target.toFixed(2)}</td>
             <td style="text-align:right;">
                 <div class="action-btns" style="justify-content:flex-end; gap:8px;">

@@ -1061,3 +1061,27 @@ select option {
     box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
 }
 
+/* Remove number input spinners globally */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* SweetAlert2 select dropdown & option overrides */
+.swal2-popup select {
+    background: #120e2e !important;
+    color: #ffffff !important;
+}
+.swal2-popup select option,
+.swal2-popup option,
+.swal-input option,
+.theme-input-select option,
+select option {
+    background: #120e2e !important;
+    color: #ffffff !important;
+}
+
