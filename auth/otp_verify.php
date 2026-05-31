@@ -44,6 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // OTP is valid — clean up
             $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
 
+            // Check if email was registered by someone else during the OTP lifecycle
+            $checkStmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+            $checkStmt->execute([$email]);
+            if ($checkStmt->fetch()) {
+                echo json_encode(['status' => 'error', 'message' => 'Email already registered']);
+                exit;
+            }
+
             // Create user
             $hashedPass = $_SESSION['pending_reg']['password'];
             $insert = $pdo->prepare("INSERT INTO users (email, password) VALUES (?, ?)");

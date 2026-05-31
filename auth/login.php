@@ -29,23 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Check Admin
-        $stmt = $pdo->prepare("SELECT id, email, password, currency FROM admin_users WHERE email = ? LIMIT 1");
-        $stmt->execute([$email]);
-        $admin = $stmt->fetch();
-        if ($admin && password_verify($password, $admin['password'])) {
-            session_regenerate_id(true);
-            $_SESSION['admin_id']    = $admin['id'];
-            $_SESSION['role']        = 'admin';
-            $_SESSION['is_admin']    = true;
-            $_SESSION['user_name']   = 'Administrator';
-            $_SESSION['user_email']  = $admin['email'];
-            $_SESSION['currency']    = $admin['currency'] ?? '₹';
-            $_SESSION['last_activity'] = time();
-            echo json_encode(['status' => 'success', 'redirect' => '../dashboard/index.php']);
-            exit;
-        }
-
         // Check User
         $stmt = $pdo->prepare("SELECT id, email, password, currency FROM users WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
