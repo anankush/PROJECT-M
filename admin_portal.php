@@ -137,6 +137,32 @@ if (isset($_SESSION['admin_id']) && isset($_SESSION['role']) && $_SESSION['role'
             letter-spacing: 0.5px;
             text-transform: uppercase;
         }
+        @media (max-width: 480px) {
+            .portal-wrapper {
+                padding: 1.5rem 1rem;
+            }
+            .portal-card {
+                padding: 2.5rem 1.5rem;
+                border-radius: 20px;
+            }
+            .portal-icon {
+                width: 75px;
+                height: 75px;
+                font-size: 2.2rem;
+                margin-bottom: 1.5rem;
+            }
+            .portal-title {
+                font-size: 1.75rem;
+            }
+            .portal-desc {
+                font-size: 0.88rem;
+                margin-bottom: 2rem;
+            }
+            .btn-portal-primary, .btn-portal-secondary {
+                padding: 0.85rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>
