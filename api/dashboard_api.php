@@ -1,15 +1,16 @@
 <?php
 // api/dashboard_api.php
+session_start();
 require_once '../includes/db.php';
-require_once '../includes/auth_check.php'; // session_start_secure() + check_session_timeout()
 require_once '../includes/functions.php';
 require_once '../Exp/includes/Model.php';
 
 header('Content-Type: application/json');
 
-// require_login() calls check_session_timeout() which updates last_activity.
-// This prevents browser-refresh logout when in-app API calls kept session alive.
-require_login();
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+    exit;
+}
 
 $uid = $_SESSION['user_id'];
 $month = sanitize_input($_GET['month'] ?? date('Y-m'));

@@ -186,8 +186,88 @@ async function loadDashboardData() {
         combinedChart.data.datasets[1].data = savValues;
         combinedChart.update('active');
 
+        // Make chart clickable to redirect to that month
+        if (combinedChart.options.onClick === undefined) {
+            combinedChart.options.onClick = (e, activeEls) => {
+                if (activeEls.length > 0) {
+                    const idx = activeEls[0].index;
+                    const monthRaw = monthLabels[idx]; // YYYY-MM
+                    window.location.href = `../Exp/dashboard.php?month=${monthRaw}`;
+                }
+            };
+            combinedChart.options.onHover = (e, activeEls) => {
+                e.native.target.style.cursor = activeEls.length > 0 ? 'pointer' : 'default';
+            };
+            combinedChart.update();
+        }
+
         const curMonthLabel = document.getElementById('chartMonthLabel');
         if (curMonthLabel) curMonthLabel.textContent = `(Last 6 Months)`;
+
+        // ── Populate Month-wise Summary Table ───────────────────────────
+        const tbody = document.getElementById('summaryTableBody');
+        if (tbody) {
+            tbody.innerHTML = '';
+            // Render from newest to oldest
+            const reversedLabels = [...monthLabels].reverse();
+            const reversedPretty = [...prettyLabels].reverse();
+            
+            reversedLabels.forEach((m, idx) => {
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.title = `Click to view details for ${reversedPretty[idx]}`;
+                tr.onclick = () => { window.location.href = `../Exp/dashboard.php?month=${m}`; };
+                
+                // If it's the current month, show the actual budget, else '-'
+                const isCurrentMonth = (idx === 0); 
+                const budgetStr = (isCurrentMonth && budget !== null) ? `${currency}${Number(budget).toFixed(2)}` : `<span style="color:var(--text-muted)">-</span>`;
+                
+                const expVal = expMap[m] || 0;
+                const savVal = savMap[m] || 0;
+                
+                tr.innerHTML = `
+                    <td style="font-weight:600; color:var(--aurora-2)">${reversedPretty[idx]}</td>
+                    <td>${budgetStr}</td>
+                    <td style="color:#ef4444">${currency}${expVal.toFixed(2)}</td>
+                    <td style="color:#10b981">${currency}${savVal.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ── Populate Recent Transactions ──────────────────────────────
+        const txList = document.getElementById('recentTransactionsList');
+        if (txList) {
+            if (data && data.recent_transactions && data.recent_transactions.length > 0) {
+                txList.innerHTML = '';
+                data.recent_transactions.forEach(tx => {
+                    // Formatting time if entry_date includes it, or just use date
+                    const d = new Date(tx.entry_date);
+                    const formattedDate = d.toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' });
+                    
+                    const div = document.createElement('div');
+                    div.className = 'tx-item';
+                    div.innerHTML = `
+                        <div class="tx-info">
+                            <span class="tx-desc">${tx.description ? tx.description : '<i>No Description</i>'}</span>
+                            <div class="tx-meta">
+                                <span><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
+                                <span class="tx-cat">${tx.category_name}</span>
+                            </div>
+                        </div>
+                        <div class="tx-amount">
+                            -${currency}${Number(tx.amount).toFixed(2)}
+                        </div>
+                    `;
+                    txList.appendChild(div);
+                });
+            } else {
+                txList.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-muted);">
+                    <i class="fas fa-receipt fa-2x" style="margin-bottom:1rem; opacity:0.5;"></i><br>
+                    No recent transactions found.
+                </div>`;
+            }
+        }
 
     } catch (e) {
         console.error('Dashboard data load failed:', e);

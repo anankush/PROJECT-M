@@ -128,6 +128,40 @@ set_security_headers();
                 </div>
             </div>
         </div>
+
+        <!-- Details Section: Transactions & Summary Table -->
+        <div class="details-container fadeInUp stagger-5">
+            <!-- Month-wise Summary Table -->
+            <div class="glass-card details-card summary-table-card">
+                <h3>Month-wise Summary</h3>
+                <div class="table-responsive">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Budget</th>
+                                <th>Spent</th>
+                                <th>Saved</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTableBody">
+                            <tr><td colspan="4" style="text-align:center; padding:2rem;"><i class="fas fa-circle-notch fa-spin"></i> Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Transactions List -->
+            <div class="glass-card details-card recent-tx-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="margin: 0;">Recent Transactions</h3>
+                    <a href="../Exp/dashboard.php" class="btn btn-ghost" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="transaction-list" id="recentTransactionsList">
+                    <div style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
