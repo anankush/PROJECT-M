@@ -926,3 +926,15 @@ body:has(.sidebar) { overflow: hidden; }
     transform: translateY(-2px) !important;
     box-shadow: 0 8px 30px rgba(139, 92, 246, 0.7) !important;
 }
+/* ── SWEETALERT2 ACTIONS FLEXBOX FIX ── */
+.swal2-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    justify-content: center !important;
+    margin-top: 1.5rem !important;
+}
+
+.swal2-actions .btn {
+    margin: 0 !important;
+}

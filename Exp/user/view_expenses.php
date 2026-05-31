@@ -1,5 +1,5 @@
 <!-- Exp/user/view_expenses.php -->
-<div class="dashboard-header fadeInUp stagger-1">
+<div class="dashboard-header">
     <div class="header-left">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 
