@@ -82,6 +82,10 @@
                 const mc = document.getElementById('main-content');
                 if (mc) mc.innerHTML = html;
                 initDashboard();
+                if (window.innerWidth <= 768) {
+                    const sidebar = document.getElementById('appSidebar');
+                    if (sidebar && sidebar.classList.contains('open')) toggleSidebar();
+                }
             } catch (e) {
                 console.error("Failed to load view", e);
                 const mc = document.getElementById('main-content');
@@ -938,6 +942,10 @@
         };
 
         async function openSettings() {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('appSidebar');
+                if (sidebar && sidebar.classList.contains('open')) toggleSidebar();
+            }
             window.tempCurrency = userCurrency;
 
             // Default: first 20 popular + current selected
