@@ -16,19 +16,33 @@ function session_start_secure() {
     if (isset($_SESSION['user_id']) || isset($_SESSION['admin_id'])) {
         global $pdo;
         $session_invalid = false;
+        $db_sess_id = null;
         if (isset($_SESSION['user_id'])) {
             $stmt = $pdo->prepare("SELECT active_session_id FROM users WHERE id = ?");
             $stmt->execute([$_SESSION['user_id']]);
-            if ($stmt->fetchColumn() !== session_id()) {
+            $db_sess_id = $stmt->fetchColumn();
+            if ($db_sess_id !== session_id()) {
                 $session_invalid = true;
             }
         } elseif (isset($_SESSION['admin_id'])) {
             $stmt = $pdo->prepare("SELECT active_session_id FROM admin_users WHERE id = ?");
             $stmt->execute([$_SESSION['admin_id']]);
-            if ($stmt->fetchColumn() !== session_id()) {
+            $db_sess_id = $stmt->fetchColumn();
+            if ($db_sess_id !== session_id()) {
                 $session_invalid = true;
             }
         }
+
+        $log_msg = sprintf("[%s] URI: %s | User: %s | Session: %s | DB Session: %s | Invalid: %s | UA: %s\n",
+            date('Y-m-d H:i:s'),
+            $_SERVER['REQUEST_URI'] ?? '',
+            $_SESSION['user_id'] ?? 'none',
+            session_id(),
+            $db_sess_id ?? 'null',
+            $session_invalid ? 'YES' : 'NO',
+            $_SERVER['HTTP_USER_AGENT'] ?? ''
+        );
+        file_put_contents('c:/xampp/htdocs/PROJECT M/session_debug.log', $log_msg, FILE_APPEND);
 
         if ($session_invalid) {
             $_SESSION = [];
