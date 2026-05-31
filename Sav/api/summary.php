@@ -1,5 +1,4 @@
-<?php
-// Sav/api/summary.php
+﻿<?php
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
 
@@ -13,7 +12,6 @@ if (!isset($_SESSION['user_id'])) {
 $uid = $_SESSION['user_id'];
 
 try {
-    // Total target and total saved across all goals
     $stmt = $pdo->prepare("
         SELECT
             COALESCE(SUM(g.target_amount), 0) as total_target,
@@ -26,8 +24,6 @@ try {
     ");
     $stmt->execute([$uid]);
     $totals = $stmt->fetch();
-
-    // Per-goal breakdown for frontend charts
     $stmtGoals = $pdo->prepare("
         SELECT g.goal_name, g.target_amount,
                COALESCE(SUM(CASE WHEN t.type='deposit' THEN t.amount ELSE -t.amount END), 0) as current_amount
@@ -39,8 +35,6 @@ try {
     ");
     $stmtGoals->execute([$uid]);
     $goals = $stmtGoals->fetchAll(PDO::FETCH_ASSOC);
-
-    // Monthly savings deposits for the last 6 months (for combined chart)
     $stmtMonthly = $pdo->prepare("
         SELECT DATE_FORMAT(transaction_date, '%Y-%m') as month,
                SUM(CASE WHEN type='deposit' THEN amount ELSE -amount END) as net_saved

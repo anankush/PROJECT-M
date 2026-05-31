@@ -1,14 +1,9 @@
-<?php
-// Exp/includes/Model.php
+﻿<?php
 
 class Model {
     protected $pdo;
     protected $table;
     protected $userId;
-
-    // Whitelist of tables this Model is permitted to operate on.
-    // Any attempt to instantiate Model with a table not in this list
-    // will throw an exception — preventing SQL injection via dynamic table names.
     private static $allowed_tables = [
         'expenses',
         'user_categories',
@@ -56,8 +51,6 @@ class Model {
 
     public function insert($data) {
         $data['user_id'] = $this->userId;
-
-        // Wrap column names in backticks to prevent SQL injection via dynamic keys
         $safeColumns = array_map(function($col) {
             return "`" . str_replace("`", "``", $col) . "`";
         }, array_keys($data));

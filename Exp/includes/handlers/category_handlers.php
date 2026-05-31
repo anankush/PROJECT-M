@@ -1,6 +1,4 @@
 <?php
-// Exp/includes/handlers/category_handlers.php
-// Logic strictly mirrored from PROJECT E
 
 function handle_get_categories($pdo) {
     if (!isset($_SESSION['user_id'])) {
@@ -41,7 +39,6 @@ function handle_get_categories($pdo) {
         echo json_encode(['status' => 'success', 'data' => $categories]);
     } catch (PDOException $e) {
         if ($e->getCode() == '42S02') {
-            // Table doesn't exist yet — fallback to basic query without monthly_budgets join
             $categories = $catModel->getAll([], 'id ASC');
             echo json_encode(['status' => 'success', 'data' => $categories]);
         } else {
@@ -258,7 +255,7 @@ function handle_get_note($pdo) {
         $noteContent = !empty($result) ? $result[0]['note_content'] : '';
         echo json_encode(['status' => 'success', 'note' => $noteContent]);
     } catch (PDOException $e) {
-        if ($e->getCode() == '42S02') { // Table doesn't exist yet
+        if ($e->getCode() == '42S02') {
             echo json_encode(['status' => 'success', 'note' => '']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Failed to fetch note.']);

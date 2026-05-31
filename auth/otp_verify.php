@@ -1,5 +1,4 @@
 <?php
-// ProjectM/auth/otp_verify.php
 require_once '../includes/db.php';
 require_once '../includes/csrf.php';
 require_once '../includes/auth_check.php';
@@ -18,7 +17,6 @@ if (!isset($_SESSION['pending_reg'])) {
 
 $email = $_SESSION['pending_reg']['email'];
 
-// Calculate time left for the OTP
 $stmt = $pdo->prepare("SELECT UNIX_TIMESTAMP(expires_at) - UNIX_TIMESTAMP(NOW()) as time_left FROM password_resets WHERE email = ? ORDER BY id DESC LIMIT 1");
 $stmt->execute([$email]);
 $otp_record = $stmt->fetch();
@@ -26,7 +24,6 @@ $time_left = $otp_record ? max(0, (int)$otp_record['time_left']) : 0;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
-    // Rate limit: max 5 OTP guesses per IP per 5 minutes (brute-force protection)
     check_rate_limit($pdo, 'otp_verify', 5, 5);
     $input = json_decode(file_get_contents('php://input'), true);
     $otp = trim($input['otp'] ?? '');
@@ -41,10 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$email, $otp]);
         
         if ($stmt->fetch()) {
-            // OTP is valid — clean up
             $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
 
-            // Check if email was registered by someone else during the OTP lifecycle
             $checkStmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
             $checkStmt->execute([$email]);
             if ($checkStmt->fetch()) {
@@ -52,16 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            // Create user
             $hashedPass = $_SESSION['pending_reg']['password'];
             $insert = $pdo->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
             $insert->execute([$email, $hashedPass]);
             
             $userId = $pdo->lastInsertId();
 
-            // Auto login with session fixation prevention
             session_regenerate_id(true);
-            unset($_SESSION['admin_id']); // Clear any active admin session to prevent contamination
+            unset($_SESSION['admin_id']);
             unset($_SESSION['is_admin']);
             $_SESSION['user_id']       = $userId;
             $_SESSION['role']          = 'user';

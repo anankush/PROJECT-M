@@ -1,5 +1,4 @@
 <?php
-// api/dashboard_api.php
 require_once '../includes/db.php';
 require_once '../includes/auth_check.php';
 require_once '../includes/csrf.php';
@@ -8,20 +7,17 @@ require_once '../Exp/includes/Model.php';
 
 header('Content-Type: application/json');
 
-// Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
 }
 
-// Enforce session timeout on every API call
 check_session_timeout();
 
 $uid = $_SESSION['user_id'];
 $currency = $_SESSION['currency'] ?? '₹';
 
-// ── Handle Action: Generate OTT (GET Request) ──
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'generate_ott') {
     $module = sanitize_input($_GET['module'] ?? '');
     if ($module === 'exp' || $module === 'sav') {
@@ -33,13 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     exit;
 }
 
-// ── Handle CSRF for POST Requests ──
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     verify_csrf_token($token);
 }
 
-// ── Handle Action: Quick Entry Logger ──
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'quick_entry') {
     $input = json_decode(file_get_contents('php://input'), true);
     if (!$input) {
@@ -66,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 exit;
             }
 
-            // Verify category belongs to this user
             $check = $pdo->prepare("SELECT id FROM user_categories WHERE id = ? AND user_id = ?");
             $check->execute([$cat_id, $uid]);
             if (!$check->fetch()) {
@@ -130,7 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     }
 }
 
-// ── Default Action: Fetch Dashboard Statistics ──
 $month = sanitize_input($_GET['month'] ?? 'all');
 
 try {

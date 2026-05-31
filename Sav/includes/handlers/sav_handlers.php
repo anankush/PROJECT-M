@@ -1,5 +1,4 @@
 <?php
-// Sav/includes/handlers/sav_handlers.php
 
 function check_savings_db_migration($pdo) {
     try {
@@ -20,10 +19,8 @@ function check_savings_db_migration($pdo) {
             $pdo->exec("ALTER TABLE `savings_transactions` ADD COLUMN `notes` varchar(255) DEFAULT NULL");
         }
     } catch (PDOException $e) {
-        // Silently handle exceptions
     }
 }
-
 
 function handle_get_goals($pdo) {
     $uid = $_SESSION['user_id'];
@@ -90,7 +87,6 @@ function handle_update_goal($pdo) {
     }
     
     try {
-        // Verify goal belongs to user
         if (!verify_ownership($pdo, 'savings_goals', $goal_id, $uid, 'update_goal')) {
             echo json_encode(['status' => 'error', 'message' => 'Goal not found.']);
             return;
@@ -134,14 +130,12 @@ function handle_add_deposit($pdo) {
     
     $goal_id = intval($input['goal_id'] ?? 0);
     $amount = floatval($input['amount'] ?? 0);
-    $type = $input['type'] ?? 'deposit'; // deposit or withdraw
+    $type = $input['type'] ?? 'deposit';
     $date = $input['date'] ?? date('Y-m-d');
     $notes = trim(htmlspecialchars($input['notes'] ?? '', ENT_QUOTES, 'UTF-8'));
     if (empty($notes)) {
         $notes = null;
     }
-
-    // Validate date format (YYYY-MM-DD)
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
         $date = date('Y-m-d');
     }
@@ -152,7 +146,6 @@ function handle_add_deposit($pdo) {
     }
 
     try {
-        // Verify goal belongs to user
         if (!verify_ownership($pdo, 'savings_goals', $goal_id, $uid, 'add_deposit')) {
             echo json_encode(['status' => 'error', 'message' => 'Goal not found.']);
             return;

@@ -1,5 +1,4 @@
 <?php
-// ProjectM/auth/admin_register.php
 require_once '../includes/db.php';
 require_once '../includes/csrf.php';
 require_once '../includes/auth_check.php';
@@ -23,14 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Password constraints: Uppercase, Lowercase, Number, Special Character, Min 8 chars
     if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/', $password)) {
         echo json_encode(['status' => 'error', 'message' => 'Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character']);
         exit;
     }
 
     try {
-        // Verify admin super key
         $keyStmt = $pdo->prepare("SELECT setting_value FROM settings WHERE setting_key = 'super_password' LIMIT 1");
         $keyStmt->execute();
         $setting = $keyStmt->fetch();
@@ -41,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Check if email exists
         $stmt = $pdo->prepare("SELECT id FROM admin_users WHERE email = ?");
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
@@ -49,16 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Insert new admin
         $hashedPass = password_hash($password, PASSWORD_DEFAULT);
         $insert = $pdo->prepare("INSERT INTO admin_users (email, password) VALUES (?, ?)");
         $insert->execute([$email, $hashedPass]);
         
         $adminId = $pdo->lastInsertId();
 
-        // Auto login
         session_regenerate_id(true);
-        unset($_SESSION['user_id']); // Clear any active user session to prevent contamination
+        unset($_SESSION['user_id']);
         $_SESSION['admin_id']      = $adminId;
         $_SESSION['role']          = 'admin';
         $_SESSION['is_admin']      = true;

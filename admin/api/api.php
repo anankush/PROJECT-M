@@ -1,5 +1,4 @@
 <?php
-// admin/api/api.php
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
 require_once '../../includes/csrf.php';
@@ -9,7 +8,6 @@ header('Content-Type: application/json');
 
 $action = $_GET['action'] ?? '';
 
-// Check session role first
 if ($action === 'check_session') {
     check_rate_limit($pdo, 'admin_session_check', 60, 1);
     if (isset($_SESSION['admin_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
@@ -25,10 +23,8 @@ if ($action === 'check_session') {
     exit;
 }
 
-// Enforce admin for all other endpoints
 require_admin();
 
-// Enforce CSRF validation for modifying actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
 }
@@ -36,15 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 switch ($action) {
     case 'get_system_stats':
         try {
-            // 1. Total users
             $uStmt = $pdo->query("SELECT COUNT(*) FROM users");
             $total_users = (int)$uStmt->fetchColumn();
 
-            // 2. Active users today (active in last 24 hours)
             $aStmt = $pdo->query("SELECT COUNT(*) FROM users WHERE last_active_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
             $active_users = (int)$aStmt->fetchColumn();
 
-            // 3. System totals (Budget, Spent, Saved)
             $bStmt = $pdo->query("SELECT SUM(budget) FROM user_categories");
             $system_budget = (float)$bStmt->fetchColumn();
 
@@ -55,7 +48,6 @@ switch ($action) {
             $system_saved = (float)$sStmt->fetchColumn();
             if ($system_saved < 0) $system_saved = 0.00;
 
-            // 4. Failed logins (last 24 hours)
             $fStmt = $pdo->query("SELECT COUNT(*) FROM security_logs WHERE action IN ('login_failed', 'admin_login_failed') AND created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
             $failed_logins = (int)$fStmt->fetchColumn();
 
@@ -141,7 +133,6 @@ switch ($action) {
 
     case 'get_security_logs':
         try {
-            // Prune security logs older than 30 days
             $pdo->query("DELETE FROM security_logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)");
 
             $stmt = $pdo->query("SELECT id, email, action, ip_address, user_agent, created_at FROM security_logs ORDER BY created_at DESC LIMIT 100");
@@ -155,7 +146,6 @@ switch ($action) {
 
     case 'get_analytics':
         try {
-            // 1. User registration trend (last 12 months)
             $regStmt = $pdo->query("
                 SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count 
                 FROM users 
@@ -165,7 +155,6 @@ switch ($action) {
             ");
             $reg_trend = $regStmt->fetchAll();
 
-            // 2. User logins trend (last 12 months)
             $loginStmt = $pdo->query("
                 SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count 
                 FROM security_logs 
@@ -176,7 +165,6 @@ switch ($action) {
             ");
             $login_trend = $loginStmt->fetchAll();
 
-            // 3. Security Event Distribution
             $secStmt = $pdo->query("
                 SELECT action, COUNT(*) as count 
                 FROM security_logs 

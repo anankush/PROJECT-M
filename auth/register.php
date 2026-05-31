@@ -1,5 +1,4 @@
 <?php
-// ProjectM/auth/register.php
 require_once '../includes/db.php';
 require_once '../includes/csrf.php';
 require_once '../includes/auth_check.php';
@@ -14,7 +13,6 @@ if (isset($_SESSION['user_id']) || isset($_SESSION['admin_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
-    // Rate limit: max 5 registration attempts per IP per 15 minutes (OTP spam protection)
     check_rate_limit($pdo, 'register', 5, 15);
     $input = json_decode(file_get_contents('php://input'), true);
     $email = trim($input['email'] ?? '');
@@ -29,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Password constraints: Uppercase, Lowercase, Number, Special Character, Min 8 chars
     if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/', $password)) {
         echo json_encode(['status' => 'error', 'message' => 'Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character']);
         exit;
@@ -43,25 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Generate OTP
         $otp = sprintf("%06d", random_int(100000, 999999));
-        // Cleanup expired OTPs globally
         $pdo->exec("DELETE FROM password_resets WHERE expires_at <= NOW()");
-
-        // Delete any existing OTP for this email
         $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
-
-        // Insert new OTP
         $stmt = $pdo->prepare("INSERT INTO password_resets (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 2 MINUTE))");
         $stmt->execute([$email, $otp]);
 
-        // Store pending registration in session
         $_SESSION['pending_reg'] = [
-            'email' => $email,
+            'email'    => $email,
             'password' => password_hash($password, PASSWORD_DEFAULT)
         ];
 
-        // Send Email
         $body = "Your Registration OTP for Money Management is: $otp\n\nIt will expire in 2 minutes.";
         send_email($email, "Registration OTP", $body);
 

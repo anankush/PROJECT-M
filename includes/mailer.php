@@ -1,5 +1,4 @@
-<?php
-// includes/mailer.php
+﻿<?php
 if (!defined('GOOGLE_SCRIPT_URL')) {
     define('GOOGLE_SCRIPT_URL', getenv('GOOGLE_SCRIPT_URL') ?: '');
 }

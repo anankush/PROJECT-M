@@ -1,5 +1,4 @@
 <?php
-// Exp/includes/handlers/user_handlers.php
 
 function handle_update_settings($pdo) {
     if (!isset($_SESSION['user_id'])) {
@@ -21,7 +20,6 @@ function handle_update_settings($pdo) {
             $stmt->execute([$currency, $language, $_SESSION['user_id']]);
         }
         
-        // Update session currency
         $_SESSION['currency'] = $currency;
         
         echo json_encode(['status' => 'success', 'message' => 'Settings saved successfully']);
@@ -45,7 +43,6 @@ function handle_change_password($pdo) {
         return;
     }
 
-    // Full strength check — matches registration requirements
     if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/', $new_password)) {
         echo json_encode(['status' => 'error', 'message' => 'Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character']);
         return;
@@ -61,8 +58,6 @@ function handle_change_password($pdo) {
             return;
         }
 
-        // Use only password_verify() — timing-safe and bcrypt-aware.
-        // Legacy plaintext fallback removed (security hardening).
         $isValid = password_verify($old_password, $user['password']);
 
         if (!$isValid) {
@@ -74,7 +69,6 @@ function handle_change_password($pdo) {
         $update = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
         $update->execute([$newHash, $_SESSION['user_id']]);
         
-        // Regenerate CSRF/Session
         session_regenerate_id(true);
         unset($_SESSION['csrf_token']);
         generate_csrf_token();
@@ -110,8 +104,6 @@ function handle_delete_user_account($pdo) {
             return;
         }
 
-        // Use only password_verify() — timing-safe and bcrypt-aware.
-        // Legacy plaintext fallback removed (security hardening).
         $isValid = password_verify($password, $user['password']);
 
         if (!$isValid) {
@@ -123,19 +115,12 @@ function handle_delete_user_account($pdo) {
 
         $pdo->beginTransaction();
 
-        // Tables without CASCADE
         $pdo->prepare("DELETE FROM expenses WHERE user_id = ?")->execute([$uid]);
         $pdo->prepare("DELETE FROM user_notes WHERE user_id = ?")->execute([$uid]);
-        
-        // Clean up resets
         $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
-
-        // Main users table (will cascade to categories, budgets, savings goals, etc)
         $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$uid]);
-
         $pdo->commit();
 
-        // Destroy session
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
@@ -194,22 +179,12 @@ function handle_send_reset_otp($pdo) {
         }
         $email = $user['email'];
 
-        // Generate OTP
         $otp = sprintf("%06d", random_int(100000, 999999));
-        // Cleanup expired OTPs globally
         $pdo->exec("DELETE FROM password_resets WHERE expires_at <= NOW()");
-
-        // Delete any existing OTP for this email
         $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
-
-        // Insert new OTP
         $stmt = $pdo->prepare("INSERT INTO password_resets (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 2 MINUTE))");
         $stmt->execute([$email, $otp]);
-
-        // Store email in session for resetting
         $_SESSION['reset_email'] = $email;
-
-        // Send Email
         require_once '../../includes/mailer.php';
         $body = "Your Password Reset OTP for Money Management is: $otp\n\nIt will expire in 2 minutes.";
         send_email($email, "Password Reset OTP", $body);
@@ -236,7 +211,6 @@ function handle_verify_reset_otp($pdo) {
 
     $email = $_SESSION['reset_email'] ?? '';
     if (empty($email)) {
-        // If not in session, fetch user email
         $stmt = $pdo->prepare("SELECT email FROM users WHERE id = ?");
         $stmt->execute([$_SESSION['user_id']]);
         $user = $stmt->fetch();
@@ -253,7 +227,6 @@ function handle_verify_reset_otp($pdo) {
         $stmt->execute([$email, $otp]);
         
         if ($stmt->fetch()) {
-            // Delete OTP immediately upon verification to prevent reuse
             $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
             
             $_SESSION['otp_verified'] = true;
@@ -285,7 +258,6 @@ function handle_reset_password_with_otp($pdo) {
         return;
     }
 
-    // Full strength check — matches registration requirements
     if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/', $new_password)) {
         echo json_encode(['status' => 'error', 'message' => 'Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character']);
         return;
@@ -296,11 +268,8 @@ function handle_reset_password_with_otp($pdo) {
         $update = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
         $update->execute([$newHash, $_SESSION['user_id']]);
         
-        // Cleanup verification status
         unset($_SESSION['otp_verified']);
         unset($_SESSION['reset_email']);
-        
-        // Regenerate CSRF/Session
         session_regenerate_id(true);
         unset($_SESSION['csrf_token']);
         generate_csrf_token();

@@ -1,5 +1,4 @@
 <?php
-// ProjectM/auth/forgot_password.php
 require_once '../includes/db.php';
 require_once '../includes/csrf.php';
 require_once '../includes/auth_check.php';
@@ -14,7 +13,6 @@ if (isset($_SESSION['user_id']) || isset($_SESSION['admin_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
-    // Rate limit: max 5 OTP requests per IP per 15 minutes (email spam protection)
     check_rate_limit($pdo, 'forgot_password', 5, 15);
     $input = json_decode(file_get_contents('php://input'), true);
     $email = trim($input['email'] ?? '');
@@ -33,34 +31,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
-        // SECURITY: Do not reveal whether the email exists or not (prevents User Enumeration).
-        // If email is NOT registered, we silently do nothing and show the same success message.
         if ($user) {
-            // Generate OTP
             $otp = sprintf("%06d", random_int(100000, 999999));
-            // Cleanup expired OTPs globally
             $pdo->exec("DELETE FROM password_resets WHERE expires_at <= NOW()");
 
-            // Delete any existing OTP for this email
             $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
 
-            // Insert new OTP
             $stmt = $pdo->prepare("INSERT INTO password_resets (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 2 MINUTE))");
             $stmt->execute([$email, $otp]);
 
-            // Store email in session for the next step
             $_SESSION['reset_email'] = $email;
             log_security_event($pdo, $email, 'password_reset_request');
 
-            // Send Email
             $body = "Your Password Reset OTP for Money Management is: $otp\n\nIt will expire in 2 minutes.";
             send_email($email, "Password Reset OTP", $body);
 
-            // Redirect to OTP verification page
             echo json_encode(['status' => 'success', 'redirect' => 'reset_password.php']);
         } else {
-            // Email not registered — return same generic success to prevent enumeration.
-            // No session set, no OTP sent, no redirect (user stays on this page).
             echo json_encode([
                 'status'  => 'success',
                 'message' => 'If this email is registered, an OTP has been sent to it.'
@@ -144,7 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (data.redirect) {
                         window.location.href = data.redirect;
                     } else {
-                        // Email not registered — server intentionally omits redirect to prevent enumeration
                         showToast(data.message || 'If this email is registered, an OTP has been sent.', 'success');
                     }
                 } else {

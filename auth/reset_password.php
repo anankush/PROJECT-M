@@ -1,5 +1,4 @@
 <?php
-// ProjectM/auth/reset_password.php
 require_once '../includes/db.php';
 require_once '../includes/csrf.php';
 require_once '../includes/auth_check.php';
@@ -18,14 +17,12 @@ if (!isset($_SESSION['reset_email'])) {
 
 $email = $_SESSION['reset_email'];
 
-// Calculate time left for the OTP
 $stmt = $pdo->prepare("SELECT UNIX_TIMESTAMP(expires_at) - UNIX_TIMESTAMP(NOW()) as time_left FROM password_resets WHERE email = ? ORDER BY id DESC LIMIT 1");
 $stmt->execute([$email]);
 $otp_record = $stmt->fetch();
 $time_left = $otp_record ? max(0, (int)$otp_record['time_left']) : 0;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
-    // Rate limit: max 5 OTP/reset attempts per IP per 5 minutes
     check_rate_limit($pdo, 'reset_password', 5, 5);
     $input = json_decode(file_get_contents('php://input'), true);
     $action = $input['action'] ?? '';
@@ -42,9 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$email, $otp]);
             
             if ($stmt->fetch()) {
-                // Security: Delete OTP immediately upon verification to prevent reuse
                 $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
-                
                 $_SESSION['otp_verified'] = true;
                 echo json_encode(['status' => 'success']);
             } else {
@@ -61,18 +56,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $new_password = $input['new_password'] ?? '';
             
-            // Password constraints: Uppercase, Lowercase, Number, Special Character, Min 8 chars
             if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/', $new_password)) {
                 echo json_encode(['status' => 'error', 'message' => 'Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character']);
                 exit;
             }
 
-            // OTP was verified, update password
             $hashedPass = password_hash($new_password, PASSWORD_DEFAULT);
             $update = $pdo->prepare("UPDATE users SET password = ? WHERE email = ?");
             $update->execute([$hashedPass, $email]);
             
-            // Clear reset session
             unset($_SESSION['reset_email']);
             unset($_SESSION['otp_verified']);
             log_security_event($pdo, $email, 'password_reset_success');

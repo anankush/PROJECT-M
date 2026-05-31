@@ -1,12 +1,9 @@
-<?php
-// Exp/user/index.php
+﻿<?php
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
 require_once '../../includes/csrf.php';
 require_once '../../includes/functions.php';
 require_login();
-
-
 
 set_security_headers();
 $base = '../../';
@@ -30,10 +27,10 @@ $base = '../../';
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
     <style>
-        /* Hide appUI until data is loaded to prevent flash */
+        
         #appUI { display: flex; width: 100%; }
         
-        /* Sidebar layout styling overrides */
+        
         .sidebar-bottom {
             margin-top: auto;
             padding-top: 1rem;

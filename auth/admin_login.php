@@ -1,5 +1,4 @@
 <?php
-// ProjectM/auth/admin_login.php
 require_once '../includes/db.php';
 require_once '../includes/csrf.php';
 require_once '../includes/auth_check.php';
@@ -13,7 +12,6 @@ if (isset($_SESSION['admin_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
-    // Rate limit: max 5 admin login attempts per IP per 15 minutes (brute-force protection)
     check_rate_limit($pdo, 'admin_login', 5, 15);
     $input = json_decode(file_get_contents('php://input'), true);
     $email = trim($input['email'] ?? '');
@@ -26,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Verify admin super key
         $keyStmt = $pdo->prepare("SELECT setting_value FROM settings WHERE setting_key = 'super_password' LIMIT 1");
         $keyStmt->execute();
         $setting = $keyStmt->fetch();
@@ -38,14 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Verify admin credentials
         $stmt = $pdo->prepare("SELECT id, email, password, currency FROM admin_users WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
         $admin = $stmt->fetch();
 
         if ($admin && password_verify($password, $admin['password'])) {
             session_regenerate_id(true);
-            unset($_SESSION['user_id']); // Clear any active user session to prevent contamination
+            unset($_SESSION['user_id']);
             $_SESSION['admin_id']      = $admin['id'];
             $_SESSION['role']          = 'admin';
             $_SESSION['is_admin']      = true;

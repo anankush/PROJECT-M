@@ -1,5 +1,4 @@
-<?php
-// Sav/api/api.php
+﻿<?php
 require_once '../../includes/db.php';
 require_once '../../includes/auth_check.php';
 require_once '../../includes/csrf.php';
@@ -17,8 +16,6 @@ if (!isset($_SESSION['user_id']) && !isset($_SESSION['admin_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
 }
-
-// Enforce session timeout on every API call
 check_session_timeout();
 
 if (!isset($_SESSION['sav_db_migrated'])) {

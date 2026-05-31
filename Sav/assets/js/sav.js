@@ -1,5 +1,4 @@
-// Sav/assets/js/sav.js
-let userCurrency = '₹';
+﻿let userCurrency = '₹';
 let email = '';
 let currentView = 'goals.php';
 let goals = [];
@@ -129,8 +128,6 @@ function renderGoals() {
 
     let totalTarget = 0;
     let totalSaved = 0;
-
-    // Sort goals so High priority shows first, then Medium, then Low
     const priorityOrder = { high: 1, medium: 2, low: 3 };
     const sortedGoals = [...goals].sort((a, b) => {
         const pA = priorityOrder[a.priority || 'medium'] || 2;
@@ -155,8 +152,6 @@ function renderGoals() {
         
         const iconClass = categoryIcons[g.category || 'others'] || 'fas fa-rocket';
         let badgeHtml = current >= target && target > 0 ? `<div class="goal-badge">ACHIEVED <i class="fas fa-check-circle"></i></div>` : '';
-
-        // Planner Info
         let plannerHtml = '';
         if (current < target && target > 0 && g.deadline) {
             const diffTime = new Date(g.deadline) - new Date();
@@ -872,5 +867,3 @@ function renderManageGoalsTable() {
         tbody.appendChild(tr);
     });
 }
-
-// Global settings removed to main dashboard unified settings.js

@@ -1,6 +1,4 @@
-<?php
-// Exp/includes/handlers/record_handlers.php
-// Logic strictly mirrored from PROJECT E
+﻿<?php
 function handle_get_records($pdo) {
     $uid = $_SESSION['user_id'] ?? null;
     $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
@@ -194,8 +192,6 @@ function handle_import_data($pdo) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized. Only regular users are permitted to import data.']);
         return;
     }
-
-    // Security: limit import payload to 4MB to handle combined datasets
     $raw = file_get_contents('php://input');
     if (strlen($raw) > 4 * 1024 * 1024) {
         echo json_encode(['status' => 'error', 'message' => 'Import file is too large. Maximum allowed size is 4MB.']);
@@ -215,18 +211,13 @@ function handle_import_data($pdo) {
         $pdo->beginTransaction();
 
         if ($mode === 'replace') {
-            // Clear existing Expense Data
             try { $pdo->prepare("DELETE FROM user_notes WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
             try { $pdo->prepare("DELETE FROM category_monthly_budgets WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
             try { $pdo->prepare("DELETE FROM expenses WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
             try { $pdo->prepare("DELETE FROM user_categories WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
-            
-            // Clear existing Savings Data
             try { $pdo->prepare("DELETE FROM savings_transactions WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
             try { $pdo->prepare("DELETE FROM savings_goals WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
         }
-
-        // 1. Process Expense Categories & Expenses
         if (!empty($input['categories']) && is_array($input['categories'])) {
             foreach ($input['categories'] as $cat) {
                 if (empty($cat['category_name'])) continue;
@@ -309,8 +300,6 @@ function handle_import_data($pdo) {
                 }
             }
         }
-
-        // 2. Process Savings Goals & Transactions
         if (!empty($input['savings_goals']) && is_array($input['savings_goals'])) {
             foreach ($input['savings_goals'] as $goal) {
                 if (empty($goal['goal_name'])) continue;
@@ -404,8 +393,6 @@ function handle_export_data($pdo) {
 
     try {
         $uid = $_SESSION['user_id'];
-        
-        // 1. Fetch Expense categories, budgets, and records
         $stmt = $pdo->prepare("SELECT id, category_name, budget FROM user_categories WHERE user_id = ?");
         $stmt->execute([$uid]);
         $categories = $stmt->fetchAll();
@@ -448,8 +435,6 @@ function handle_export_data($pdo) {
             
             $categories_export[] = $cat_data;
         }
-
-        // 2. Fetch Savings goals and transactions
         $savings_export = [];
         try {
             $stmt_goals = $pdo->prepare("SELECT id, goal_name, target_amount, deadline, category, theme_color, priority FROM savings_goals WHERE user_id = ?");
@@ -482,10 +467,7 @@ function handle_export_data($pdo) {
                 $savings_export[] = $goal_data;
             }
         } catch (PDOException $e) {
-            // Ignore if tables don't exist
         }
-
-        // 3. Combine into final export structure
         $export_data = [
             'version' => '1.1',
             'exported_at' => date('Y-m-d H:i:s'),

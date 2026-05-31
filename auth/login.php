@@ -1,5 +1,4 @@
 <?php
-// ProjectM/auth/login.php
 require_once '../includes/db.php';
 require_once '../includes/csrf.php';
 require_once '../includes/auth_check.php';
@@ -13,7 +12,6 @@ if (isset($_SESSION['user_id']) || isset($_SESSION['admin_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
-    // Rate limit: max 10 login attempts per IP per 15 minutes
     check_rate_limit($pdo, 'login', 10, 15);
     $input = json_decode(file_get_contents('php://input'), true);
     $email = trim($input['email'] ?? '');
@@ -29,12 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Check User
-        $stmt = $pdo->prepare("SELECT id, email, password, currency, status FROM users WHERE email = ? LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id, email, password, status, currency FROM users WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
         if ($user) {
-            // Legacy plaintext upgrade
             if ($password === $user['password']) {
                 $newHash = password_hash($password, PASSWORD_DEFAULT);
                 $pdo->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$newHash, $user['id']]);
@@ -51,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 session_regenerate_id(true);
-                unset($_SESSION['admin_id']); // Clear any active admin session to prevent contamination
+                unset($_SESSION['admin_id']);
                 unset($_SESSION['is_admin']);
                 $_SESSION['user_id']     = $user['id'];
                 $_SESSION['role']        = 'user';
@@ -67,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         log_security_event($pdo, $email, 'login_failed');
-        // Constant-time failure response to prevent timing attacks
         password_verify('dummy', '$2y$10$dummyhashtopreventtimingattacks.......');
         echo json_encode(['status' => 'error', 'message' => 'Invalid credentials']);
     } catch (Exception $e) {

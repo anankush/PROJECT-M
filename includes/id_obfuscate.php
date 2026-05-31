@@ -1,7 +1,4 @@
 <?php
-// includes/id_obfuscate.php
-// APP_SECRET is set by secrets.php (live) or env.php (local dev)
-// The workflow defines it as APP_SECRET_VAL to avoid naming collisions.
 if (!defined('APP_SECRET')) {
     if (defined('APP_SECRET_VAL')) {
         define('APP_SECRET', APP_SECRET_VAL);

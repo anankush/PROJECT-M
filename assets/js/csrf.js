@@ -1,4 +1,3 @@
-// assets/js/csrf.js
 const originalFetch = window.fetch;
 window.fetch = async function () {
     let [resource, config] = arguments;
@@ -12,7 +11,7 @@ window.fetch = async function () {
         }
     }
     const response = await originalFetch(resource, config);
-    
+
     if (response.status === 401 || response.status === 403) {
         try {
             const clone = response.clone();
@@ -20,10 +19,10 @@ window.fetch = async function () {
             if (data && data.redirect) {
                 if (typeof Swal !== 'undefined') Swal.close();
                 window.location.href = data.redirect;
-                return new Promise(() => {}); // Suspend caller during redirect
+                return new Promise(() => {});
             }
         } catch (e) {}
-        
+
         let depth = 0;
         const path = window.location.pathname;
         if (path.includes('/admin/')) depth = 1;
@@ -31,30 +30,26 @@ window.fetch = async function () {
         else if (path.includes('/Sav/user/')) depth = 2;
         else if (path.includes('/auth/')) depth = 1;
         else if (path.includes('/dashboard/')) depth = 1;
-        
+
         let prefix = '';
-        for (let i = 0; i < depth; i++) {
-            prefix += '../';
-        }
-        
+        for (let i = 0; i < depth; i++) prefix += '../';
+
         if (typeof Swal !== 'undefined') Swal.close();
         if (response.status === 403) {
             window.location.href = prefix + 'error.php?code=security';
         } else if (response.status === 401) {
             window.location.href = prefix + 'error.php?code=unauthorized';
         }
-        return new Promise(() => {}); // Suspend caller during redirect
+        return new Promise(() => {});
     }
-    
+
     return response;
 };
 
-// Helper: get the CSRF-protected logout URL injected by PHP via <meta name="logout-url">
 function getLogoutUrl() {
     return document.querySelector('meta[name="logout-url"]')?.getAttribute('content') || '#';
 }
 
-// Strict Logout on Page Refresh (Reload) — only if user is actually logged in
 if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
     const logoutUrl = getLogoutUrl();
     if (logoutUrl && logoutUrl !== '#') {
