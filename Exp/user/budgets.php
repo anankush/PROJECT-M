@@ -8,7 +8,6 @@
 </div>
 
 <div class="table-container fadeInUp stagger-2" style="display:block;">
-    <p style="margin-bottom:1rem; color:var(--text-muted);">Set or update your monthly budgets for each section.</p>
     
     <table id="budgetsTable">
         <thead>

@@ -4,8 +4,8 @@
         <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 
         <h1 id="currentTableTitle">Select a Section</h1>
-        <button class="btn btn-ghost mobile-refresh-btn" id="refreshBtnMobile" onclick="refreshCurrentView()" style="display:none; margin-left:auto;">
-            <i class="fas fa-sync-alt refresh-icon"></i> <span class="refresh-text">Refresh</span>
+        <button class="btn btn-ghost mobile-refresh-btn" id="refreshBtnMobile" onclick="refreshCurrentView()" style="display:none; margin-left:auto;" title="Refresh">
+            <i class="fas fa-sync-alt refresh-icon"></i>
         </button>
     </div>
     <div class="header-controls">
