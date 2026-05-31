@@ -1169,4 +1169,145 @@
                 Swal.fire('Error', 'Failed to fetch note.', 'error');
             }
         }
+
+        async function forgotPassword(apiUrl, csrfToken, role, userEmail) {
+            // Step 1: Confirm and send OTP
+            const confirmSend = await Swal.fire({
+                title: 'Reset Password',
+                text: `We will send a 6-digit verification OTP to your registered email: ${userEmail}.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Send OTP',
+                confirmButtonColor: '#8b5cf6',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (!confirmSend.isConfirmed) return;
+
+            Swal.fire({ title: 'Sending OTP...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                // Send request to send OTP
+                const res = await fetch(`${apiUrl}?action=send_reset_otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }
+                });
+                const result = await res.json();
+                
+                if (result.status !== 'success') {
+                    Swal.fire('Error', result.message || 'Failed to send OTP.', 'error');
+                    return;
+                }
+
+                // Step 2: Show OTP Verification Popup
+                const otpPrompt = await Swal.fire({
+                    title: 'Enter OTP',
+                    html: `
+                        <div class="swal-form-container">
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:15px;">OTP has been sent to your email. It will expire in 2 minutes.</p>
+                            <div class="swal-field">
+                                <input id="reset-otp" type="text" class="theme-input-select swal-input" placeholder="Enter 6-digit OTP" maxlength="6" style="text-align:center; font-size:1.2rem; letter-spacing:8px; font-weight:bold;">
+                            </div>
+                        </div>
+                    `,
+                    width: 380,
+                    showCancelButton: true,
+                    confirmButtonText: 'Verify OTP',
+                    confirmButtonColor: '#8b5cf6',
+                    cancelButtonText: 'Cancel',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const otp = document.getElementById('reset-otp').value.trim();
+                        if (!otp || !/^\d{6}$/.test(otp)) {
+                            Swal.showValidationMessage('Please enter a valid 6-digit OTP');
+                            return false;
+                        }
+                        return otp;
+                    }
+                });
+
+                if (!otpPrompt.isConfirmed) return;
+                const otpValue = otpPrompt.value;
+
+                Swal.fire({ title: 'Verifying...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+                // Verify OTP
+                const verifyRes = await fetch(`${apiUrl}?action=verify_reset_otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+                    body: JSON.stringify({ otp: otpValue })
+                });
+                
+                const verifyResult = await verifyRes.json();
+                if (verifyResult.status !== 'success') {
+                    Swal.fire('Error', verifyResult.message || 'Invalid or expired OTP.', 'error');
+                    return;
+                }
+
+                // Step 3: Show Reset Password Popup
+                const resetPrompt = await Swal.fire({
+                    title: 'Set New Password',
+                    html: `
+                        <div class="swal-form-container">
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:15px;">Please enter your new account password.</p>
+                            <div class="swal-field">
+                                <label class="swal-label">New Password</label>
+                                <input id="new-pwd" type="password" class="theme-input-select swal-input" placeholder="Enter new password">
+                            </div>
+                            <div class="swal-field">
+                                <label class="swal-label">Confirm New Password</label>
+                                <input id="conf-new-pwd" type="password" class="theme-input-select swal-input" placeholder="Confirm new password">
+                            </div>
+                        </div>
+                    `,
+                    width: 380,
+                    showCancelButton: true,
+                    confirmButtonText: 'Reset Password',
+                    confirmButtonColor: '#10b981',
+                    cancelButtonText: 'Cancel',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const pwd = document.getElementById('new-pwd').value;
+                        const confPwd = document.getElementById('conf-new-pwd').value;
+                        if (!pwd || !confPwd) {
+                            Swal.showValidationMessage('Both fields are required!');
+                            return false;
+                        }
+                        if (pwd !== confPwd) {
+                            Swal.showValidationMessage('Passwords do not match!');
+                            return false;
+                        }
+                        if (pwd.length < 8) {
+                            Swal.showValidationMessage('Password must be at least 8 characters long!');
+                            return false;
+                        }
+                        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(pwd)) {
+                            Swal.showValidationMessage('Must have 1 uppercase, 1 lowercase, 1 number & 1 special character.');
+                            return false;
+                        }
+                        return pwd;
+                    }
+                });
+
+                if (!resetPrompt.isConfirmed) return;
+                const newPassword = resetPrompt.value;
+
+                Swal.fire({ title: 'Updating password...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+                // Call reset_password_with_otp endpoint
+                const resetRes = await fetch(`${apiUrl}?action=reset_password_with_otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+                    body: JSON.stringify({ new_password: newPassword })
+                });
+                const resetResult = await resetRes.json();
+                if (resetResult.status === 'success') {
+                    await Swal.fire('Success', 'Password has been updated successfully!', 'success');
+                } else {
+                    Swal.fire('Error', resetResult.message || 'Failed to update password.', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'An error occurred during password reset.', 'error');
+            }
+        }
     

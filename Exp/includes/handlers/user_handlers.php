@@ -177,3 +177,137 @@ function handle_check_session($pdo) {
         echo json_encode(['is_user' => false]);
     }
 }
+
+function handle_send_reset_otp($pdo) {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        return;
+    }
+
+    try {
+        $uid = $_SESSION['user_id'];
+        $stmt = $pdo->prepare("SELECT email FROM users WHERE id = ?");
+        $stmt->execute([$uid]);
+        $user = $stmt->fetch();
+        if (!$user) {
+            echo json_encode(['status' => 'error', 'message' => 'User not found']);
+            return;
+        }
+        $email = $user['email'];
+
+        // Generate OTP
+        $otp = sprintf("%06d", random_int(100000, 999999));
+        // Cleanup expired OTPs globally
+        $pdo->exec("DELETE FROM password_resets WHERE expires_at <= NOW()");
+
+        // Delete any existing OTP for this email
+        $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
+
+        // Insert new OTP
+        $stmt = $pdo->prepare("INSERT INTO password_resets (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 2 MINUTE))");
+        $stmt->execute([$email, $otp]);
+
+        // Store email in session for resetting
+        $_SESSION['reset_email'] = $email;
+
+        // Send Email
+        require_once '../../includes/mailer.php';
+        $body = "Your Password Reset OTP for Money Management is: $otp\n\nIt will expire in 2 minutes.";
+        send_email($email, "Password Reset OTP", $body);
+
+        echo json_encode(['status' => 'success', 'message' => 'OTP sent successfully']);
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to process request. Please try again.']);
+    }
+}
+
+function handle_verify_reset_otp($pdo) {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        return;
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $otp = trim($input['otp'] ?? '');
+
+    if (empty($otp) || !preg_match('/^\d{6}$/', $otp)) {
+        echo json_encode(['status' => 'error', 'message' => 'Valid 6-digit OTP required']);
+        return;
+    }
+
+    $email = $_SESSION['reset_email'] ?? '';
+    if (empty($email)) {
+        // If not in session, fetch user email
+        $stmt = $pdo->prepare("SELECT email FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user = $stmt->fetch();
+        $email = $user ? $user['email'] : '';
+    }
+
+    if (empty($email)) {
+        echo json_encode(['status' => 'error', 'message' => 'Email not found']);
+        return;
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM password_resets WHERE email = ? AND otp = ? AND expires_at > NOW() LIMIT 1");
+        $stmt->execute([$email, $otp]);
+        
+        if ($stmt->fetch()) {
+            // Delete OTP immediately upon verification to prevent reuse
+            $pdo->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
+            
+            $_SESSION['otp_verified'] = true;
+            echo json_encode(['status' => 'success', 'message' => 'OTP verified successfully']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid or expired OTP']);
+        }
+    } catch (PDOException $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Verification failed.']);
+    }
+}
+
+function handle_reset_password_with_otp($pdo) {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        return;
+    }
+
+    if (empty($_SESSION['otp_verified'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Please verify OTP first']);
+        return;
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $new_password = $input['new_password'] ?? '';
+
+    if (empty($new_password)) {
+        echo json_encode(['status' => 'error', 'message' => 'Password is required']);
+        return;
+    }
+
+    // Full strength check — matches registration requirements
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/', $new_password)) {
+        echo json_encode(['status' => 'error', 'message' => 'Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character']);
+        return;
+    }
+
+    try {
+        $newHash = password_hash($new_password, PASSWORD_DEFAULT);
+        $update = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $update->execute([$newHash, $_SESSION['user_id']]);
+        
+        // Cleanup verification status
+        unset($_SESSION['otp_verified']);
+        unset($_SESSION['reset_email']);
+        
+        // Regenerate CSRF/Session
+        session_regenerate_id(true);
+        unset($_SESSION['csrf_token']);
+        generate_csrf_token();
+
+        echo json_encode(['status' => 'success', 'message' => 'Password reset successfully']);
+    } catch (PDOException $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to reset password.']);
+    }
+}

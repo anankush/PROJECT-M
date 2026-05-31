@@ -85,6 +85,15 @@ switch ($action) {
     case 'delete_user_account':
         handle_delete_user_account($pdo);
         break;
+    case 'send_reset_otp':
+        handle_send_reset_otp($pdo);
+        break;
+    case 'verify_reset_otp':
+        handle_verify_reset_otp($pdo);
+        break;
+    case 'reset_password_with_otp':
+        handle_reset_password_with_otp($pdo);
+        break;
         
     // Export / Import
     case 'export_data':
