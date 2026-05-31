@@ -52,11 +52,10 @@ function session_start_secure() {
         $ip_subnet = (count($ip_parts) >= 2) ? $ip_parts[0] . '.' . $ip_parts[1] : $ip;
         $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
-        if (!isset($_SESSION['secure_subnet'])) {
-            $_SESSION['secure_subnet'] = $ip_subnet;
+        if (!isset($_SESSION['secure_user_agent'])) {
             $_SESSION['secure_user_agent'] = $user_agent;
         } else {
-            if ($_SESSION['secure_subnet'] !== $ip_subnet || $_SESSION['secure_user_agent'] !== $user_agent) {
+            if ($_SESSION['secure_user_agent'] !== $user_agent) {
                 $_SESSION = [];
                 if (ini_get('session.use_cookies')) {
                     $params = session_get_cookie_params();
