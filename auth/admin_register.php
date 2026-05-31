@@ -52,9 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $adminId = $pdo->lastInsertId();
 
         session_regenerate_id(true);
-        $token = bin2hex(random_bytes(16));
-        $_SESSION['active_session_token'] = $token;
-        $pdo->prepare("UPDATE admin_users SET active_session_id = ? WHERE id = ?")->execute([$token, $adminId]);
         unset($_SESSION['user_id']);
         $_SESSION['admin_id']      = $adminId;
         $_SESSION['role']          = 'admin';

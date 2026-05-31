@@ -70,9 +70,6 @@ function handle_change_password($pdo) {
         $update->execute([$newHash, $_SESSION['user_id']]);
         
         session_regenerate_id(true);
-        $token = bin2hex(random_bytes(16));
-        $_SESSION['active_session_token'] = $token;
-        $pdo->prepare("UPDATE users SET active_session_id = ? WHERE id = ?")->execute([$token, $_SESSION['user_id']]);
         unset($_SESSION['csrf_token']);
         generate_csrf_token();
         
@@ -274,9 +271,6 @@ function handle_reset_password_with_otp($pdo) {
         unset($_SESSION['otp_verified']);
         unset($_SESSION['reset_email']);
         session_regenerate_id(true);
-        $token = bin2hex(random_bytes(16));
-        $_SESSION['active_session_token'] = $token;
-        $pdo->prepare("UPDATE users SET active_session_id = ? WHERE id = ?")->execute([$token, $_SESSION['user_id']]);
         unset($_SESSION['csrf_token']);
         generate_csrf_token();
 

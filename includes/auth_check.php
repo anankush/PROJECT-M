@@ -19,15 +19,13 @@ function session_start_secure() {
         if (isset($_SESSION['user_id'])) {
             $stmt = $pdo->prepare("SELECT active_session_id FROM users WHERE id = ?");
             $stmt->execute([$_SESSION['user_id']]);
-            $db_token = $stmt->fetchColumn();
-            if (empty($_SESSION['active_session_token']) || $db_token !== $_SESSION['active_session_token']) {
+            if ($stmt->fetchColumn() !== session_id()) {
                 $session_invalid = true;
             }
         } elseif (isset($_SESSION['admin_id'])) {
             $stmt = $pdo->prepare("SELECT active_session_id FROM admin_users WHERE id = ?");
             $stmt->execute([$_SESSION['admin_id']]);
-            $db_token = $stmt->fetchColumn();
-            if (empty($_SESSION['active_session_token']) || $db_token !== $_SESSION['active_session_token']) {
+            if ($stmt->fetchColumn() !== session_id()) {
                 $session_invalid = true;
             }
         }
@@ -49,11 +47,16 @@ function session_start_secure() {
             exit;
         }
 
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $ip_parts = explode('.', $ip);
+        $ip_subnet = (count($ip_parts) >= 2) ? $ip_parts[0] . '.' . $ip_parts[1] : $ip;
         $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        if (!isset($_SESSION['secure_user_agent'])) {
+
+        if (!isset($_SESSION['secure_subnet'])) {
+            $_SESSION['secure_subnet'] = $ip_subnet;
             $_SESSION['secure_user_agent'] = $user_agent;
         } else {
-            if ($_SESSION['secure_user_agent'] !== $user_agent) {
+            if ($_SESSION['secure_subnet'] !== $ip_subnet || $_SESSION['secure_user_agent'] !== $user_agent) {
                 $_SESSION = [];
                 if (ini_get('session.use_cookies')) {
                     $params = session_get_cookie_params();
