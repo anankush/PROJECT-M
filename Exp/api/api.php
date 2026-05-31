@@ -68,9 +68,6 @@ switch ($action) {
     case 'delete_record':
         handle_delete_record($pdo);
         break;
-    case 'save_schema':
-        handle_save_schema($pdo);
-        break;
     case 'get_cumulative_stats':
         handle_get_cumulative_stats($pdo);
         break;

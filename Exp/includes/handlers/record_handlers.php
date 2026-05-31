@@ -25,8 +25,8 @@ function handle_get_records($pdo) {
     try {
         $month = sanitize_input($_GET['month'] ?? '');
         if (!empty($month)) {
-            $stmt = $pdo->prepare("SELECT * FROM expenses WHERE user_id = ? AND category_id = ? AND entry_date LIKE ? ORDER BY id DESC");
-            $stmt->execute([$uid, $category_id, $month . '-%']);
+            $stmt = $pdo->prepare("SELECT * FROM expenses WHERE user_id = ? AND category_id = ? AND DATE_FORMAT(entry_date, '%Y-%m') = ? ORDER BY id DESC");
+            $stmt->execute([$uid, $category_id, $month]);
         } else {
             $stmt = $pdo->prepare("SELECT * FROM expenses WHERE user_id = ? AND category_id = ? ORDER BY id DESC");
             $stmt->execute([$uid, $category_id]);
@@ -203,7 +203,7 @@ function handle_import_data($pdo) {
 
     try {
         $uid = $_SESSION['user_id'];
-        $mode = $_GET['mode'] ?? 'replace';
+        $mode = sanitize_input($input['mode'] ?? 'replace');
         $skipped_duplicates = 0;
         $pdo->beginTransaction();
 

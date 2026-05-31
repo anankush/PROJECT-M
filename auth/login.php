@@ -13,12 +13,18 @@ if (isset($_SESSION['user_id']) || isset($_SESSION['admin_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    // Rate limit: max 10 login attempts per IP per 15 minutes
+    check_rate_limit($pdo, 'login', 10, 15);
     $input = json_decode(file_get_contents('php://input'), true);
     $email = trim($input['email'] ?? '');
     $password = $input['password'] ?? '';
 
     if (empty($email) || empty($password)) {
         echo json_encode(['status' => 'error', 'message' => 'Email and password required']);
+        exit;
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid email format']);
         exit;
     }
 
@@ -31,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             session_regenerate_id(true);
             $_SESSION['admin_id']    = $admin['id'];
             $_SESSION['role']        = 'admin';
+            $_SESSION['is_admin']    = true;
             $_SESSION['user_name']   = 'Administrator';
             $_SESSION['user_email']  = $admin['email'];
             $_SESSION['currency']    = $admin['currency'] ?? '₹';

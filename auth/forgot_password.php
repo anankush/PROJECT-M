@@ -14,11 +14,17 @@ if (isset($_SESSION['user_id']) || isset($_SESSION['admin_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    // Rate limit: max 5 OTP requests per IP per 15 minutes (email spam protection)
+    check_rate_limit($pdo, 'forgot_password', 5, 15);
     $input = json_decode(file_get_contents('php://input'), true);
     $email = trim($input['email'] ?? '');
 
     if (empty($email)) {
         echo json_encode(['status' => 'error', 'message' => 'Email is required']);
+        exit;
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid email format']);
         exit;
     }
 
@@ -31,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Generate OTP
-        $otp = sprintf("%06d", mt_rand(1, 999999));
+        $otp = sprintf("%06d", random_int(100000, 999999));
         // Cleanup expired OTPs globally
         $pdo->exec("DELETE FROM password_resets WHERE expires_at <= NOW()");
 

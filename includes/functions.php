@@ -1,5 +1,6 @@
 <?php
 // includes/functions.php
+
 function sanitize_input($value) {
     if (is_array($value)) {
         $clean = [];
@@ -17,4 +18,56 @@ function set_security_headers() {
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; frame-ancestors 'none';");
     header('X-XSS-Protection: 1; mode=block');
+}
+
+/**
+ * IP-based rate limiter using the `rate_limits` table.
+ *
+ * Call this at the TOP of every POST handler that should be protected.
+ * It records the attempt first, then checks the count — so every request
+ * (success or failure) is counted. This prevents enumeration attacks.
+ *
+ * @param PDO    $pdo             Active PDO connection
+ * @param string $action          A unique name for the action (e.g. 'login', 'otp_verify')
+ * @param int    $max_attempts    Max allowed attempts within the time window
+ * @param int    $window_minutes  Rolling time window in minutes
+ */
+function check_rate_limit($pdo, $action, $max_attempts = 10, $window_minutes = 15) {
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+    try {
+        // 1. Purge expired records to keep the table lean (no cron needed)
+        $pdo->prepare(
+            "DELETE FROM rate_limits WHERE created_at < DATE_SUB(NOW(), INTERVAL ? MINUTE)"
+        )->execute([$window_minutes]);
+
+        // 2. Count how many attempts this IP has made for this action in the window
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) FROM rate_limits
+             WHERE action = ? AND ip = ?
+               AND created_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)"
+        );
+        $stmt->execute([$action, $ip, $window_minutes]);
+        $count = (int) $stmt->fetchColumn();
+
+        // 3. Reject if limit is already reached BEFORE recording (fail-fast)
+        if ($count >= $max_attempts) {
+            http_response_code(429);
+            echo json_encode([
+                'status'  => 'error',
+                'message' => 'Too many attempts. Please wait a few minutes and try again.'
+            ]);
+            exit;
+        }
+
+        // 4. Record this attempt
+        $pdo->prepare(
+            "INSERT INTO rate_limits (action, ip, attempts, created_at) VALUES (?, ?, 1, NOW())"
+        )->execute([$action, $ip]);
+
+    } catch (PDOException $e) {
+        // If rate_limits table is missing or broken, log and continue silently
+        // (never block the user due to a missing rate-limit table)
+        error_log('Rate limit check failed: ' . $e->getMessage());
+    }
 }

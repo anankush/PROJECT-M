@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             session_regenerate_id(true);
             $_SESSION['admin_id']      = $admin['id'];
             $_SESSION['role']          = 'admin';
+            $_SESSION['is_admin']      = true;
             $_SESSION['user_name']     = 'Administrator';
             $_SESSION['user_email']    = $admin['email'];
             $_SESSION['currency']      = $admin['currency'] ?? '₹';

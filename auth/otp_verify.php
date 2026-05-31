@@ -26,6 +26,8 @@ $time_left = $otp_record ? max(0, (int)$otp_record['time_left']) : 0;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    // Rate limit: max 5 OTP guesses per IP per 5 minutes (brute-force protection)
+    check_rate_limit($pdo, 'otp_verify', 5, 5);
     $input = json_decode(file_get_contents('php://input'), true);
     $otp = trim($input['otp'] ?? '');
 

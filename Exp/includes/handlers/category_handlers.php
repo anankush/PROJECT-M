@@ -41,7 +41,7 @@ function handle_get_categories($pdo) {
         echo json_encode(['status' => 'success', 'data' => $categories]);
     } catch (PDOException $e) {
         if ($e->getCode() == '42S02') {
-            $catModel = new Model($pdo, 'user_categories', $uid);
+            // Table doesn't exist yet — fallback to basic query without monthly_budgets join
             $categories = $catModel->getAll([], 'id ASC');
             echo json_encode(['status' => 'success', 'data' => $categories]);
         } else {

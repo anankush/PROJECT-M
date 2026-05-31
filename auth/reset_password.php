@@ -25,6 +25,8 @@ $otp_record = $stmt->fetch();
 $time_left = $otp_record ? max(0, (int)$otp_record['time_left']) : 0;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+    // Rate limit: max 5 OTP/reset attempts per IP per 5 minutes
+    check_rate_limit($pdo, 'reset_password', 5, 5);
     $input = json_decode(file_get_contents('php://input'), true);
     $action = $input['action'] ?? '';
 

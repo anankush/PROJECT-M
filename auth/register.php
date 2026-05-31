@@ -22,6 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['status' => 'error', 'message' => 'Email and password required']);
         exit;
     }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid email format']);
+        exit;
+    }
 
     // Password constraints: Uppercase, Lowercase, Number, Special Character, Min 8 chars
     if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/', $password)) {
@@ -38,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Generate OTP
-        $otp = sprintf("%06d", mt_rand(1, 999999));
+        $otp = sprintf("%06d", random_int(100000, 999999));
         // Cleanup expired OTPs globally
         $pdo->exec("DELETE FROM password_resets WHERE expires_at <= NOW()");
 
@@ -136,7 +140,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 const res = await fetch('register.php', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+                    },
                     body: JSON.stringify({email, password})
                 });
                 const data = await res.json();

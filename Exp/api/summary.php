@@ -10,9 +10,15 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$uid = $_SESSION['user_id'];
-$month = $_GET['month'] ?? date('Y-m');
+$uid      = $_SESSION['user_id'];
+$month    = sanitize_input($_GET['month'] ?? date('Y-m'));
 $currency = $_SESSION['currency'] ?? '₹';
+
+// Validate YYYY-MM format
+if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid month format. Use YYYY-MM']);
+    exit;
+}
 
 try {
     // Total budget from all categories for the selected month

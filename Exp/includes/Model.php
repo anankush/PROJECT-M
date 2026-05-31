@@ -13,11 +13,12 @@ class Model {
     }
 
     public function getAll($conditions = [], $orderBy = '') {
-        $query = "SELECT * FROM {$this->table} WHERE user_id = ?";
+        $query = "SELECT * FROM `{$this->table}` WHERE user_id = ?";
         $params = [$this->userId];
 
         foreach ($conditions as $col => $val) {
-            $query .= " AND {$col} = ?";
+            $safeCol = "`" . str_replace("`", "``", $col) . "`";
+            $query .= " AND {$safeCol} = ?";
             $params[] = $val;
         }
 
@@ -38,31 +39,38 @@ class Model {
 
     public function insert($data) {
         $data['user_id'] = $this->userId;
-        $columns = implode(', ', array_keys($data));
+
+        // Wrap column names in backticks to prevent SQL injection via dynamic keys
+        $safeColumns = array_map(function($col) {
+            return "`" . str_replace("`", "``", $col) . "`";
+        }, array_keys($data));
+
+        $columns      = implode(', ', $safeColumns);
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
 
-        $query = "INSERT INTO {$this->table} ({$columns}) VALUES ({$placeholders})";
-        $stmt = $this->pdo->prepare($query);
+        $query = "INSERT INTO `{$this->table}` ({$columns}) VALUES ({$placeholders})";
+        $stmt  = $this->pdo->prepare($query);
         $stmt->execute(array_values($data));
-        
+
         return $this->pdo->lastInsertId();
     }
 
     public function update($id, $data) {
         $setParts = [];
-        $params = [];
-        
+        $params   = [];
+
         foreach ($data as $col => $val) {
-            $setParts[] = "{$col} = ?";
-            $params[] = $val;
+            $safeCol    = "`" . str_replace("`", "``", $col) . "`";
+            $setParts[] = "{$safeCol} = ?";
+            $params[]   = $val;
         }
-        
+
         $params[] = $id;
         $params[] = $this->userId;
-        
+
         $setString = implode(', ', $setParts);
-        $query = "UPDATE {$this->table} SET {$setString} WHERE id = ? AND user_id = ?";
-        
+        $query     = "UPDATE `{$this->table}` SET {$setString} WHERE id = ? AND user_id = ?";
+
         $stmt = $this->pdo->prepare($query);
         return $stmt->execute($params);
     }
@@ -73,14 +81,15 @@ class Model {
     }
 
     public function deleteWhere($conditions = []) {
-        $query = "DELETE FROM {$this->table} WHERE user_id = ?";
+        $query  = "DELETE FROM `{$this->table}` WHERE user_id = ?";
         $params = [$this->userId];
-        
+
         foreach ($conditions as $col => $val) {
-            $query .= " AND {$col} = ?";
+            $safeCol = "`" . str_replace("`", "``", $col) . "`";
+            $query  .= " AND {$safeCol} = ?";
             $params[] = $val;
         }
-        
+
         $stmt = $this->pdo->prepare($query);
         return $stmt->execute($params);
     }

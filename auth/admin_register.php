@@ -60,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_regenerate_id(true);
         $_SESSION['admin_id']      = $adminId;
         $_SESSION['role']          = 'admin';
+        $_SESSION['is_admin']      = true;
         $_SESSION['user_name']     = 'Administrator';
         $_SESSION['user_email']    = $email;
         $_SESSION['currency']      = '₹';
