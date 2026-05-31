@@ -1,31 +1,4 @@
 <!-- Sav/user/goals.php -->
-<style>
-    @media (max-width: 768px) {
-        #addGoalBtn {
-            display: flex !important;
-            position: fixed !important;
-            bottom: 24px !important;
-            right: 24px !important;
-            top: auto !important;
-            left: auto !important;
-            width: 60px !important;
-            height: 60px !important;
-            border-radius: 50% !important;
-            align-items: center !important;
-            justify-content: center !important;
-            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.5) !important;
-            z-index: 99999 !important;
-            padding: 0 !important;
-        }
-        #addGoalBtn .hide-mobile {
-            display: none !important;
-        }
-        #addGoalBtn i {
-            font-size: 1.5rem !important;
-            margin: 0 !important;
-        }
-    }
-</style>
 <div class="dashboard-header">
     <div class="header-left">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
