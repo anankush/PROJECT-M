@@ -287,6 +287,11 @@
     white-space: nowrap;
 }
 
+/* Floating Action Button (FAB) for mobile to Create New Goal */
+.floating-fab {
+    display: none;
+}
+
 /* Mobile responsive fixes */
 @media (max-width: 768px) {
     .goal-actions {
@@ -324,5 +329,45 @@
 
     .hide-mobile {
         display: none !important;
+    }
+
+    /* Prevent mobile sidebar buttons from getting cut off at the bottom */
+    .sidebar {
+        height: 100% !important;
+        max-height: 100vh !important;
+        max-height: 100dvh !important;
+        overflow-y: auto !important;
+    }
+
+    .sidebar-bottom {
+        padding-bottom: 80px !important;
+    }
+
+    /* Floating Action Button (FAB) for mobile to Create New Goal */
+    .floating-fab {
+        display: flex !important;
+        position: fixed !important;
+        bottom: 24px !important;
+        right: 24px !important;
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 50% !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4) !important;
+        z-index: 999 !important;
+        background: linear-gradient(135deg, var(--aurora-1), var(--aurora-2)) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+        font-size: 1.4rem !important;
+        cursor: pointer !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    .floating-fab:hover {
+        transform: scale(1.08) translateY(-2px) !important;
+        box-shadow: 0 10px 28px rgba(139, 92, 246, 0.6) !important;
+    }
+    .floating-fab:active {
+        transform: scale(0.95) !important;
     }
 }

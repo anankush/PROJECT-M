@@ -92,7 +92,7 @@ $base = '../../';
                 </li>
             </ul>
 
-            <button class="add-category-btn" onclick="addNewGoal()">
+            <button class="add-category-btn hide-mobile" onclick="addNewGoal()">
                 <i class="fas fa-plus"></i> Create New Goal
             </button>
 
@@ -122,5 +122,9 @@ $base = '../../';
     <script src="../../assets/js/csrf.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script src="../assets/js/sav.js"></script>
+    <!-- Floating Action Button for mobile to Create New Goal -->
+    <button class="floating-fab" onclick="addNewGoal()" id="mobileCreateGoalBtn" title="Create New Goal">
+        <i class="fas fa-plus"></i>
+    </button>
 </body>
 </html>
