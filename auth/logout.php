@@ -18,6 +18,9 @@ if (empty($stored_token) || !hash_equals($stored_token, $provided_token)) {
     exit;
 }
 
+// Capture role BEFORE destroying session
+$was_admin = isset($_SESSION['admin_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+
 // Clear all session data
 $_SESSION = [];
 
@@ -36,5 +39,8 @@ if (ini_get('session.use_cookies')) {
 }
 
 session_destroy();
-header('Location: login.php');
+
+// Redirect to the correct login page based on who logged out
+header('Location: ' . ($was_admin ? 'admin_login.php' : 'login.php'));
 exit;
+
