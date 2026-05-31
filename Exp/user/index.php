@@ -6,31 +6,7 @@ require_once '../../includes/csrf.php';
 require_once '../../includes/functions.php';
 require_login();
 
-// SSO Secure Tunnel: Validate One-Time Token (OTT) or check session authorization
-if (isset($_GET['ott'])) {
-    if (validate_ott('exp', $_GET['ott'])) {
-        $_SESSION['exp_authorized'] = true;
-    } else {
-        $_SESSION = [];
-        if (ini_get('session.use_cookies')) {
-            $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
-        }
-        session_destroy();
-        header('Location: ' . BASE_URL . 'auth/login.php?error=invalid_token');
-        exit;
-    }
-} elseif (empty($_SESSION['exp_authorized'])) {
-    // Block direct bookmarks or manual URL entry
-    $_SESSION = [];
-    if (ini_get('session.use_cookies')) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
-    }
-    session_destroy();
-    header('Location: ' . BASE_URL . 'auth/login.php?error=unauthorized_entry');
-    exit;
-}
+
 
 set_security_headers();
 $base = '../../';
