@@ -51,42 +51,6 @@ function session_start_secure()
             exit;
         }
 
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        if (strpos($ip, ',') !== false) {
-            $ip = trim(explode(',', $ip)[0]);
-        }
-        if (strpos($ip, ':') !== false) {
-            $ip_parts = explode(':', $ip);
-            $ip_subnet = (count($ip_parts) >= 4) ? implode(':', array_slice($ip_parts, 0, 4)) : $ip;
-        } else {
-            $ip_parts = explode('.', $ip);
-            $ip_subnet = (count($ip_parts) >= 2) ? $ip_parts[0] . '.' . $ip_parts[1] : $ip;
-        }
-        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-
-        if (!isset($_SESSION['secure_subnet'])) {
-            $_SESSION['secure_subnet'] = $ip_subnet;
-            $_SESSION['secure_user_agent'] = $user_agent;
-        } else {
-            if ($_SESSION['secure_subnet'] !== $ip_subnet || $_SESSION['secure_user_agent'] !== $user_agent) {
-                $_SESSION = [];
-                if (ini_get('session.use_cookies')) {
-                    $params = session_get_cookie_params();
-                    setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
-                }
-                session_destroy();
-                if (
-                    strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
-                    || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false
-                ) {
-                    http_response_code(401);
-                    echo json_encode(['status' => 'error', 'message' => 'Security check failed. Session terminated.']);
-                    exit;
-                }
-                header('Location: ' . BASE_URL . 'error.php?code=security');
-                exit;
-            }
-        }
     }
 }
 
