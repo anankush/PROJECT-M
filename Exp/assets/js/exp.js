@@ -32,6 +32,12 @@
             });
         }
 
+        
+        function setElementDisplay(id, displayType) {
+            const el = document.getElementById(id);
+            if (el) el.style.display = displayType;
+        }
+
         function escapeHtml(unsafe) {
             if (unsafe == null) return '';
             return String(unsafe)
@@ -68,6 +74,7 @@
         }
 
         async function loadView(viewName) {
+            window.currentViewName = viewName;
             try {
                 const res = await fetch(viewName);
                 if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -214,7 +221,7 @@
                     if (addBtn) addBtn.style.display = 'none';
                     const secActions = document.getElementById('sectionActions');
                     if (secActions) secActions.style.display = 'none';
-                    if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'none';
+                    if(document.getElementById('noteBtn')) setElementDisplay('noteBtn', 'none');
                     const rb = document.getElementById('refreshBtn');
                     if(rb) rb.classList.remove('show');
                     const rbm = document.getElementById('refreshBtnMobile');
@@ -243,15 +250,15 @@
                     addRecordBtn.style.display = 'none';
                     const secAct = document.getElementById('sectionActions');
                     if(secAct) secAct.style.display = 'none';
-                    if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'none';
+                    if(document.getElementById('noteBtn')) setElementDisplay('noteBtn', 'none');
                     document.getElementById('refreshBtn').classList.remove('show');
                     document.getElementById('refreshBtnMobile').classList.remove('show');
-                    document.getElementById('dataTable').style.display = 'none';
-                    document.getElementById('emptyState').style.display = 'none';
-                    document.getElementById('sortRecordsSelect').style.display = 'none';
-                    document.getElementById('sectionBudgetBox').style.display = 'none';
-                    document.getElementById('sectionExpenditureBox').style.display = 'none';
-                    document.getElementById('sectionBalanceBox').style.display = 'none';
+                    setElementDisplay('dataTable', 'none');
+                    setElementDisplay('emptyState', 'none');
+                    setElementDisplay('sortRecordsSelect', 'none');
+                    setElementDisplay('sectionBudgetBox', 'none');
+                    setElementDisplay('sectionExpenditureBox', 'none');
+                    setElementDisplay('sectionBalanceBox', 'none');
                 }
                 await fetchCategories();
             }
@@ -268,12 +275,12 @@
                     document.getElementById('userNameDisplay').innerText = `Welcome, ${email}`;
                     const tbd = document.getElementById('totalBudgetDisplay');
                     if (tbd) tbd.innerHTML = `${userCurrency}${totalBudget.toFixed(2)}`;
-                    document.getElementById('appUI').style.display = 'flex';
+                    setElementDisplay('appUI', 'flex');
                     if (document.getElementById('monthFilter')) {
-                        applyMonthFilter();
-                    } else {
-                        await fetchCategories();
-                    }
+                  applyMonthFilter();
+              } else if (window.currentViewName !== 'budgets.php') {
+                  await fetchCategories();
+              }
                 } else {
                     window.location.href = '../../auth/login.php';
                 }
@@ -358,7 +365,7 @@
             if (addBtn) addBtn.style.display = window.innerWidth <= 768 ? 'flex' : 'inline-flex';
             const secAct = document.getElementById('sectionActions');
             if (secAct) secAct.style.display = 'flex';
-            if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'inline-flex';
+            if(document.getElementById('noteBtn')) setElementDisplay('noteBtn', 'inline-flex');
             const rBtn = document.getElementById('refreshBtn');
             if (rBtn) rBtn.classList.add('show');
             const rBtnM = document.getElementById('refreshBtnMobile');
@@ -417,9 +424,9 @@
                     let secBudget = currentCat ? parseFloat(currentCat.budget) || 0 : 0;
                     document.getElementById('sectionBudgetDisplay').innerHTML = `${userCurrency}${secBudget.toFixed(2)}`;
 
-                    document.getElementById('sectionBudgetBox').style.display = 'block';
-                    document.getElementById('sectionExpenditureBox').style.display = 'block';
-                    document.getElementById('sectionBalanceBox').style.display = 'block';
+                    setElementDisplay('sectionBudgetBox', 'block');
+                    setElementDisplay('sectionExpenditureBox', 'block');
+                    setElementDisplay('sectionBalanceBox', 'block');
 
                     const [y, m] = monthVal.split('-');
                     const mName = new Date(y, m - 1).toLocaleString('default', { month: 'short' });
@@ -432,13 +439,13 @@
                         window.currentRecords = data.data;
                         let totalRecords = window.currentRecords.length;
                         window.currentRecords.forEach((r, idx) => { r.serial_no = totalRecords - idx; });
-                        document.getElementById('sortRecordsSelect').style.display = 'inline-block';
+                        setElementDisplay('sortRecordsSelect', 'inline-block');
                         secExp = data.data.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
                         sortRecords();
                         table.style.display = 'table';
                     } else {
                         window.currentRecords = [];
-                        document.getElementById('sortRecordsSelect').style.display = 'none';
+                        setElementDisplay('sortRecordsSelect', 'none');
                         emptyState.style.display = 'block';
                     }
 
@@ -783,14 +790,14 @@
                         if (addBtn) addBtn.style.display = 'none';
                         const secAct = document.getElementById('sectionActions');
                         if (secAct) secAct.style.display = 'none';
-                        if(document.getElementById('noteBtn')) document.getElementById('noteBtn').style.display = 'none';
+                        if(document.getElementById('noteBtn')) setElementDisplay('noteBtn', 'none');
                         document.getElementById('refreshBtn').classList.remove('show');
                         document.getElementById('refreshBtnMobile').classList.remove('show');
-                        document.getElementById('dataTable').style.display = 'none';
-                        document.getElementById('emptyState').style.display = 'block';
-                        document.getElementById('sectionBudgetBox').style.display = 'none';
-                        document.getElementById('sectionExpenditureBox').style.display = 'none';
-                        document.getElementById('sectionBalanceBox').style.display = 'none';
+                        setElementDisplay('dataTable', 'none');
+                        setElementDisplay('emptyState', 'block');
+                        setElementDisplay('sectionBudgetBox', 'none');
+                        setElementDisplay('sectionExpenditureBox', 'none');
+                        setElementDisplay('sectionBalanceBox', 'none');
                     }
                     fetchCategories(); fetchTotalExpenditure();
                 } else Swal.fire('Error', result.message, 'error');
