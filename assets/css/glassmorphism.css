@@ -844,6 +844,18 @@ select option {
     .dashboard-header { flex-direction: column; align-items: flex-start; }
     .header-controls { width: 100%; }
     .desktop-refresh-btn { display: none !important; }
+
+    /* Responsive table container rules to prevent layout breaks on small screens */
+    .table-container {
+        width: 100% !important;
+        overflow-x: auto !important;
+        display: block !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    th, td {
+        padding: 0.6rem 0.75rem !important;
+        font-size: 0.8rem !important;
+    }
 }
 
 /* ═══ SWEETALERT2 PREMIUM AURORA OVERRIDES ═══ */

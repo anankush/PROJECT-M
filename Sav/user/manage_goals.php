@@ -11,8 +11,8 @@
         <thead>
             <tr>
                 <th>Goal Name</th>
-                <th class="hide-mobile">Category</th>
-                <th class="hide-mobile">Priority</th>
+                <th>Category</th>
+                <th>Priority</th>
                 <th>Target Amount</th>
                 <th style="text-align:right;">Actions</th>
             </tr>

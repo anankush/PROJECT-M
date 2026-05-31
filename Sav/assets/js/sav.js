@@ -855,8 +855,8 @@ function renderManageGoalsTable() {
                     <span style="font-weight:500;">${escapeHtml(g.goal_name)}</span>
                 </div>
             </td>
-            <td class="hide-mobile">${catName}</td>
-            <td class="hide-mobile"><span class="priority-badge ${pClass}">${pLabel}</span></td>
+            <td>${catName}</td>
+            <td><span class="priority-badge ${pClass}">${pLabel}</span></td>
             <td style="color:var(--aurora-2); font-weight:600;">${userCurrency}${target.toFixed(2)}</td>
             <td style="text-align:right;">
                 <div class="action-btns" style="justify-content:flex-end; gap:8px;">
