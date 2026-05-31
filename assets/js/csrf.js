@@ -1,3 +1,12 @@
+window.navigateTo = function(url) {
+    if (document.body) {
+        document.body.classList.add('page-exit');
+    }
+    setTimeout(() => {
+        window.location.href = url;
+    }, 300);
+};
+
 const originalFetch = window.fetch;
 window.fetch = async function () {
     let [resource, config] = arguments;
@@ -18,7 +27,7 @@ window.fetch = async function () {
             const data = await clone.json();
             if (data && data.redirect) {
                 if (typeof Swal !== 'undefined') Swal.close();
-                window.location.href = data.redirect;
+                window.navigateTo(data.redirect);
                 return new Promise(() => {});
             }
         } catch (e) {}
@@ -36,9 +45,9 @@ window.fetch = async function () {
 
         if (typeof Swal !== 'undefined') Swal.close();
         if (response.status === 403) {
-            window.location.href = prefix + 'error.php?code=security';
+            window.navigateTo(prefix + 'error.php?code=security');
         } else if (response.status === 401) {
-            window.location.href = prefix + 'error.php?code=unauthorized';
+            window.navigateTo(prefix + 'error.php?code=unauthorized');
         }
         return new Promise(() => {});
     }
@@ -54,6 +63,6 @@ if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
     const logoutUrl = getLogoutUrl();
     if (logoutUrl && logoutUrl !== '#') {
         sessionStorage.clear();
-        window.location.href = logoutUrl;
+        window.navigateTo(logoutUrl);
     }
 }

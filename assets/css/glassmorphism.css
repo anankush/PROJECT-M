@@ -1127,6 +1127,9 @@ select option {
 }
 
 /* ═══ PREMIUM PAGE TRANSITIONS & MODULE CARD LOADING ═══ */
+html, body {
+    background-color: #030014 !important;
+}
 body {
     animation: globalPageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
     opacity: 1;

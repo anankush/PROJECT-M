@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const data = await res.json();
                 if (data.status === 'success') {
                     if (data.redirect) {
-                        window.location.href = data.redirect;
+                        window.navigateTo(data.redirect);
                     } else {
                         showToast(data.message || 'If this email is registered, an OTP has been sent.', 'success');
                     }

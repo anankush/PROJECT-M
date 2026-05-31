@@ -80,7 +80,7 @@ async function checkAuth() {
             document.getElementById('appUI').style.display = 'flex';
             loadSavView('goals.php', 'tab-goals');
         } else {
-            window.location.href = '../../auth/login.php';
+            window.navigateTo('../../auth/login.php');
         }
     } catch (e) {
         console.error(e);

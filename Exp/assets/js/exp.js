@@ -322,7 +322,7 @@
                   await fetchCategories();
               }
                 } else {
-                    window.location.href = '../../auth/login.php';
+                    window.navigateTo('../../auth/login.php');
                 }
             } catch (e) {
                 console.error(e);
@@ -342,7 +342,7 @@
             });
             if (confirm.isConfirmed) {
                 await fetch(`${API_URL}?action=user_logout`, { method: 'POST', headers: { 'X-CSRF-Token': CSRF_TOKEN } });
-                window.location.href = 'login.php';
+                window.navigateTo('login.php');
             } else {
                 isManualLogout = false;
             }
@@ -1398,7 +1398,7 @@
                         cancelButtonText: 'Cancel'
                     }).then((r) => {
                         if (r.isConfirmed) {
-                            window.location.href = '../../Sav/user/index.php';
+                            window.navigateTo('../../Sav/user/index.php');
                         }
                     });
                     return;

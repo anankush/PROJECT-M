@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 });
                 const data = await res.json();
                 if (data.status === 'success') {
-                    window.location.href = data.redirect;
+                    window.navigateTo(data.redirect);
                 } else {
                     showToast(data.message, 'error');
                 }

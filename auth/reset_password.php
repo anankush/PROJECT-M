@@ -232,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (data.status === 'success') {
                     showToast('Password updated successfully! Redirecting...', 'success');
                     setTimeout(() => {
-                        window.location.href = data.redirect;
+                        window.navigateTo(data.redirect);
                     }, 2000);
                 } else {
                     showToast(data.message, 'error');

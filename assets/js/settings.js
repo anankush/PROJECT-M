@@ -295,7 +295,7 @@ async function deleteMyAccount() {
     const data = await res.json();
     if (data.status === 'success') {
         await Swal.fire('Deleted!', 'Your account has been deleted.', 'success');
-        window.location.href = '../index.php';
+        window.navigateTo('../index.php');
     } else Swal.fire('Error', data.message, 'error');
 }
 

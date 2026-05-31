@@ -166,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const data = await res.json();
                 if (data.status === 'success') {
                     showToast('Account created successfully!');
-                    setTimeout(() => window.location.href = data.redirect, 1000);
+                    setTimeout(() => window.navigateTo(data.redirect), 1000);
                 } else {
                     showToast(data.message, 'error');
                 }
