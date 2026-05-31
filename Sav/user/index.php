@@ -69,7 +69,11 @@ $base = '../../';
                 <i class="fas fa-plus"></i> Create New Goal
             </button>
 
+            <input type="file" id="importFile" accept=".encrypted" style="display:none;" onchange="handleImport(event)">
+
             <div class="sidebar-bottom">
+                <button class="btn btn-ghost" onclick="openSavSettings()"><i class="fas fa-cog"></i> Settings</button>
+                <button class="btn btn-ghost" id="tab-manage-goals" onclick="loadSavView('manage_goals.php', 'tab-manage-goals')"><i class="fas fa-tasks"></i> Manage Goals</button>
                 <a href="../../dashboard/index.php" class="btn btn-ghost"><i class="fas fa-home"></i> Main Dashboard</a>
                 <a href="../../auth/logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 <div class="copyright" style="margin-top:1rem; font-size:0.8rem; color:var(--text-muted); text-align:center;">
@@ -80,8 +84,9 @@ $base = '../../';
 
         <main class="main-content" id="main-content">
             <!-- Dynamic Content (goals.php / history.php) Injected Here via AJAX -->
-            <div class="loader" style="margin:auto; display:block; text-align:center; padding-top:100px;">
+            <div class="loading-container" style="margin:auto; display:block; text-align:center; padding-top:100px;">
                 <i class="fas fa-circle-notch fa-spin fa-3x" style="color:var(--aurora-1);"></i>
+                <h2 style="color: white; margin-top: 20px;">Loading Savings Data...</h2>
             </div>
         </main>
     </div>
