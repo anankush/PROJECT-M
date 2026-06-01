@@ -12,12 +12,13 @@ function handle_get_categories($pdo) {
     try {
         $catModel = new Model($pdo, 'user_categories', $uid);
         if (!empty($month)) {
+            $current_month = date('Y-m');
             $query = "
                 SELECT c.id, c.user_id, c.category_name,
                        CASE 
                            WHEN mb.budget IS NOT NULL THEN mb.budget
-                           WHEN ? < (SELECT MIN(budget_month) FROM category_monthly_budgets WHERE category_id = c.id) THEN NULL
-                           ELSE c.budget
+                           WHEN ? > ? THEN c.budget
+                           ELSE NULL
                        END as budget,
                        mb.budget as monthly_budget,
                        c.created_at
@@ -26,7 +27,7 @@ function handle_get_categories($pdo) {
                 WHERE c.user_id = ?
                 ORDER BY c.id ASC
             ";
-            $categories = $catModel->customQuery($query, [$month, $month, $uid]);
+            $categories = $catModel->customQuery($query, [$month, $current_month, $month, $uid]);
         } else {
             $query = "
                 SELECT c.id, c.user_id, c.category_name,
@@ -276,21 +277,21 @@ function handle_get_user_categories_admin($pdo) {
 
     try {
         if (!empty($month)) {
+            $current_month = date('Y-m');
             $stmt = $pdo->prepare("
                 SELECT c.id, c.category_name,
                        CASE
                            WHEN (SELECT budget FROM category_monthly_budgets WHERE category_id = c.id AND budget_month = ?) IS NOT NULL 
                                 THEN (SELECT budget FROM category_monthly_budgets WHERE category_id = c.id AND budget_month = ?)
-                           WHEN ? < (SELECT MIN(budget_month) FROM category_monthly_budgets WHERE category_id = c.id) 
-                                THEN NULL
-                           ELSE c.budget
+                           WHEN ? > ? THEN c.budget
+                           ELSE NULL
                        END as budget,
                        COALESCE((SELECT SUM(amount) FROM expenses WHERE category_id = c.id AND DATE_FORMAT(entry_date, '%Y-%m') = ?), 0) as spent
                 FROM user_categories c
                 WHERE c.user_id = ?
                 ORDER BY c.id ASC
             ");
-            $stmt->execute([$month, $month, $month, $month, $uid]);
+            $stmt->execute([$month, $month, $month, $current_month, $month, $uid]);
         } else {
             $stmt = $pdo->prepare("
                 SELECT c.id, c.category_name,
