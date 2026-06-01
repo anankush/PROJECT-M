@@ -61,6 +61,9 @@
 
 ## ✉️ Developer & Support
 
-For inquiries or professional updates:
+For inquiries or professional updates: [![LinkedIn](https://img.shields.io/badge/LinkedIn-Nayan-blue.svg?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan)
+Last Updated June 2026 
+Made With Love ❤️
+PROJECT M 
+MONEY MANAGEMENT SYSTEM 
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-itznayan-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan)
