@@ -1086,6 +1086,7 @@ async function editSectionBudget() {
             payload.month = targetMonth;
         } else {
             payload.months = targetMonths;
+            await new Promise(r => setTimeout(r, 200));
             const applyFuture = await Swal.fire({
                 title: 'Apply to Future?',
                 text: 'Do you want to apply this same budget for the future months as well?',
@@ -1119,6 +1120,7 @@ async function editSectionBudget() {
 async function triggerClearBudgetFlow() {
     if (!currentCategoryId) return;
 
+    await new Promise(r => setTimeout(r, 200));
     let clearAction = null;
     await Swal.fire({
         title: 'Clear Budget',
@@ -1158,6 +1160,7 @@ async function triggerClearBudgetFlow() {
 }
 
 async function executeClearBudget(type) {
+    await new Promise(r => setTimeout(r, 200));
     let payload = { category_id: currentCategoryId };
 
     if (type === 'monthly') {
