@@ -101,6 +101,11 @@ $base = '../';
             margin-bottom: 1rem;
             color: var(--text-primary);
         }
+        .chart-container-inner {
+            height: 320px;
+            width: 100%;
+            position: relative;
+        }
 
         
         .control-row {
@@ -171,6 +176,22 @@ $base = '../';
         @media (max-width: 768px) {
             .main-content {
                 padding-bottom: 5rem !important;
+            }
+            .admin-charts-grid {
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            .chart-wrapper {
+                padding: 1rem;
+                height: 320px;
+                border-radius: var(--radius-lg);
+            }
+            .chart-wrapper h3 {
+                font-size: 0.95rem;
+                margin-bottom: 0.75rem;
+            }
+            .chart-container-inner {
+                height: 240px;
             }
             .header-controls {
                 display: flex;
@@ -298,7 +319,7 @@ $base = '../';
                 <div class="admin-charts-grid">
                     <div class="chart-wrapper">
                         <h3>User Registrations & Logins Trend</h3>
-                        <div style="height:320px; width:100%; position:relative;">
+                        <div class="chart-container-inner">
                             <canvas id="registrationsChart"></canvas>
                         </div>
                     </div>
