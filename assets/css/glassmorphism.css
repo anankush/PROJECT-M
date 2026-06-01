@@ -999,6 +999,7 @@ body:has(.sidebar) {
 #appUI {
     display: flex;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
 }
 
@@ -1188,6 +1189,7 @@ select option {
 
     .main-content {
         padding: 1rem;
+        padding-bottom: 5rem;
     }
 
     .dashboard-header {

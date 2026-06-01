@@ -27,7 +27,7 @@ $base = '../';
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        #appUI { display: flex; width: 100%; height: 100vh; overflow: hidden; }
+        #appUI { display: flex; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; }
         
         .sidebar-bottom {
             margin-top: auto;
@@ -169,6 +169,9 @@ $base = '../';
         }
 
         @media (max-width: 768px) {
+            .main-content {
+                padding-bottom: 5rem !important;
+            }
             .header-controls {
                 display: flex;
                 justify-content: flex-end;
