@@ -1026,7 +1026,7 @@ async function editSectionBudget() {
 
         const confirmChoice = await Swal.fire({
             title: 'Are you sure?',
-            html: `This will set the budget for <strong>${currentCategoryName}</strong> for all months from <strong>${getMonthName(startMonth)} ${startMonth.split('-')[0]}</strong> to <strong>${getMonthName(currentMonthStr)} ${now.getFullYear()}</strong> (${monthsRange.length} month(s) total).<br><br>Past months' budgets in this range will be updated.`,
+            html: `This will set the budget for <strong>${currentCategoryName}</strong> for all months from <strong>${getMonthName(startMonth)} ${startMonth.split('-')[0]}</strong> to <strong>${getMonthName(currentMonthStr)} ${now.getFullYear()}</strong> (${monthsRange.length} month(s) total).`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, proceed',
