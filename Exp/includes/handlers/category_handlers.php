@@ -244,12 +244,20 @@ function handle_clear_category_budget($pdo) {
                     echo json_encode(['status' => 'error', 'message' => 'Clear range cannot exceed the current month']);
                     return;
                 }
-                $query = "DELETE FROM category_monthly_budgets WHERE user_id = ? AND category_id = ? AND budget_month BETWEEN ? AND ?";
-                $catModel->executeQuery($query, [$uid, $category_id, $start_month, $end_month]);
+                $stmt = $pdo->prepare("DELETE FROM category_monthly_budgets WHERE user_id = ? AND category_id = ? AND budget_month BETWEEN ? AND ?");
+                $stmt->execute([$uid, $category_id, $start_month, $end_month]);
+                if ($stmt->rowCount() === 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'No custom budget records found in the selected range to clear']);
+                    return;
+                }
                 echo json_encode(['status' => 'success', 'message' => 'Range budgets cleared successfully']);
             } elseif (!empty($month)) {
-                $query = "DELETE FROM category_monthly_budgets WHERE user_id = ? AND category_id = ? AND budget_month = ?";
-                $catModel->executeQuery($query, [$uid, $category_id, $month]);
+                $stmt = $pdo->prepare("DELETE FROM category_monthly_budgets WHERE user_id = ? AND category_id = ? AND budget_month = ?");
+                $stmt->execute([$uid, $category_id, $month]);
+                if ($stmt->rowCount() === 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'No custom budget record found for the selected month to clear']);
+                    return;
+                }
                 echo json_encode(['status' => 'success', 'message' => 'Monthly budget cleared successfully']);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid clear request']);
