@@ -1095,7 +1095,7 @@ async function editSectionBudget() {
 async function triggerClearBudgetFlow() {
     if (!currentCategoryId) return;
 
-    const clearChoice = await Swal.fire({
+    await Swal.fire({
         title: 'Clear Budget',
         text: `Choose how you want to clear the budget for ${currentCategoryName}:`,
         icon: 'warning',
@@ -1111,18 +1111,27 @@ async function triggerClearBudgetFlow() {
         showDenyButton: false,
         showCancelButton: false,
         didOpen: () => {
-            document.getElementById('btn-clear-monthly').addEventListener('click', () => Swal.clickConfirm());
-            document.getElementById('btn-clear-overall').addEventListener('click', () => Swal.clickDeny());
-            document.getElementById('btn-clear-all').addEventListener('click', () => Swal.clickCancel());
+            document.getElementById('btn-clear-monthly').addEventListener('click', () => {
+                Swal.close();
+                executeClearBudget('monthly');
+            });
+            document.getElementById('btn-clear-overall').addEventListener('click', () => {
+                Swal.close();
+                executeClearBudget('overall');
+            });
+            document.getElementById('btn-clear-all').addEventListener('click', () => {
+                Swal.close();
+                executeClearBudget('all');
+            });
             document.getElementById('btn-clear-back').addEventListener('click', () => Swal.close());
         }
     });
+}
 
-    if (clearChoice.isDismissed) return;
-
+async function executeClearBudget(type) {
     let payload = { category_id: currentCategoryId };
 
-    if (clearChoice.isConfirmed) {
+    if (type === 'monthly') {
         const defaultMonth = document.getElementById('monthFilter') ? document.getElementById('monthFilter').value : '';
         const monthPrompt = await Swal.fire({
             title: 'Select Month to Clear',
@@ -1153,9 +1162,9 @@ async function triggerClearBudgetFlow() {
 
         if (!monthPrompt.isConfirmed) return;
         payload.month = monthPrompt.value;
-    } else if (clearChoice.isDenied) {
+    } else if (type === 'overall') {
         payload.overall = true;
-    } else if (clearChoice.dismiss === Swal.DismissReason.cancel) {
+    } else if (type === 'all') {
         payload.clear_all_section = true;
     } else {
         return;
@@ -1173,18 +1182,22 @@ async function triggerClearBudgetFlow() {
 
     if (!confirmClear.isConfirmed) return;
 
-    const res = await fetch(`${API_URL}?action=clear_category_budget`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
-        body: JSON.stringify(payload)
-    });
-    const result = await res.json();
-    if (result.status === 'success') {
-        await fetchCategories();
-        if (currentCategoryId) loadCategory(currentCategoryId, currentCategoryName);
-        Swal.fire('Cleared!', result.message, 'success');
-    } else {
-        Swal.fire('Error', result.message, 'error');
+    try {
+        const res = await fetch(`${API_URL}?action=clear_category_budget`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.status === 'success') {
+            await fetchCategories();
+            if (currentCategoryId) loadCategory(currentCategoryId, currentCategoryName);
+            Swal.fire('Cleared!', result.message, 'success');
+        } else {
+            Swal.fire('Error', result.message, 'error');
+        }
+    } catch (e) {
+        Swal.fire('Error', 'Communication failed with server.', 'error');
     }
 }
 
