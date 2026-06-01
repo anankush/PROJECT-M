@@ -1,5 +1,6 @@
 # 📊 Project M — Money Management
 
+[![Website](https://img.shields.io/badge/Website-Live-success.svg?style=for-the-badge&logo=google-chrome)](http://moneymgmt.is-best.net/)
 [![PHP Version](https://img.shields.io/badge/PHP-8.0%2B-777bb4.svg?style=for-the-badge&logo=php)](https://www.php.net/)
 [![Database](https://img.shields.io/badge/Database-MySQL-4479A1.svg?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge)](#)
@@ -7,6 +8,9 @@
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Nayan-blue.svg?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan)
 
 **Project M** is a premium, proprietary personal finance command center designed to help users track expenses, set savings goals, and master their financial life with elegance. Featuring a custom glassmorphism user interface, the application delivers rich real-time analytics and detailed tracking metrics without compromising on security or performance.
+
+🔗 **Live Website:** [moneymgmt.is-best.net](http://moneymgmt.is-best.net/)
+
 
 ---
 
