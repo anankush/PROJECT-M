@@ -232,6 +232,19 @@ function handle_clear_category_budget($pdo) {
             verify_ownership($pdo, 'user_categories', $category_id, $uid, 'clear_category_budget');
 
             if ($clear_all_section) {
+                $stmt_check = $pdo->prepare("
+                    SELECT 
+                        (SELECT COUNT(*) FROM category_monthly_budgets WHERE user_id = ? AND category_id = ?) as custom_count,
+                        (SELECT budget FROM user_categories WHERE id = ? AND user_id = ?) as default_budget
+                ");
+                $stmt_check->execute([$uid, $category_id, $category_id, $uid]);
+                $chk = $stmt_check->fetch();
+                $has_custom = intval($chk['custom_count'] ?? 0) > 0;
+                $has_default = ($chk['default_budget'] !== null);
+                if (!$has_custom && !$has_default) {
+                    echo json_encode(['status' => 'error', 'message' => 'No budget configuration found to clear for this section']);
+                    return;
+                }
                 $pdo->beginTransaction();
                 $query_monthly = "DELETE FROM category_monthly_budgets WHERE user_id = ? AND category_id = ?";
                 $catModel->executeQuery($query_monthly, [$uid, $category_id]);
