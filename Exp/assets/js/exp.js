@@ -876,33 +876,34 @@ function showBudgetManageInfo() {
     });
 }
 
+function getMonthName(monthStr) {
+    if (!monthStr) return '';
+    const [y, m] = monthStr.split('-');
+    return new Date(y, m - 1).toLocaleString('default', { month: 'long' });
+}
+
+function getMonthsRange(startStr, endStr) {
+    const months = [];
+    let [startYear, startMonth] = startStr.split('-').map(Number);
+    let [endYear, endMonth] = endStr.split('-').map(Number);
+
+    let currentYear = startYear;
+    let currentMonth = startMonth;
+
+    while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
+        const monthStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+        months.push(monthStr);
+        currentMonth++;
+        if (currentMonth > 12) {
+            currentMonth = 1;
+            currentYear++;
+        }
+    }
+    return months;
+}
+
 async function editSectionBudget() {
     if (!currentCategoryId) { Swal.fire('Info', 'Please select a section first.', 'info'); return; }
-
-    function getMonthName(monthStr) {
-        const [y, m] = monthStr.split('-');
-        return new Date(y, m - 1).toLocaleString('default', { month: 'long' });
-    }
-
-    function getMonthsRange(startStr, endStr) {
-        const months = [];
-        let [startYear, startMonth] = startStr.split('-').map(Number);
-        let [endYear, endMonth] = endStr.split('-').map(Number);
-
-        let currentYear = startYear;
-        let currentMonth = startMonth;
-
-        while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
-            const monthStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-            months.push(monthStr);
-            currentMonth++;
-            if (currentMonth > 12) {
-                currentMonth = 1;
-                currentYear++;
-            }
-        }
-        return months;
-    }
 
     let actionType = null;
     const choice = await Swal.fire({
