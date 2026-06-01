@@ -240,6 +240,11 @@ $base = '../';
                         <i class="fas fa-history"></i> Security Logs
                     </button>
                 </li>
+                <li>
+                    <button class="category-tab" id="tab-shield" onclick="switchTab('shield')">
+                        <i class="fas fa-shield-alt"></i> Email Shield
+                    </button>
+                </li>
             </ul>
 
             <div class="sidebar-bottom">
@@ -403,6 +408,59 @@ $base = '../';
                     </table>
                 </div>
             </section>
+
+            <!-- 4. VIEW: EMAIL SHIELD -->
+            <section class="admin-view" id="view-shield">
+                <div class="dashboard-header">
+                    <div class="header-left">
+                        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                        <h1>Email Security Shield</h1>
+                    </div>
+                </div>
+
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card">
+                        <div class="stat-card-icon" style="background:rgba(139, 92, 246, 0.15); color:var(--aurora-1);">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <span class="metric-label">Total Blocked Domains</span>
+                            <div class="metric-value" id="shield-total-domains"><i class="fas fa-circle-notch fa-spin fa-xs"></i></div>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card" style="grid-column: span 2;">
+                        <div class="stat-card-icon" style="background:rgba(16, 185, 129, 0.15); color:var(--success);">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div style="width: calc(100% - 60px);">
+                            <span class="metric-label">Last Blocklist Sync</span>
+                            <div class="metric-value font-mono" id="shield-last-sync" style="font-size:1.15rem; margin-top:4px;"><i class="fas fa-circle-notch fa-spin fa-xs"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-row" style="margin-bottom: 2rem;">
+                    <button class="btn btn-primary" onclick="syncLiveBlocklist()" style="background: linear-gradient(135deg, var(--aurora-1), var(--aurora-deep)); display: flex; align-items: center; gap: 8px; padding: 0.75rem 1.5rem; font-weight: 600;">
+                        <i class="fas fa-sync-alt" id="syncShieldIcon"></i> Sync Live Blocklist
+                    </button>
+                </div>
+
+                <div class="glass-card" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 2rem; margin-top: 1rem;">
+                    <h3 style="font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">
+                        <i class="fas fa-search-location" style="color: var(--aurora-1); margin-right: 8px;"></i> Live Domain Lookup
+                    </h3>
+                    <p class="text-secondary" style="font-size: 0.85rem; margin-bottom: 1.5rem;">
+                        Verify whether a particular email domain is currently blacklisted and blocked by the Security Shield.
+                    </p>
+                    <div style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
+                        <input type="text" id="shieldDomainInput" placeholder="e.g. yopmail.com" class="theme-input-select" style="flex: 1; min-width: 250px; height: 44px; padding: 0.75rem 1rem; border-radius: 8px;">
+                        <button class="btn btn-primary" onclick="checkDomainShield()" style="height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 1.5rem; font-weight: 600;">
+                            <i class="fas fa-search" style="margin-right: 6px;"></i> Lookup Domain
+                        </button>
+                    </div>
+                    <div id="shieldCheckResult" style="margin-top: 1.5rem; display: none; font-weight: 600; padding: 1rem; border-radius: 8px; font-size: 0.9rem;"></div>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -466,6 +524,8 @@ $base = '../';
                 fetchUsers();
             } else if (tabId === 'logs') {
                 fetchLogs();
+            } else if (tabId === 'shield') {
+                fetchShieldStatus();
             }
         }
 
@@ -772,6 +832,139 @@ $base = '../';
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
+        }
+
+        async function fetchShieldStatus() {
+            try {
+                const res = await fetch(`${API_URL}?action=get_blocklist_status`);
+                const data = await res.json();
+                if (data.status === 'success') {
+                    document.getElementById('shield-total-domains').innerText = new Intl.NumberFormat().format(data.count);
+                    document.getElementById('shield-last-sync').innerText = data.last_sync;
+                }
+            } catch (e) {
+                console.error("Failed to load Shield status", e);
+            }
+        }
+
+        async function syncLiveBlocklist() {
+            const syncIcon = document.getElementById('syncShieldIcon');
+            if (syncIcon) syncIcon.classList.add('fa-spin');
+            
+            Swal.fire({
+                title: 'Syncing Live Blocklist...',
+                text: 'Downloading latest disposable domains from raw.githubusercontent.com and updating cache...',
+                background: 'var(--glass-bg)',
+                color: 'var(--text-primary)',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const res = await fetch(`${API_URL}?action=sync_email_blocklist`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': CSRF_TOKEN
+                    }
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sync Completed!',
+                        text: `${data.message} Total domains in blocklist: ${new Intl.NumberFormat().format(data.count)}`,
+                        background: 'var(--glass-bg)',
+                        color: 'var(--text-primary)',
+                        confirmButtonColor: 'var(--aurora-1)'
+                    });
+                    document.getElementById('shield-total-domains').innerText = new Intl.NumberFormat().format(data.count);
+                    document.getElementById('shield-last-sync').innerText = data.last_sync;
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Sync Failed',
+                        text: data.message,
+                        background: 'var(--glass-bg)',
+                        color: 'var(--text-primary)',
+                        confirmButtonColor: 'var(--aurora-1)'
+                    });
+                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Network Error',
+                    text: 'An unexpected connection error occurred while syncing.',
+                    background: 'var(--glass-bg)',
+                    color: 'var(--text-primary)',
+                    confirmButtonColor: 'var(--aurora-1)'
+                });
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('fa-spin');
+            }
+        }
+
+        async function checkDomainShield() {
+            const domainInput = document.getElementById('shieldDomainInput').value.trim().toLowerCase();
+            const resultDiv = document.getElementById('shieldCheckResult');
+            if (!domainInput) return;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = '';
+            resultDiv.style.background = 'rgba(255, 255, 255, 0.05)';
+            resultDiv.style.color = 'var(--text-secondary)';
+            resultDiv.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Searching in live blocklist...';
+            
+            try {
+                // Check via Kickbox API first for real-time
+                const response = await fetch(`https://open.kickbox.com/v1/disposable/${domainInput}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && typeof data.disposable !== 'undefined') {
+                        if (data.disposable) {
+                            resultDiv.style.background = 'rgba(239, 68, 68, 0.15)';
+                            resultDiv.style.color = 'var(--danger)';
+                            resultDiv.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+                            resultDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> DANGER: <strong>${escapeHtml(domainInput)}</strong> is flagged as a DISPOSABLE/TEMP mail domain. Registers will be blocked!`;
+                            return;
+                        }
+                    }
+                }
+                
+                // Fallback: search in local/GitHub cached blocklist
+                let blocklist = localStorage.getItem('disposable_email_blocklist');
+                if (!blocklist) {
+                    const listResponse = await fetch('https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/master/disposable_email_blocklist.conf');
+                    if (listResponse.ok) {
+                        blocklist = await listResponse.text();
+                        localStorage.setItem('disposable_email_blocklist', blocklist);
+                        localStorage.setItem('disposable_email_blocklist_time', Date.now().toString());
+                    }
+                }
+                
+                if (blocklist) {
+                    const domains = blocklist.split('\n').map(d => d.trim().toLowerCase()).filter(Boolean);
+                    if (domains.includes(domainInput)) {
+                        resultDiv.style.background = 'rgba(239, 68, 68, 0.15)';
+                        resultDiv.style.color = 'var(--danger)';
+                        resultDiv.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+                        resultDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> DANGER: <strong>${escapeHtml(domainInput)}</strong> is found in the blocklist. Registers will be blocked!`;
+                        return;
+                    }
+                }
+                
+                resultDiv.style.background = 'rgba(16, 185, 129, 0.15)';
+                resultDiv.style.color = 'var(--success)';
+                resultDiv.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+                resultDiv.innerHTML = `<i class="fas fa-check-circle"></i> SAFE: <strong>${escapeHtml(domainInput)}</strong> is not in the blocklist. Registers allowed!`;
+                
+            } catch (e) {
+                resultDiv.style.background = 'rgba(239, 68, 68, 0.15)';
+                resultDiv.style.color = 'var(--danger)';
+                resultDiv.innerHTML = '<i class="fas fa-times-circle"></i> Failed to query blocklist. Try again later.';
+            }
         }
     </script>
 </body>

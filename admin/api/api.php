@@ -186,6 +186,65 @@ switch ($action) {
         }
         break;
 
+    case 'get_blocklist_status':
+        $cache_file = __DIR__ . '/../../includes/disposable_domains.txt';
+        $exists = file_exists($cache_file);
+        $count = 0;
+        $last_sync = 'Never';
+        
+        if ($exists) {
+            $lines = file($cache_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            $count = is_array($lines) ? count($lines) : 0;
+            $last_sync = date('Y-m-d H:i:s', filemtime($cache_file));
+        }
+        
+        echo json_encode([
+            'status' => 'success',
+            'exists' => $exists,
+            'count' => $count,
+            'last_sync' => $last_sync
+        ]);
+        break;
+
+    case 'sync_email_blocklist':
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'POST method required']);
+            exit;
+        }
+        
+        $cache_file = __DIR__ . '/../../includes/disposable_domains.txt';
+        $url = 'https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/master/disposable_email_blocklist.conf';
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        $list = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($list && $http_code === 200) {
+            $bytes = @file_put_contents($cache_file, $list);
+            if ($bytes !== false) {
+                $lines = file($cache_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                echo json_encode([
+                     'status' => 'success', 
+                     'message' => 'Live blocklist synced successfully!',
+                     'count' => is_array($lines) ? count($lines) : 0,
+                     'last_sync' => date('Y-m-d H:i:s', filemtime($cache_file))
+                ]);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to save blocklist locally. Permission error?']);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to fetch blocklist from live source. Check outbound internet connection.']);
+        }
+        break;
+
     default:
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
         break;

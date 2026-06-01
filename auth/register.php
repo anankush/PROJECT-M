@@ -27,6 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if (is_disposable_email($email)) {
+        log_security_event($pdo, $email, 'bypass_tempmail_attempt');
+        echo json_encode(['status' => 'error', 'message' => 'Temporary / Disposable email addresses are not allowed. Please use a real email provider.']);
+        exit;
+    }
+
     if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/', $password)) {
         echo json_encode(['status' => 'error', 'message' => 'Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character']);
         exit;
@@ -71,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php echo get_csrf_meta_tag(); ?>
     <link rel="stylesheet" href="../assets/css/glassmorphism.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="../assets/css/auth.css?v=<?php echo time(); ?>">
+    <script src="../assets/js/email_validator.js?v=<?php echo time(); ?>"></script>
 </head>
 
 <body>
@@ -130,8 +137,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             btn.innerHTML = 'Sending OTP...';
             btn.disabled = true;
 
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+
+            try {
+                btn.innerHTML = 'Verifying Email...';
+                const isTemp = await isDisposableEmail(email);
+                if (isTemp) {
+                    showToast('Temporary / Disposable email addresses are not allowed.', 'error');
+                    btn.innerHTML = 'Send OTP';
+                    btn.disabled = false;
+                    return;
+                }
+            } catch (err) {
+                console.error("Email verification skipped due to error:", err);
+            }
+
+            btn.innerHTML = 'Sending OTP...';
 
             try {
                 const res = await fetch('register.php', {

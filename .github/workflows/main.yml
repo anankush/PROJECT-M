@@ -14,6 +14,9 @@ jobs:
     - name: Get latest code
       uses: actions/checkout@v3
 
+    - name: Download latest disposable email list
+      run: curl -s "https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/master/disposable_email_blocklist.conf" -o includes/disposable_domains.txt
+
     - name: Inject Secrets
       run: |
         cat << 'ENDOFFILE' > includes/secrets.php
