@@ -48,6 +48,9 @@ switch ($action) {
     case 'update_category_budget':
         handle_update_category_budget($pdo);
         break;
+    case 'clear_category_budget':
+        handle_clear_category_budget($pdo);
+        break;
     case 'get_user_categories_admin':
         handle_get_user_categories_admin($pdo);
         break;

@@ -906,15 +906,14 @@ async function editSectionBudget() {
 
     const choice = await Swal.fire({
         title: 'Budget Type',
-        text: 'Do you want to set this budget for the overall section, or just for a specific month?',
+        text: 'Do you want to manage this budget for the overall section, or just for a specific month?',
         icon: 'question',
         html: `
-                    <div style="display:flex; flex-direction:column; gap:15px; margin-top:20px; align-items:center; width:100%;">
-                        <div style="display:flex; gap:15px; width:100%; justify-content:center;">
-                            <button type="button" id="btn-swal-monthly" class="btn btn-primary" style="flex:1; max-width:180px; justify-content:center; padding: 0.75rem;">Specific Month</button>
-                            <button type="button" id="btn-swal-overall" class="btn btn-ghost" style="flex:1; max-width:180px; justify-content:center; padding: 0.75rem; background:rgba(99, 102, 241, 0.15); border:1px solid rgba(99, 102, 241, 0.3); color:#818cf8;">Overall</button>
-                        </div>
-                        <button type="button" id="btn-swal-back" class="btn btn-ghost" style="width:120px; font-size:0.85rem; padding:0.4rem 1rem; justify-content:center; border-color:rgba(255,255,255,0.15);">Back</button>
+                    <div style="display:flex; flex-direction:column; gap:12px; margin-top:20px; align-items:center; width:100%;">
+                        <button type="button" id="btn-swal-monthly" class="btn btn-primary" style="width:100%; max-width:240px; justify-content:center; padding: 0.75rem;">Specific Month</button>
+                        <button type="button" id="btn-swal-overall" class="btn btn-ghost" style="width:100%; max-width:240px; justify-content:center; padding: 0.75rem; background:rgba(99, 102, 241, 0.15); border:1px solid rgba(99, 102, 241, 0.3); color:#818cf8;">Overall</button>
+                        <button type="button" id="btn-swal-clear" class="btn btn-danger" style="width:100%; max-width:240px; justify-content:center; padding: 0.75rem; background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.3); color:#ef4444;">Clear Budget</button>
+                        <button type="button" id="btn-swal-back" class="btn btn-ghost" style="width:120px; font-size:0.85rem; padding:0.4rem 1rem; justify-content:center; border-color:rgba(255,255,255,0.15); margin-top:10px;">Back</button>
                     </div>
                 `,
         showConfirmButton: false,
@@ -923,6 +922,10 @@ async function editSectionBudget() {
         didOpen: () => {
             document.getElementById('btn-swal-monthly').addEventListener('click', () => Swal.clickConfirm());
             document.getElementById('btn-swal-overall').addEventListener('click', () => Swal.clickDeny());
+            document.getElementById('btn-swal-clear').addEventListener('click', () => {
+                Swal.close();
+                triggerClearBudgetFlow();
+            });
             document.getElementById('btn-swal-back').addEventListener('click', () => Swal.clickCancel());
         }
     });
@@ -1086,6 +1089,102 @@ async function editSectionBudget() {
         } else {
             Swal.fire('Error', result.message, 'error');
         }
+    }
+}
+
+async function triggerClearBudgetFlow() {
+    if (!currentCategoryId) return;
+
+    const clearChoice = await Swal.fire({
+        title: 'Clear Budget',
+        text: `Choose how you want to clear the budget for ${currentCategoryName}:`,
+        icon: 'warning',
+        html: `
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px; align-items:center; width:100%;">
+                <button type="button" id="btn-clear-monthly" class="btn btn-primary" style="width:100%; max-width:240px; justify-content:center; padding: 0.75rem;">Specific Month Budget</button>
+                <button type="button" id="btn-clear-overall" class="btn btn-ghost" style="width:100%; max-width:240px; justify-content:center; padding: 0.75rem; background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3); color:#f59e0b;">Overall Default Budget</button>
+                <button type="button" id="btn-clear-all" class="btn btn-danger" style="width:100%; max-width:240px; justify-content:center; padding: 0.75rem; background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.3); color:#ef4444;">Clear Everything</button>
+                <button type="button" id="btn-clear-back" class="btn btn-ghost" style="width:120px; font-size:0.85rem; padding:0.4rem 1rem; justify-content:center; border-color:rgba(255,255,255,0.15); margin-top:10px;">Back</button>
+            </div>
+        `,
+        showConfirmButton: false,
+        showDenyButton: false,
+        showCancelButton: false,
+        didOpen: () => {
+            document.getElementById('btn-clear-monthly').addEventListener('click', () => Swal.clickConfirm());
+            document.getElementById('btn-clear-overall').addEventListener('click', () => Swal.clickDeny());
+            document.getElementById('btn-clear-all').addEventListener('click', () => Swal.clickCancel());
+            document.getElementById('btn-clear-back').addEventListener('click', () => Swal.close());
+        }
+    });
+
+    if (clearChoice.isDismissed) return;
+
+    let payload = { category_id: currentCategoryId };
+
+    if (clearChoice.isConfirmed) {
+        const defaultMonth = document.getElementById('monthFilter') ? document.getElementById('monthFilter').value : '';
+        const monthPrompt = await Swal.fire({
+            title: 'Select Month to Clear',
+            html: `<input type="text" id="swalClearMonthInput" class="theme-input-select swal-input" placeholder="Select Month" readonly style="text-align:center;">`,
+            showCancelButton: true,
+            confirmButtonText: 'Clear',
+            confirmButtonColor: '#ef4444',
+            didOpen: () => {
+                flatpickr("#swalClearMonthInput", {
+                    plugins: [
+                        new monthSelectPlugin({
+                            shorthand: true,
+                            dateFormat: "Y-m",
+                            altFormat: "F Y",
+                            theme: "dark"
+                        })
+                    ],
+                    disableMobile: "true",
+                    defaultDate: defaultMonth || null
+                });
+            },
+            preConfirm: () => {
+                const val = document.getElementById('swalClearMonthInput').value;
+                if (!val) { Swal.showValidationMessage('Please select a month'); return false; }
+                return val;
+            }
+        });
+
+        if (!monthPrompt.isConfirmed) return;
+        payload.month = monthPrompt.value;
+    } else if (clearChoice.isDenied) {
+        payload.overall = true;
+    } else if (clearChoice.dismiss === Swal.DismissReason.cancel) {
+        payload.clear_all_section = true;
+    } else {
+        return;
+    }
+
+    const confirmClear = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'This action will permanently delete the selected budget configuration!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, clear it!',
+        confirmButtonColor: '#ef4444',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (!confirmClear.isConfirmed) return;
+
+    const res = await fetch(`${API_URL}?action=clear_category_budget`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+        body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+        await fetchCategories();
+        if (currentCategoryId) loadCategory(currentCategoryId, currentCategoryName);
+        Swal.fire('Cleared!', result.message, 'success');
+    } else {
+        Swal.fire('Error', result.message, 'error');
     }
 }
 

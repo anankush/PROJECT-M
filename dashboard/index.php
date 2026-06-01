@@ -64,7 +64,8 @@ set_security_headers();
                 <button class="btn btn-ghost" id="openSettingsBtn" onclick="openGlobalSettings()">
                     <i class="fas fa-cog"></i> <span class="hide-mobile">Settings</span>
                 </button>
-                <a href="<?php echo get_logout_url('../'); ?>" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <a href="<?php echo get_logout_url('../'); ?>" class="btn btn-danger"><i
+                        class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </header>
 
@@ -127,56 +128,69 @@ set_security_headers();
 
         <!-- Module Navigation Cards -->
         <div class="module-cards fadeInUp stagger-2">
-            <a href="#" onclick="navigateSecurely('exp'); return false;" class="glass-card module-card exp-module" id="expModuleLink">
+            <a href="#" onclick="navigateSecurely('exp'); return false;" class="glass-card module-card exp-module"
+                id="expModuleLink">
                 <i class="fas fa-wallet"></i>
                 <h3>Expense Management</h3>
-                <p class="text-secondary">Track, categorize, and analyze your daily expenses.</p>
+                <p class="text-secondary">Track, categorize, and analyze your daily expenses</p>
                 <div class="btn btn-ghost" style="margin-top:auto;"> Expense Panel <i class="fas fa-arrow-right"></i>
                 </div>
             </a>
-            <a href="#" onclick="navigateSecurely('sav'); return false;" class="glass-card module-card sav-module" id="savModuleLink">
+            <a href="#" onclick="navigateSecurely('sav'); return false;" class="glass-card module-card sav-module"
+                id="savModuleLink">
                 <i class="fas fa-piggy-bank"></i>
                 <h3>Savings Management</h3>
-                <p class="text-secondary">Set goals, track deposits, and achieve financial freedom.</p>
+                <p class="text-secondary">Set goals, track deposits, and achieve financial freedom</p>
                 <div class="btn btn-ghost" style="margin-top:auto;"> Savings Panel <i class="fas fa-arrow-right"></i>
                 </div>
             </a>
         </div>
 
         <!-- New Goal Progress & Alerts Section -->
-        <div class="dashboard-widgets fadeInUp stagger-3" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+        <div class="dashboard-widgets fadeInUp stagger-3"
+            style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 3rem;">
             <!-- Active Savings Goals -->
             <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
-                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                <h3
+                    style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
                     <i class="fas fa-bullseye" style="color: var(--aurora-1);"></i> Active Savings Goals
                 </h3>
-                <div id="goalsProgressList" style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; max-height: 220px; padding-right: 4px;">
-                    <div style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i> Loading goals...</div>
+                <div id="goalsProgressList"
+                    style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; max-height: 220px; padding-right: 4px;">
+                    <div style="text-align:center; padding:2rem; color:var(--text-muted);"><i
+                            class="fas fa-circle-notch fa-spin"></i> Loading goals...</div>
                 </div>
             </div>
-            
+
             <!-- Upcoming Deadlines -->
             <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
-                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                <h3
+                    style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
                     <i class="fas fa-hourglass-half" style="color: var(--danger);"></i> Upcoming Deadlines
                 </h3>
-                <div id="upcomingDeadlinesList" style="display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 220px; padding-right: 4px;">
-                    <div style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i> Loading deadlines...</div>
+                <div id="upcomingDeadlinesList"
+                    style="display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 220px; padding-right: 4px;">
+                    <div style="text-align:center; padding:2rem; color:var(--text-muted);"><i
+                            class="fas fa-circle-notch fa-spin"></i> Loading deadlines...</div>
                 </div>
             </div>
         </div>
 
         <!-- Financial Charts -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:10px;" class="fadeInUp stagger-3">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:10px;"
+            class="fadeInUp stagger-3">
             <h2 style="margin:0;">Financial Overview
                 <span id="chartMonthLabel"
                     style="font-size:0.85rem; color:var(--text-muted); margin-left:0.75rem; font-weight:400;">(All-Time)</span>
             </h2>
             <div style="display:flex; align-items:center; gap:10px;">
-                <select id="dashboardMonthFilter" class="theme-input-select" style="padding: 0.4rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-primary); font-size: 0.85rem; outline: none; height: auto;" onchange="filterDashboardByMonth(this.value)">
+                <select id="dashboardMonthFilter" class="theme-input-select"
+                    style="padding: 0.4rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-primary); font-size: 0.85rem; outline: none; height: auto;"
+                    onchange="filterDashboardByMonth(this.value)">
                     <option value="all">All-Time</option>
                 </select>
-                <button id="resetFilterBtn" class="btn btn-ghost" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; display:none;" onclick="resetDashboardFilter()">
+                <button id="resetFilterBtn" class="btn btn-ghost"
+                    style="font-size: 0.8rem; padding: 0.4rem 0.8rem; display:none;" onclick="resetDashboardFilter()">
                     <i class="fas fa-times-circle"></i> Clear Filter
                 </button>
             </div>
@@ -216,7 +230,10 @@ set_security_headers();
                             </tr>
                         </thead>
                         <tbody id="summaryTableBody">
-                            <tr><td colspan="4" style="text-align:center; padding:2rem;"><i class="fas fa-circle-notch fa-spin"></i> Loading...</td></tr>
+                            <tr>
+                                <td colspan="4" style="text-align:center; padding:2rem;"><i
+                                        class="fas fa-circle-notch fa-spin"></i> Loading...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -226,10 +243,13 @@ set_security_headers();
             <div class="glass-card details-card recent-tx-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                     <h3 style="margin: 0;">Recent Transactions</h3>
-                    <a href="#" onclick="navigateSecurely('exp'); return false;" class="btn btn-ghost" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">View All <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" onclick="navigateSecurely('exp'); return false;" class="btn btn-ghost"
+                        style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">View All <i
+                            class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="transaction-list" id="recentTransactionsList">
-                    <div style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>
+                    <div style="text-align:center; padding:2rem; color:var(--text-muted);"><i
+                            class="fas fa-circle-notch fa-spin"></i> Loading...</div>
                 </div>
             </div>
         </div>

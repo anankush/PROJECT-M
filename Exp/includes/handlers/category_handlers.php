@@ -15,6 +15,7 @@ function handle_get_categories($pdo) {
             $query = "
                 SELECT c.id, c.user_id, c.category_name,
                        COALESCE(mb.budget, c.budget) as budget,
+                       mb.budget as monthly_budget,
                        c.created_at
                 FROM user_categories c
                 LEFT JOIN category_monthly_budgets mb ON c.id = mb.category_id AND mb.budget_month = ?
@@ -192,6 +193,58 @@ function handle_update_category_budget($pdo) {
             $pdo->rollBack();
         }
         echo json_encode(['status' => 'error', 'message' => 'Failed to update budget.']);
+    }
+}
+
+function handle_clear_category_budget($pdo) {
+    $uid = $_SESSION['user_id'] ?? null;
+    $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
+
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if ($is_admin && isset($input['target_user_id'])) {
+        $uid = verify_decoded_id($pdo, sanitize_input($input['target_user_id']), 'clear_category_budget');
+    } elseif (!$uid && !$is_admin) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        return;
+    }
+
+    $category_id = sanitize_input($input['category_id'] ?? '');
+    $month = sanitize_input($input['month'] ?? '');
+    $clear_all_section = isset($input['clear_all_section']) && $input['clear_all_section'] === true;
+    $overall = isset($input['overall']) && $input['overall'] === true;
+
+    try {
+        $catModel = new Model($pdo, 'user_categories', $uid);
+
+        if (!empty($category_id)) {
+            verify_ownership($pdo, 'user_categories', $category_id, $uid, 'clear_category_budget');
+
+            if ($clear_all_section) {
+                $pdo->beginTransaction();
+                $query_monthly = "DELETE FROM category_monthly_budgets WHERE user_id = ? AND category_id = ?";
+                $catModel->executeQuery($query_monthly, [$uid, $category_id]);
+                $catModel->update($category_id, ['budget' => null]);
+                $pdo->commit();
+                echo json_encode(['status' => 'success', 'message' => 'All budgets cleared successfully']);
+            } elseif (!empty($month)) {
+                $query = "DELETE FROM category_monthly_budgets WHERE user_id = ? AND category_id = ? AND budget_month = ?";
+                $catModel->executeQuery($query, [$uid, $category_id, $month]);
+                echo json_encode(['status' => 'success', 'message' => 'Monthly budget cleared successfully']);
+            } elseif ($overall) {
+                $catModel->update($category_id, ['budget' => null]);
+                echo json_encode(['status' => 'success', 'message' => 'Overall budget cleared successfully']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid clear request']);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Required parameters missing']);
+        }
+    } catch (PDOException $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        echo json_encode(['status' => 'error', 'message' => 'Failed to clear budget.']);
     }
 }
 
