@@ -166,6 +166,8 @@ function handle_update_category_budget($pdo) {
     $month = sanitize_input($input['month'] ?? '');
     $months = $input['months'] ?? null;
 
+    $overall_default = isset($input['overall_default']) && $input['overall_default'] === true;
+
     if (empty($category_id) || !isset($input['budget'])) {
         echo json_encode(['status' => 'error', 'message' => 'Category ID and budget are required']);
         return;
@@ -179,6 +181,9 @@ function handle_update_category_budget($pdo) {
             foreach ($months as $m) {
                 $m_sanitized = sanitize_input($m);
                 $catModel->executeQuery($query, [$uid, $category_id, $m_sanitized, $budget]);
+            }
+            if ($overall_default) {
+                $catModel->update($category_id, ['budget' => $budget]);
             }
             $pdo->commit();
         } elseif (!empty($month)) {
@@ -211,8 +216,9 @@ function handle_clear_category_budget($pdo) {
 
     $category_id = sanitize_input($input['category_id'] ?? '');
     $month = sanitize_input($input['month'] ?? '');
+    $start_month = sanitize_input($input['start_month'] ?? '');
+    $end_month = sanitize_input($input['end_month'] ?? '');
     $clear_all_section = isset($input['clear_all_section']) && $input['clear_all_section'] === true;
-    $overall = isset($input['overall']) && $input['overall'] === true;
 
     try {
         $catModel = new Model($pdo, 'user_categories', $uid);
@@ -227,13 +233,19 @@ function handle_clear_category_budget($pdo) {
                 $catModel->update($category_id, ['budget' => null]);
                 $pdo->commit();
                 echo json_encode(['status' => 'success', 'message' => 'All budgets cleared successfully']);
+            } elseif (!empty($start_month) && !empty($end_month)) {
+                $current_month = date('Y-m');
+                if ($start_month > $current_month || $end_month > $current_month) {
+                    echo json_encode(['status' => 'error', 'message' => 'Clear range cannot exceed the current month']);
+                    return;
+                }
+                $query = "DELETE FROM category_monthly_budgets WHERE user_id = ? AND category_id = ? AND budget_month BETWEEN ? AND ?";
+                $catModel->executeQuery($query, [$uid, $category_id, $start_month, $end_month]);
+                echo json_encode(['status' => 'success', 'message' => 'Range budgets cleared successfully']);
             } elseif (!empty($month)) {
                 $query = "DELETE FROM category_monthly_budgets WHERE user_id = ? AND category_id = ? AND budget_month = ?";
                 $catModel->executeQuery($query, [$uid, $category_id, $month]);
                 echo json_encode(['status' => 'success', 'message' => 'Monthly budget cleared successfully']);
-            } elseif ($overall) {
-                $catModel->update($category_id, ['budget' => null]);
-                echo json_encode(['status' => 'success', 'message' => 'Overall budget cleared successfully']);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid clear request']);
             }

@@ -904,6 +904,7 @@ async function editSectionBudget() {
         return months;
     }
 
+    let actionType = null;
     const choice = await Swal.fire({
         title: 'Budget Type',
         text: 'Do you want to manage this budget for the overall section, or just for a specific month?',
@@ -920,21 +921,32 @@ async function editSectionBudget() {
         showDenyButton: false,
         showCancelButton: false,
         didOpen: () => {
-            document.getElementById('btn-swal-monthly').addEventListener('click', () => Swal.clickConfirm());
-            document.getElementById('btn-swal-overall').addEventListener('click', () => Swal.clickDeny());
+            document.getElementById('btn-swal-monthly').addEventListener('click', () => {
+                actionType = 'monthly';
+                Swal.clickConfirm();
+            });
+            document.getElementById('btn-swal-overall').addEventListener('click', () => {
+                actionType = 'overall';
+                Swal.clickConfirm();
+            });
             document.getElementById('btn-swal-clear').addEventListener('click', () => {
-                Swal.close();
-                triggerClearBudgetFlow();
+                actionType = 'clear';
+                Swal.clickConfirm();
             });
             document.getElementById('btn-swal-back').addEventListener('click', () => Swal.clickCancel());
         }
     });
 
-    if (choice.isDismissed || choice.dismiss === Swal.DismissReason.backdrop || choice.dismiss === Swal.DismissReason.esc || choice.dismiss === Swal.DismissReason.close) {
+    if (choice.isDismissed || !actionType) {
         return;
     }
 
-    let budgetType = choice.isConfirmed ? 'monthly' : 'overall';
+    if (actionType === 'clear') {
+        triggerClearBudgetFlow();
+        return;
+    }
+
+    let budgetType = actionType;
     let targetMonth = '';
     let targetMonths = null;
 
@@ -1074,6 +1086,18 @@ async function editSectionBudget() {
             payload.month = targetMonth;
         } else {
             payload.months = targetMonths;
+            const applyFuture = await Swal.fire({
+                title: 'Apply to Future?',
+                text: 'Do you want to apply this same budget for the future months as well?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                confirmButtonColor: '#8b5cf6'
+            });
+            if (applyFuture.isConfirmed) {
+                payload.overall_default = true;
+            }
         }
 
         const res = await fetch(`${API_URL}?action=update_category_budget`, {
@@ -1095,6 +1119,7 @@ async function editSectionBudget() {
 async function triggerClearBudgetFlow() {
     if (!currentCategoryId) return;
 
+    let clearAction = null;
     await Swal.fire({
         title: 'Clear Budget',
         text: `Choose how you want to clear the budget for ${currentCategoryName}:`,
@@ -1102,7 +1127,7 @@ async function triggerClearBudgetFlow() {
         html: `
             <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px; align-items:center; width:100%;">
                 <button type="button" id="btn-clear-monthly" class="btn btn-primary" style="width:100%; max-width:240px; justify-content:center; padding: 0.75rem;">Specific Month Budget</button>
-                <button type="button" id="btn-clear-overall" class="btn btn-ghost" style="width:100%; max-width:240px; justify-content:center; padding: 0.75rem; background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3); color:#f59e0b;">Overall Default Budget</button>
+                <button type="button" id="btn-clear-overall" class="btn btn-ghost" style="width:100%; max-width:240px; justify-content:center; padding: 0.75rem; background:rgba(245, 158, 11, 0.15); border:1px solid rgba(245, 158, 11, 0.3); color:#f59e0b;">Overall Month Range Clear</button>
                 <button type="button" id="btn-clear-all" class="btn btn-danger" style="width:100%; max-width:240px; justify-content:center; padding: 0.75rem; background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.3); color:#ef4444;">Clear Everything</button>
                 <button type="button" id="btn-clear-back" class="btn btn-ghost" style="width:120px; font-size:0.85rem; padding:0.4rem 1rem; justify-content:center; border-color:rgba(255,255,255,0.15); margin-top:10px;">Back</button>
             </div>
@@ -1112,20 +1137,24 @@ async function triggerClearBudgetFlow() {
         showCancelButton: false,
         didOpen: () => {
             document.getElementById('btn-clear-monthly').addEventListener('click', () => {
-                Swal.close();
-                executeClearBudget('monthly');
+                clearAction = 'monthly';
+                Swal.clickConfirm();
             });
             document.getElementById('btn-clear-overall').addEventListener('click', () => {
-                Swal.close();
-                executeClearBudget('overall');
+                clearAction = 'overall';
+                Swal.clickConfirm();
             });
             document.getElementById('btn-clear-all').addEventListener('click', () => {
-                Swal.close();
-                executeClearBudget('all');
+                clearAction = 'all';
+                Swal.clickConfirm();
             });
-            document.getElementById('btn-clear-back').addEventListener('click', () => Swal.close());
+            document.getElementById('btn-clear-back').addEventListener('click', () => Swal.clickCancel());
         }
     });
+
+    if (clearAction) {
+        executeClearBudget(clearAction);
+    }
 }
 
 async function executeClearBudget(type) {
@@ -1163,7 +1192,101 @@ async function executeClearBudget(type) {
         if (!monthPrompt.isConfirmed) return;
         payload.month = monthPrompt.value;
     } else if (type === 'overall') {
-        payload.overall = true;
+        const now = new Date();
+        const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+        const startMonthPrompt = await Swal.fire({
+            title: 'Select Start Month to Clear',
+            html: `
+                <div style="text-align:center; margin-bottom:10px; font-size:0.9rem; color:var(--text-secondary);">
+                    Select the starting month to clear budgets.
+                </div>
+                <div style="text-align:center; margin-bottom:15px; font-size:0.95rem; color:#ef4444; font-weight:600;">
+                    Note: Maximum clearance limit is up to the current month (${getMonthName(currentMonthStr)} ${now.getFullYear()}) only.
+                </div>
+                <input type="text" id="swalClearStartMonth" class="theme-input-select swal-input" placeholder="Select Start Month" readonly style="text-align:center;">
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Next',
+            confirmButtonColor: '#ef4444',
+            didOpen: () => {
+                flatpickr("#swalClearStartMonth", {
+                    plugins: [
+                        new monthSelectPlugin({
+                            shorthand: true,
+                            dateFormat: "Y-m",
+                            altFormat: "F Y",
+                            theme: "dark"
+                        })
+                    ],
+                    disableMobile: "true",
+                    defaultDate: currentMonthStr,
+                    maxDate: currentMonthStr
+                });
+            },
+            preConfirm: () => {
+                const val = document.getElementById('swalClearStartMonth').value;
+                if (!val) { Swal.showValidationMessage('Please select a starting month'); return false; }
+                if (val > currentMonthStr) {
+                    Swal.showValidationMessage('Starting month cannot exceed the current month!');
+                    return false;
+                }
+                return val;
+            }
+        });
+
+        if (!startMonthPrompt.isConfirmed) return;
+        const startM = startMonthPrompt.value;
+
+        const endMonthPrompt = await Swal.fire({
+            title: 'Select End Month to Clear',
+            html: `
+                <div style="text-align:center; margin-bottom:10px; font-size:0.9rem; color:var(--text-secondary);">
+                    Select the ending month to clear budgets.
+                </div>
+                <div style="text-align:center; margin-bottom:15px; font-size:0.95rem; color:#ef4444; font-weight:600;">
+                    Note: Maximum clearance limit is up to the current month (${getMonthName(currentMonthStr)} ${now.getFullYear()}) only.
+                </div>
+                <input type="text" id="swalClearEndMonth" class="theme-input-select swal-input" placeholder="Select End Month" readonly style="text-align:center;">
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Next',
+            confirmButtonColor: '#ef4444',
+            didOpen: () => {
+                flatpickr("#swalClearEndMonth", {
+                    plugins: [
+                        new monthSelectPlugin({
+                            shorthand: true,
+                            dateFormat: "Y-m",
+                            altFormat: "F Y",
+                            theme: "dark"
+                        })
+                    ],
+                    disableMobile: "true",
+                    defaultDate: currentMonthStr,
+                    maxDate: currentMonthStr
+                });
+            },
+            preConfirm: () => {
+                const val = document.getElementById('swalClearEndMonth').value;
+                if (!val) { Swal.showValidationMessage('Please select an ending month'); return false; }
+                if (val > currentMonthStr) {
+                    Swal.showValidationMessage('Ending month cannot exceed the current month!');
+                    return false;
+                }
+                if (val < startM) {
+                    Swal.showValidationMessage('Ending month cannot be before the starting month!');
+                    return false;
+                }
+                return val;
+            }
+        });
+
+        if (!endMonthPrompt.isConfirmed) return;
+        const endM = endMonthPrompt.value;
+
+        payload.start_month = startM;
+        payload.end_month = endM;
     } else if (type === 'all') {
         payload.clear_all_section = true;
     } else {
