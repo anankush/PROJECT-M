@@ -150,7 +150,7 @@
             hideTyping();
             ui.input.disabled = false;
             ui.sendBtn.disabled = false;
-            appendMessage('bot', `Failed to connect to AI assistant. Error detail: ${err.message || err}`);
+            appendMessage('bot', 'Failed to connect to AI assistant. Please try again later.');
         });
     }
 

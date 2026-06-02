@@ -88,11 +88,10 @@ $curlError = curl_error($ch);
 curl_close($ch);
 
 if ($response === false || $httpCode !== 200) {
-    error_log("[OpenRouter API Error] HTTP Code: {$httpCode}, cURL Error: {$curlError}");
-    $apiRespSnippet = $response ? substr(strip_tags($response), 0, 150) : '';
+    error_log("[OpenRouter API Error] HTTP Code: {$httpCode}, cURL Error: {$curlError}, Response: {$response}");
     echo json_encode([
         'status' => 'error',
-        'reply' => "Failed to connect to AI server. HTTP Code: {$httpCode}, cURL Error: {$curlError}. API Response: {$apiRespSnippet}"
+        'reply' => 'Failed to connect to AI server. Please try again later.'
     ]);
     exit;
 }
