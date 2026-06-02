@@ -110,8 +110,8 @@ if ($lastRole === 'user') {
 
 // High-Availability Free Model Failover Queue
 $models = [
-    'meta-llama/llama-3.2-3b-instruct:free',
     'openrouter/free',
+    'meta-llama/llama-3.2-3b-instruct:free',
     'meta-llama/llama-3.1-8b-instruct:free',
     'meta-llama/llama-3.3-70b-instruct:free'
 ];
@@ -124,7 +124,7 @@ $debugLogs = [];
 
 foreach ($models as $index => $selectedModel) {
     if ($index > 0) {
-        usleep(600000); // 0.6s delay between attempts to bypass 1 request-per-second limit
+        usleep(1100000); // 1.1s delay between attempts to strictly satisfy OpenRouter's 1-Request-Per-Second key limit
     }
 
     $postData = [

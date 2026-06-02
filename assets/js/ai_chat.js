@@ -1,6 +1,6 @@
 (function () {
     const config = window.aiChatConfig || { isLoggedIn: false, csrfToken: '', apiEndpoint: 'api/landing_helper.php', actionEndpoint: '' };
-    
+
     let ui = {};
     let chatHistory = JSON.parse(sessionStorage.getItem('PROJECTM_AI_CHAT')) || [];
 
@@ -16,7 +16,7 @@
             sessionStorage.removeItem('PROJECTM_AI_CHAT');
             chatHistory = [];
             ui.messages.innerHTML = '';
-            const welcomeMsg = "Hello! 👋 I am ZNODA AI, your premium personal finance welcoming assistant. Ask me anything about Money Management features or security!";
+            const welcomeMsg = "Hello! 👋 I am ZNODA AI, your premium personal finance welcoming assistant. Ask me anything about Money Management features or something else!";
             appendBubble('bot', welcomeMsg);
             chatHistory = [{ role: 'bot', text: welcomeMsg }];
             sessionStorage.setItem('PROJECTM_AI_CHAT', JSON.stringify(chatHistory));
@@ -120,16 +120,16 @@
     function appendBubble(role, text) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `ai-msg ${role === 'user' ? 'user' : 'bot'}`;
-        
+
         const bubble = document.createElement('div');
         bubble.className = 'ai-msg-bubble';
-        
+
         if (role === 'bot') {
             bubble.innerHTML = parseMarkdown(text);
         } else {
             bubble.textContent = text;
         }
-        
+
         msgDiv.appendChild(bubble);
         ui.messages.appendChild(msgDiv);
     }
@@ -161,6 +161,7 @@
     }
 
     function handleSend() {
+        if (ui.input.disabled) return;
         const text = ui.input.value.trim();
         if (!text) return;
 
@@ -182,33 +183,33 @@
                 history: chatHistory.slice(0, -1).slice(-10)
             })
         })
-        .then(res => {
-            if (!res.ok) {
-                return res.text().then(text => {
-                    throw new Error(`HTTP ${res.status}: ${text}`);
-                });
-            }
-            return res.json();
-        })
-        .then(data => {
-            hideTyping();
-            ui.input.disabled = false;
-            ui.sendBtn.disabled = false;
-            safeFocus();
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(text => {
+                        throw new Error(`HTTP ${res.status}: ${text}`);
+                    });
+                }
+                return res.json();
+            })
+            .then(data => {
+                hideTyping();
+                ui.input.disabled = false;
+                ui.sendBtn.disabled = false;
+                safeFocus();
 
-            if (data.status === 'success') {
-                appendMessage('bot', data.reply);
-            } else {
-                appendMessage('bot', data.reply || 'An error occurred.');
-            }
-        })
-        .catch(err => {
-            console.error('[AI Chat Connection Error]:', err);
-            hideTyping();
-            ui.input.disabled = false;
-            ui.sendBtn.disabled = false;
-            appendMessage('bot', 'Failed to connect to AI assistant. Please try again later.');
-        });
+                if (data.status === 'success') {
+                    appendMessage('bot', data.reply);
+                } else {
+                    appendMessage('bot', data.reply || 'An error occurred.');
+                }
+            })
+            .catch(err => {
+                console.error('[AI Chat Connection Error]:', err);
+                hideTyping();
+                ui.input.disabled = false;
+                ui.sendBtn.disabled = false;
+                appendMessage('bot', 'Failed to connect to AI assistant. Please try again later.');
+            });
     }
 
     document.addEventListener('DOMContentLoaded', init);
