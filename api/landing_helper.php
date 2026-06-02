@@ -8,11 +8,11 @@ if (file_exists('../includes/env.php')) {
 
 header('Content-Type: application/json');
 
-$apiKey = defined('GEMINI_API_KEY') ? GEMINI_API_KEY : '';
+$apiKey = defined('AI_API_KEY') ? AI_API_KEY : '';
 if (empty($apiKey)) {
     echo json_encode([
         'status' => 'error',
-        'reply' => 'AI integration is not configured yet. Please set GEMINI_API_KEY in GitHub Secrets.'
+        'reply' => 'AI integration is not configured yet. Please set AI_API_KEY in GitHub Secrets.'
     ]);
     exit;
 }
@@ -41,34 +41,43 @@ Rules:
 4. You have no database access. Never mention user specific accounts or make up user stats.
 5. Identity & Creator: If asked who created or developed you, reply that you are 'ZNODA AI', powered by Google, and crafted by NAYAN (the Lead Developer and Creator of the Money Management system).";
 
-$contents = [];
+$messages = [];
+$messages[] = [
+    'role' => 'system',
+    'content' => $systemInstruction
+];
+
 foreach ($chatHistory as $chat) {
-    $contents[] = [
-        'role' => $chat['role'] === 'user' ? 'user' : 'model',
-        'parts' => [['text' => $chat['text']]]
+    $messages[] = [
+        'role' => $chat['role'] === 'user' ? 'user' : 'assistant',
+        'content' => $chat['text']
     ];
 }
-$contents[] = [
+
+$messages[] = [
     'role' => 'user',
-    'parts' => [['text' => $userMessage]]
+    'content' => $userMessage
 ];
 
 $postData = [
-    'contents' => $contents,
-    'systemInstruction' => [
-        'parts' => [['text' => $systemInstruction]]
-    ]
+    'model' => 'google/gemini-2.5-flash:free',
+    'messages' => $messages
 ];
 
-$url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $apiKey;
+$url = 'https://openrouter.ai/api/v1/chat/completions';
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . $apiKey,
+    'Content-Type: application/json',
+    'HTTP-Referer: http://moneymgmt.is-best.net',
+    'X-Title: Money Management'
+]);
+curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -79,7 +88,7 @@ $curlError = curl_error($ch);
 curl_close($ch);
 
 if ($response === false || $httpCode !== 200) {
-    error_log("[Gemini Public API Error] HTTP Code: {$httpCode}, cURL Error: {$curlError}");
+    error_log("[OpenRouter API Error] HTTP Code: {$httpCode}, cURL Error: {$curlError}");
     $apiRespSnippet = $response ? substr(strip_tags($response), 0, 150) : '';
     echo json_encode([
         'status' => 'error',
@@ -89,7 +98,7 @@ if ($response === false || $httpCode !== 200) {
 }
 
 $result = json_decode($response, true);
-$replyText = $result['candidates'][0]['content']['parts'][0]['text'] ?? 'Sorry, I could not understand that.';
+$replyText = $result['choices'][0]['message']['content'] ?? 'Sorry, I could not understand that.';
 
 echo json_encode([
     'status' => 'success',

@@ -29,7 +29,7 @@ jobs:
         define('DB_PASS', '${{ secrets.DB_PASS }}');
         define('APP_SECRET_VAL', '${{ secrets.APP_SECRET }}');
         define('GOOGLE_SCRIPT_URL', '${{ secrets.GOOGLE_SCRIPT_URL }}');
-        define('GEMINI_API_KEY', '${{ secrets.GEMINI_API_KEY }}');
+        define('AI_API_KEY', '${{ secrets.AI_API_KEY }}');
         define('SESSION_LIFETIME', 900);
         define('BASE_URL', '/');
         ?>
