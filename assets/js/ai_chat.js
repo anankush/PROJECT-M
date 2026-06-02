@@ -118,7 +118,14 @@
                 history: chatHistory.slice(-10)
             })
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                return res.text().then(text => {
+                    throw new Error(`HTTP ${res.status}: ${text}`);
+                });
+            }
+            return res.json();
+        })
         .then(data => {
             hideTyping();
             ui.input.disabled = false;
