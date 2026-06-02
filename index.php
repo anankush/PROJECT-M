@@ -26,6 +26,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/glassmorphism.css">
     <link rel="stylesheet" href="assets/css/landing.css">
+    <link rel="stylesheet" href="assets/css/ai_chat.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
@@ -373,5 +374,50 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
         });
         document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
     </script>
+
+    <!-- Gemini AI Chatbot -->
+    <div id="aiChatBubble" title="Ask AI Assistant">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <div id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="ai-chat-title">
+                <div class="ai-avatar-container">
+                    <i class="fas fa-robot" style="color: #06b6d4;"></i>
+                </div>
+                <div class="ai-chat-title-text">
+                    <h4>M-AI Assistant</h4>
+                    <span>Active</span>
+                </div>
+            </div>
+            <button class="ai-chat-close" id="aiChatClose"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="ai-chat-messages" id="aiChatMessages"></div>
+        
+        <div class="ai-chat-suggestions">
+            <div class="ai-pill">What is Project M?</div>
+            <div class="ai-pill">Is it secure?</div>
+            <div class="ai-pill">How do I start?</div>
+        </div>
+        
+        <div class="ai-chat-footer">
+            <div class="ai-input-wrapper">
+                <input type="text" id="aiMessageInput" placeholder="Type a message..." autocomplete="off">
+                <button class="ai-send-btn" id="aiSendBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.aiChatConfig = {
+            isLoggedIn: false,
+            csrfToken: '',
+            apiEndpoint: 'api/ai_chat.php',
+            actionEndpoint: ''
+        };
+    </script>
+    <script src="assets/js/ai_chat.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
