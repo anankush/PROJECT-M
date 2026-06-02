@@ -431,7 +431,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
         window.aiChatConfig = {
             isLoggedIn: false,
             csrfToken: '',
-            apiEndpoint: '<?php echo defined("BASE_URL") ? BASE_URL : "/"; ?>api/ai_chat.php',
+            apiEndpoint: '<?php echo defined("BASE_URL") ? BASE_URL : "/"; ?>api/landing_helper.php',
             actionEndpoint: ''
         };
     </script>

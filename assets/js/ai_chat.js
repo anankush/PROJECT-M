@@ -1,5 +1,5 @@
 (function () {
-    const config = window.aiChatConfig || { isLoggedIn: false, csrfToken: '', apiEndpoint: 'api/ai_chat.php', actionEndpoint: '' };
+    const config = window.aiChatConfig || { isLoggedIn: false, csrfToken: '', apiEndpoint: 'api/landing_helper.php', actionEndpoint: '' };
     
     let ui = {};
     let chatHistory = JSON.parse(sessionStorage.getItem('PROJECTM_AI_CHAT')) || [];
