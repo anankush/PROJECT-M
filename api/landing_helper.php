@@ -60,7 +60,7 @@ $messages[] = [
 ];
 
 $postData = [
-    'model' => 'google/gemini-2.5-flash:free',
+    'model' => 'openrouter/free',
     'messages' => $messages
 ];
 
