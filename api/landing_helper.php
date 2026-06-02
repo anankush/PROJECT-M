@@ -77,8 +77,13 @@ $response = false;
 $httpCode = 0;
 $curlError = '';
 $result = null;
+$debugLogs = [];
 
-foreach ($models as $selectedModel) {
+foreach ($models as $index => $selectedModel) {
+    if ($index > 0) {
+        usleep(600000); // 0.6s delay between attempts to bypass 1 request-per-second limit
+    }
+
     $postData = [
         'model' => $selectedModel,
         'messages' => $messages
@@ -105,16 +110,22 @@ foreach ($models as $selectedModel) {
     $curlError = curl_error($ch);
     curl_close($ch);
 
+    $decoded = json_decode($response, true);
+    $modelErrInfo = $decoded && isset($decoded['error']) ? json_encode($decoded['error']) : 'No json error';
+
     if ($response !== false && $httpCode === 200) {
-        $decoded = json_decode($response, true);
         if ($decoded && !isset($decoded['error'])) {
             $result = $decoded;
             break; // Success, stop trying backups
         } else {
-            error_log("[OpenRouter Failover] Model {$selectedModel} returned upstream error: " . ($decoded ? json_encode($decoded['error']) : 'Invalid JSON'));
+            $errText = "Upstream error: {$modelErrInfo}";
+            $debugLogs[$selectedModel] = $errText;
+            error_log("[OpenRouter Failover] Model {$selectedModel} failed. {$errText}");
         }
     } else {
-        error_log("[OpenRouter Failover] Model {$selectedModel} HTTP Code: {$httpCode}, cURL Error: {$curlError}");
+        $errText = "HTTP Code: {$httpCode}, cURL Error: {$curlError}. Upstream response: " . ($response ? substr(strip_tags($response), 0, 100) : 'No response');
+        $debugLogs[$selectedModel] = $errText;
+        error_log("[OpenRouter Failover] Model {$selectedModel} connection error. {$errText}");
     }
 }
 
@@ -123,8 +134,7 @@ if ($result === null) {
     
     $replyMsg = 'Failed to connect to AI assistant. Please try again later.';
     if ($isDebug) {
-        $apiRespSnippet = $response ? substr(strip_tags($response), 0, 200) : 'No response';
-        $replyMsg .= " (Debug: All fallbacks failed. Last HTTP Code: {$httpCode}, Last cURL Error: {$curlError}, Last Response: {$apiRespSnippet})";
+        $replyMsg .= " (Debug Info: All fallbacks failed. Details: " . json_encode($debugLogs) . ")";
     }
     
     echo json_encode([
