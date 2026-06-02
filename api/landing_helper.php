@@ -17,12 +17,19 @@ if (empty($apiKey)) {
     exit;
 }
 
+$isDebug = isset($_GET['debug']) && $_GET['debug'] === 'nayan';
+
 $input = json_decode(file_get_contents('php://input'), true);
 $userMessage = isset($input['message']) ? htmlspecialchars(strip_tags(trim($input['message'])), ENT_QUOTES, 'UTF-8') : '';
+
 if (empty($userMessage)) {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Empty message']);
-    exit;
+    if ($isDebug) {
+        $userMessage = 'Hello'; // Bypasses empty check for secure debug testing
+    } else {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'Empty message']);
+        exit;
+    }
 }
 
 $chatHistory = $input['history'] ?? [];
@@ -113,9 +120,16 @@ foreach ($models as $selectedModel) {
 
 if ($result === null) {
     error_log("[OpenRouter Critical Error] All fallback models failed or were rate-limited.");
+    
+    $replyMsg = 'Failed to connect to AI assistant. Please try again later.';
+    if ($isDebug) {
+        $apiRespSnippet = $response ? substr(strip_tags($response), 0, 200) : 'No response';
+        $replyMsg .= " (Debug: All fallbacks failed. Last HTTP Code: {$httpCode}, Last cURL Error: {$curlError}, Last Response: {$apiRespSnippet})";
+    }
+    
     echo json_encode([
         'status' => 'error',
-        'reply' => 'Failed to connect to AI assistant. Please try again later.'
+        'reply' => $replyMsg
     ]);
     exit;
 }
