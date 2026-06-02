@@ -4,6 +4,13 @@
     let ui = {};
     let chatHistory = JSON.parse(sessionStorage.getItem('PROJECTM_AI_CHAT')) || [];
 
+    function safeFocus() {
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 768);
+        if (!isTouchDevice && ui.input) {
+            ui.input.focus();
+        }
+    }
+
     function init() {
         ui = {
             bubble: document.getElementById('aiChatBubble'),
@@ -44,7 +51,7 @@
         ui.window.classList.toggle('active');
         if (ui.window.classList.contains('active')) {
             document.body.classList.add('ai-chat-open-state');
-            ui.input.focus();
+            safeFocus();
             scrollToBottom();
         } else {
             document.body.classList.remove('ai-chat-open-state');
@@ -130,7 +137,7 @@
             hideTyping();
             ui.input.disabled = false;
             ui.sendBtn.disabled = false;
-            ui.input.focus();
+            safeFocus();
 
             if (data.status === 'success') {
                 appendMessage('bot', data.reply);
