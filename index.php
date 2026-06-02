@@ -26,7 +26,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/glassmorphism.css">
     <link rel="stylesheet" href="assets/css/landing.css">
-    <link rel="stylesheet" href="assets/css/ai_chat.css?v=<?php echo time(); ?>">
+    <style><?php include 'assets/css/ai_chat.css'; ?></style>
 </head>
 
 <body>
@@ -377,14 +377,31 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
 
     <!-- Gemini AI Chatbot -->
     <div id="aiChatBubble" title="Ask AI Assistant">
-        <i class="fas fa-robot"></i>
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="url(#geminiGrad)" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.5)); display: block;">
+            <defs>
+                <linearGradient id="geminiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#9d4edd" />
+                    <stop offset="50%" stop-color="#8b5cf6" />
+                    <stop offset="100%" stop-color="#06b6d4" />
+                </linearGradient>
+            </defs>
+            <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
+        </svg>
     </div>
 
     <div id="aiChatWindow">
         <div class="ai-chat-header">
             <div class="ai-chat-title">
                 <div class="ai-avatar-container">
-                    <i class="fas fa-robot" style="color: #06b6d4;"></i>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="url(#geminiGradHeader)" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+                        <defs>
+                            <linearGradient id="geminiGradHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#9d4edd" />
+                                <stop offset="100%" stop-color="#06b6d4" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" />
+                    </svg>
                 </div>
                 <div class="ai-chat-title-text">
                     <h4>M-AI Assistant</h4>
