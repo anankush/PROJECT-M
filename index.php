@@ -408,7 +408,10 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
                     <span>Active</span>
                 </div>
             </div>
-            <button class="ai-chat-close" id="aiChatClose"><i class="fas fa-times"></i></button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="ai-chat-clear" id="aiChatClear" title="Clear Chat History" style="background: rgba(255,255,255,0.1); border: none; color: #fff; cursor: pointer; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; font-size: 12px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.color='#ff4a4a';" onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';"><i class="fas fa-trash-alt"></i></button>
+                <button class="ai-chat-close" id="aiChatClose"><i class="fas fa-times"></i></button>
+            </div>
         </div>
         
         <div class="ai-chat-messages" id="aiChatMessages"></div>

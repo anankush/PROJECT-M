@@ -110,10 +110,10 @@ if ($lastRole === 'user') {
 
 // High-Availability Free Model Failover Queue
 $models = [
+    'meta-llama/llama-3.2-3b-instruct:free',
     'openrouter/free',
     'meta-llama/llama-3.1-8b-instruct:free',
-    'meta-llama/llama-3.3-70b-instruct:free',
-    'meta-llama/llama-3.2-3b-instruct:free'
+    'meta-llama/llama-3.3-70b-instruct:free'
 ];
 
 $response = false;
@@ -143,8 +143,8 @@ foreach ($models as $index => $selectedModel) {
         'HTTP-Referer: http://moneymgmt.is-best.net',
         'X-Title: Money Management'
     ]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 

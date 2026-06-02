@@ -11,11 +11,24 @@
         }
     }
 
+    function clearChatHistory() {
+        if (confirm("Are you sure you want to clear your chat history?")) {
+            sessionStorage.removeItem('PROJECTM_AI_CHAT');
+            chatHistory = [];
+            ui.messages.innerHTML = '';
+            const welcomeMsg = "Hello! 👋 I am ZNODA AI, your premium personal finance welcoming assistant. Ask me anything about Money Management features or security!";
+            appendBubble('bot', welcomeMsg);
+            chatHistory = [{ role: 'bot', text: welcomeMsg }];
+            sessionStorage.setItem('PROJECTM_AI_CHAT', JSON.stringify(chatHistory));
+        }
+    }
+
     function init() {
         ui = {
             bubble: document.getElementById('aiChatBubble'),
             window: document.getElementById('aiChatWindow'),
             closeBtn: document.getElementById('aiChatClose'),
+            clearBtn: document.getElementById('aiChatClear'),
             messages: document.getElementById('aiChatMessages'),
             input: document.getElementById('aiMessageInput'),
             sendBtn: document.getElementById('aiSendBtn'),
@@ -31,6 +44,10 @@
             if (e.key === 'Enter') handleSend();
         });
 
+        if (ui.clearBtn) {
+            ui.clearBtn.addEventListener('click', clearChatHistory);
+        }
+
         ui.pills.forEach(pill => {
             pill.addEventListener('click', () => {
                 ui.input.value = pill.textContent.trim();
@@ -39,7 +56,7 @@
         });
 
         if (chatHistory.length === 0) {
-            const welcomeMsg = "Hello! Welcome to Money Management. I am your assistant. Ask me anything about how the app works!";
+            const welcomeMsg = "Hello! 👋 I am ZNODA AI, your premium personal finance welcoming assistant. Ask me anything about Money Management features or security!";
             appendMessage('bot', welcomeMsg);
         } else {
             chatHistory.forEach(msg => appendBubble(msg.role, msg.text));
