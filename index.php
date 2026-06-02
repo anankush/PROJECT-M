@@ -435,6 +435,6 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
             actionEndpoint: ''
         };
     </script>
-    <script src="assets/js/ai_chat.js?v=<?php echo time(); ?>"></script>
+    <script><?php include 'assets/js/ai_chat.js'; ?></script>
 </body>
 </html>
