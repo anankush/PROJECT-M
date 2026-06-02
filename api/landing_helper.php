@@ -146,7 +146,19 @@ $curlError = '';
 $result = null;
 $debugLogs = [];
 
+// Copy the active pool of API keys to track and dynamically rotate them
+$activeKeys = $apiKeyPool;
+
 foreach ($models as $index => $selectedModel) {
+    if (empty($activeKeys)) {
+        // If all keys in our pool turned out to be bad or exhausted, refresh the pool to try again
+        $activeKeys = $apiKeyPool;
+    }
+
+    // Select and remove a random key from the active key list for this attempt
+    $keyIndex = array_rand($activeKeys);
+    $currentApiKey = $activeKeys[$keyIndex];
+
     if ($index > 0) {
         usleep(1100000); // 1.1s delay between attempts to strictly satisfy OpenRouter's 1-Request-Per-Second key limit
     }
@@ -162,7 +174,7 @@ foreach ($models as $index => $selectedModel) {
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $apiKey,
+        'Authorization: Bearer ' . $currentApiKey,
         'Content-Type: application/json',
         'HTTP-Referer: http://moneymgmt.is-best.net',
         'X-Title: Money Management'
@@ -185,11 +197,19 @@ foreach ($models as $index => $selectedModel) {
             $result = $decoded;
             break; // Success, stop trying backups
         } else {
+            // This key failed, remove it from our active keys list for subsequent fallbacks in this request
+            unset($activeKeys[$keyIndex]);
+            $activeKeys = array_values($activeKeys); // Re-index array
+
             $errText = "Upstream error: {$modelErrInfo}";
             $debugLogs[$selectedModel] = $errText;
             error_log("[OpenRouter Failover] Model {$selectedModel} failed. {$errText}");
         }
     } else {
+        // Connection error or rate-limit, remove this key from active keys list for subsequent fallbacks
+        unset($activeKeys[$keyIndex]);
+        $activeKeys = array_values($activeKeys); // Re-index array
+
         $errText = "HTTP Code: {$httpCode}, cURL Error: {$curlError}. Upstream response: " . ($response ? substr(strip_tags($response), 0, 100) : 'No response');
         $debugLogs[$selectedModel] = $errText;
         error_log("[OpenRouter Failover] Model {$selectedModel} connection error. {$errText}");
