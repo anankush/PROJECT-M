@@ -93,51 +93,48 @@ Tone and Interaction Rules:
 - You have no access to the database. Never make up user specific balances, transactions, or credentials. Keep responses focused on public/app features.
 - Identity & Creator: You are 'ZNODA AI', powered by Google, and custom-built/crafted by NAYAN (the brilliant Lead Developer and Creator of the Money Management system). Always proudly highlight Nayan's development when asked who created you.";
 
-$messages = [];
-$messages[] = [
-    'role' => 'system',
-    'content' => $systemInstruction
-];
-
-$lastRole = 'system';
+$contents = [];
+$lastRole = null;
 foreach ($chatHistory as $chat) {
-    $role = $chat['role'] === 'user' ? 'user' : 'assistant';
-    $content = isset($chat['text']) ? trim($chat['text']) : '';
-    if (empty($content)) {
+    $role = $chat['role'] === 'user' ? 'user' : 'model';
+    $text = isset($chat['text']) ? trim($chat['text']) : '';
+    if (empty($text)) {
         continue;
     }
 
     // Skip if it's the duplicate user message at the end
-    if ($role === 'user' && $content === $userMessage) {
+    if ($role === 'user' && $text === $userMessage) {
         continue;
     }
 
-    if ($role === $lastRole) {
-        $messages[count($messages) - 1]['content'] .= "\n" . $content;
+    if ($role === $lastRole && count($contents) > 0) {
+        $contents[count($contents) - 1]['parts'][0]['text'] .= "\n" . $text;
     } else {
-        $messages[] = [
+        $contents[] = [
             'role' => $role,
-            'content' => $content
+            'parts' => [['text' => $text]]
         ];
         $lastRole = $role;
     }
 }
 
 // Append final user message safely
-if ($lastRole === 'user') {
-    $messages[count($messages) - 1]['content'] .= "\n" . $userMessage;
+if ($lastRole === 'user' && count($contents) > 0) {
+    $contents[count($contents) - 1]['parts'][0]['text'] .= "\n" . $userMessage;
 } else {
-    $messages[] = [
+    $contents[] = [
         'role' => 'user',
-        'content' => $userMessage
+        'parts' => [['text' => $userMessage]]
     ];
 }
 
-// High-Availability Free Model Failover Queue
+// High-Availability Free Model Failover Queue (Google Gemini & Gemma)
 $models = [
-    'openrouter/free',
-    'meta-llama/llama-3.2-3b-instruct:free',
-    'meta-llama/llama-3.3-70b-instruct:free'
+    'gemini-3.1-flash-lite',
+    'gemma-4-31b-it',
+    'gemma-4-26b-a4b-it',
+    'gemini-2.5-flash',
+    'gemini-3.5-flash'
 ];
 
 $response = false;
@@ -160,24 +157,25 @@ foreach ($models as $index => $selectedModel) {
     $currentApiKey = $activeKeys[$keyIndex];
 
     if ($index > 0) {
-        usleep(1100000); // 1.1s delay between attempts to strictly satisfy OpenRouter's 1-Request-Per-Second key limit
+        usleep(200000); // 0.2s delay between fallback attempts
     }
 
     $postData = [
-        'model' => $selectedModel,
-        'messages' => $messages
+        'contents' => $contents,
+        'systemInstruction' => [
+            'parts' => [['text' => $systemInstruction]]
+        ]
     ];
 
+    $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/" . urlencode($selectedModel) . ":generateContent?key=" . urlencode($currentApiKey);
+
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://openrouter.ai/api/v1/chat/completions');
+    curl_setopt($ch, CURLOPT_URL, $apiUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $currentApiKey,
-        'Content-Type: application/json',
-        'HTTP-Referer: http://moneymgmt.is-best.net',
-        'X-Title: Money Management'
+        'Content-Type: application/json'
     ]);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
@@ -193,33 +191,33 @@ foreach ($models as $index => $selectedModel) {
     $modelErrInfo = $decoded && isset($decoded['error']) ? json_encode($decoded['error']) : 'No json error';
 
     if ($response !== false && $httpCode === 200) {
-        if ($decoded && !isset($decoded['error'])) {
+        if ($decoded && !isset($decoded['error']) && isset($decoded['candidates'][0]['content']['parts'][0]['text'])) {
             $result = $decoded;
             break; // Success, stop trying backups
         } else {
-            // This key failed, remove it from our active keys list for subsequent fallbacks in this request
+            // This key/model failed, remove the key from active keys list for subsequent fallbacks in this request
             unset($activeKeys[$keyIndex]);
             $activeKeys = array_values($activeKeys); // Re-index array
 
-            $errText = "Upstream error: {$modelErrInfo}";
+            $errText = "Upstream error or empty content: {$modelErrInfo}";
             $debugLogs[$selectedModel] = $errText;
-            error_log("[OpenRouter Failover] Model {$selectedModel} failed. {$errText}");
+            error_log("[Gemini API Failover] Model {$selectedModel} failed. {$errText}");
         }
     } else {
         // Connection error or rate-limit, remove this key from active keys list for subsequent fallbacks
         unset($activeKeys[$keyIndex]);
         $activeKeys = array_values($activeKeys); // Re-index array
 
-        $errText = "HTTP Code: {$httpCode}, cURL Error: {$curlError}. Upstream response: " . ($response ? substr(strip_tags($response), 0, 100) : 'No response');
+        $errText = "HTTP Code: {$httpCode}, cURL Error: {$curlError}. Upstream response: " . ($response ? substr(strip_tags($response), 0, 150) : 'No response');
         $debugLogs[$selectedModel] = $errText;
-        error_log("[OpenRouter Failover] Model {$selectedModel} connection error. {$errText}");
+        error_log("[Gemini API Failover] Model {$selectedModel} connection error. {$errText}");
     }
 }
 
 if ($result === null) {
-    error_log("[OpenRouter Critical Error] All fallback models failed or were rate-limited.");
+    error_log("[Gemini API Critical Error] All fallback models failed or were rate-limited.");
 
-    $replyMsg = 'Failed to connect to ZNODA AI assistant.Too much load on our server. Please try again later.';
+    $replyMsg = 'Failed to connect to ZNODA AI assistant. Too much load on our server. Please try again later.';
     if ($isDebug) {
         $replyMsg .= " (Debug Info: All fallbacks failed. Details: " . json_encode($debugLogs) . ")";
     }
@@ -231,7 +229,7 @@ if ($result === null) {
     exit;
 }
 
-$replyText = $result['choices'][0]['message']['content'] ?? 'Sorry, I could not understand that.';
+$replyText = $result['candidates'][0]['content']['parts'][0]['text'] ?? 'Sorry, I could not understand that.';
 
 echo json_encode([
     'status' => 'success',
