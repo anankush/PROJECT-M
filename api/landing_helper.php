@@ -8,14 +8,35 @@ if (file_exists('../includes/env.php')) {
 
 header('Content-Type: application/json');
 
-$apiKey = defined('AI_API_KEY') ? AI_API_KEY : '';
-if (empty($apiKey)) {
+$apiKeyPool = [];
+if (defined('AI_API_KEY_1') && !empty(AI_API_KEY_1) && strpos(AI_API_KEY_1, 'secrets.AI_API_KEY_1') === false && strpos(AI_API_KEY_1, '${{') === false) {
+    $apiKeyPool[] = trim(AI_API_KEY_1);
+}
+if (defined('AI_API_KEY_2') && !empty(AI_API_KEY_2) && strpos(AI_API_KEY_2, 'secrets.AI_API_KEY_2') === false && strpos(AI_API_KEY_2, '${{') === false) {
+    $apiKeyPool[] = trim(AI_API_KEY_2);
+}
+if (defined('AI_API_KEY_3') && !empty(AI_API_KEY_3) && strpos(AI_API_KEY_3, 'secrets.AI_API_KEY_3') === false && strpos(AI_API_KEY_3, '${{') === false) {
+    $apiKeyPool[] = trim(AI_API_KEY_3);
+}
+if (defined('AI_API_KEY_4') && !empty(AI_API_KEY_4) && strpos(AI_API_KEY_4, 'secrets.AI_API_KEY_4') === false && strpos(AI_API_KEY_4, '${{') === false) {
+    $apiKeyPool[] = trim(AI_API_KEY_4);
+}
+
+// Backwards compatibility fallback to original AI_API_KEY
+if (empty($apiKeyPool) && defined('AI_API_KEY') && !empty(AI_API_KEY) && strpos(AI_API_KEY, 'secrets.AI_API_KEY') === false && strpos(AI_API_KEY, '${{') === false) {
+    $apiKeyPool[] = trim(AI_API_KEY);
+}
+
+if (empty($apiKeyPool)) {
     echo json_encode([
         'status' => 'error',
-        'reply' => 'AI integration is not configured yet. Please set AI_API_KEY in GitHub Secrets.'
+        'reply' => 'AI integration is not configured yet. Please set AI_API_KEY_1, AI_API_KEY_2, etc. in GitHub Secrets.'
     ]);
     exit;
 }
+
+// Select a random API key from the active pool to balance traffic
+$apiKey = $apiKeyPool[array_rand($apiKeyPool)];
 
 $isDebug = isset($_GET['debug']) && $_GET['debug'] === 'nayan';
 

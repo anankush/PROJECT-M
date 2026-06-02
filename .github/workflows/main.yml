@@ -30,6 +30,10 @@ jobs:
         define('APP_SECRET_VAL', '${{ secrets.APP_SECRET }}');
         define('GOOGLE_SCRIPT_URL', '${{ secrets.GOOGLE_SCRIPT_URL }}');
         define('AI_API_KEY', '${{ secrets.AI_API_KEY }}');
+        define('AI_API_KEY_1', '${{ secrets.AI_API_KEY_1 }}');
+        define('AI_API_KEY_2', '${{ secrets.AI_API_KEY_2 }}');
+        define('AI_API_KEY_3', '${{ secrets.AI_API_KEY_3 }}');
+        define('AI_API_KEY_4', '${{ secrets.AI_API_KEY_4 }}');
         define('SESSION_LIFETIME', 900);
         define('BASE_URL', '/');
         ?>
