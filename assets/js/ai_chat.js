@@ -112,6 +112,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'same-origin',
             body: JSON.stringify({
                 message: text,
                 history: chatHistory.slice(-10)
@@ -131,6 +132,7 @@
             }
         })
         .catch(err => {
+            console.error('[AI Chat Connection Error]:', err);
             hideTyping();
             ui.input.disabled = false;
             ui.sendBtn.disabled = false;

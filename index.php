@@ -404,7 +404,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
                     </svg>
                 </div>
                 <div class="ai-chat-title-text">
-                    <h4>M-AI Assistant</h4>
+                    <h4>ZNODA AI ASSISTANT</h4>
                     <span>Active</span>
                 </div>
             </div>
