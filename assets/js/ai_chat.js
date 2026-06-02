@@ -88,6 +88,7 @@
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #a78bfa; text-decoration: underline; font-weight: 600;">$1</a>');
         const lines = html.split('\n');
         let inList = false;
         let processedLines = [];
