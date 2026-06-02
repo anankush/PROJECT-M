@@ -218,12 +218,12 @@ foreach ($models as $index => $selectedModel) {
 
 if ($result === null) {
     error_log("[OpenRouter Critical Error] All fallback models failed or were rate-limited.");
-    
-    $replyMsg = 'Failed to connect to AI assistant. Please try again later.';
+
+    $replyMsg = 'Failed to connect to ZNODA AI assistant.Too much load on our server. Please try again later.';
     if ($isDebug) {
         $replyMsg .= " (Debug Info: All fallbacks failed. Details: " . json_encode($debugLogs) . ")";
     }
-    
+
     echo json_encode([
         'status' => 'error',
         'reply' => $replyMsg
