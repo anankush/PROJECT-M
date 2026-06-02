@@ -73,17 +73,39 @@ $messages[] = [
     'content' => $systemInstruction
 ];
 
+$lastRole = 'system';
 foreach ($chatHistory as $chat) {
-    $messages[] = [
-        'role' => $chat['role'] === 'user' ? 'user' : 'assistant',
-        'content' => $chat['text']
-    ];
+    $role = $chat['role'] === 'user' ? 'user' : 'assistant';
+    $content = isset($chat['text']) ? trim($chat['text']) : '';
+    if (empty($content)) {
+        continue;
+    }
+
+    // Skip if it's the duplicate user message at the end
+    if ($role === 'user' && $content === $userMessage) {
+        continue;
+    }
+
+    if ($role === $lastRole) {
+        $messages[count($messages) - 1]['content'] .= "\n" . $content;
+    } else {
+        $messages[] = [
+            'role' => $role,
+            'content' => $content
+        ];
+        $lastRole = $role;
+    }
 }
 
-$messages[] = [
-    'role' => 'user',
-    'content' => $userMessage
-];
+// Append final user message safely
+if ($lastRole === 'user') {
+    $messages[count($messages) - 1]['content'] .= "\n" . $userMessage;
+} else {
+    $messages[] = [
+        'role' => 'user',
+        'content' => $userMessage
+    ];
+}
 
 // High-Availability Free Model Failover Queue
 $models = [

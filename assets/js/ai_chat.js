@@ -65,13 +65,53 @@
         scrollToBottom();
     }
 
+    function parseMarkdown(text) {
+        let html = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        const lines = html.split('\n');
+        let inList = false;
+        let processedLines = [];
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+                if (!inList) {
+                    processedLines.push('<ul class="ai-chat-list" style="margin: 4px 0; padding-left: 20px; list-style-type: disc;">');
+                    inList = true;
+                }
+                const content = trimmed.substring(2);
+                processedLines.push(`<li style="margin-bottom: 2px;">${content}</li>`);
+            } else {
+                if (inList) {
+                    processedLines.push('</ul>');
+                    inList = false;
+                }
+                processedLines.push(line);
+            }
+        });
+        if (inList) {
+            processedLines.push('</ul>');
+        }
+        html = processedLines.join('\n');
+        html = html.replace(/\n\n/g, '<div style="margin-bottom: 8px;"></div>');
+        html = html.replace(/\n/g, '<br>');
+        return html;
+    }
+
     function appendBubble(role, text) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `ai-msg ${role === 'user' ? 'user' : 'bot'}`;
         
         const bubble = document.createElement('div');
         bubble.className = 'ai-msg-bubble';
-        bubble.textContent = text;
+        
+        if (role === 'bot') {
+            bubble.innerHTML = parseMarkdown(text);
+        } else {
+            bubble.textContent = text;
+        }
         
         msgDiv.appendChild(bubble);
         ui.messages.appendChild(msgDiv);
@@ -122,7 +162,7 @@
             credentials: 'same-origin',
             body: JSON.stringify({
                 message: text,
-                history: chatHistory.slice(-10)
+                history: chatHistory.slice(0, -1).slice(-10)
             })
         })
         .then(res => {
