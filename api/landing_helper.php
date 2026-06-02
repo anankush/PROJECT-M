@@ -60,7 +60,7 @@ $messages[] = [
 ];
 
 $postData = [
-    'model' => 'openrouter/free',
+    'model' => 'meta-llama/llama-3.2-3b-instruct:free',
     'messages' => $messages
 ];
 
@@ -77,7 +77,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'HTTP-Referer: http://moneymgmt.is-best.net',
     'X-Title: Money Management'
 ]);
-curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
