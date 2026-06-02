@@ -414,7 +414,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
         <div class="ai-chat-messages" id="aiChatMessages"></div>
         
         <div class="ai-chat-suggestions">
-            <div class="ai-pill">What is Project M?</div>
+            <div class="ai-pill">What is Money Management?</div>
             <div class="ai-pill">Is it secure?</div>
             <div class="ai-pill">How do I start?</div>
         </div>
