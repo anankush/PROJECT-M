@@ -126,21 +126,19 @@ async function loadDashboardData(selectedMonth = 'all') {
 
 
         const currency = result?.currency || CURRENCY;
-        const budget = data ? data.total_budget : null;
+        const overallBudget = data ? data.overall_budget : null;
         const spent = data ? data.total_spent : null;
-        const balance = (budget !== null && spent !== null) ? budget - spent : null;
-
-        setStatPill('expBudgetVal', budget, currency);
-        setStatPill('expSpentVal', spent, currency, false);
-        setStatPill('expBalanceVal', balance, currency, true);
-
-
-        const totalSaved = data ? data.total_saved : null;
-        setStatPill('savTotalVal', totalSaved, currency, false, '#06b6d4');
-
-
         const netWorth = data ? data.net_worth : null;
+        const lifetimeSpent = data ? data.lifetime_spent : null;
+        const lifetimeSaved = data ? data.lifetime_saved : null;
+        const monthlySaved = data ? data.monthly_saved : null;
+
+        setStatPill('expBudgetVal', overallBudget, currency);
+        setStatPill('expSpentVal', spent, currency, false);
         setStatPill('netWorthVal', netWorth, currency, true);
+        setStatPill('lifetimeSpentVal', lifetimeSpent, currency, false);
+        setStatPill('lifetimeSavedVal', lifetimeSaved, currency, false, '#06b6d4');
+        setStatPill('monthlySavedVal', monthlySaved, currency, true);
 
         const scoreEl = document.getElementById('healthScoreVal');
         if (scoreEl) {

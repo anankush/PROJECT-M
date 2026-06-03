@@ -344,12 +344,12 @@ async function applyMonthFilter() {
         if (balTitle) balTitle.innerText = `${monthName} ${y} Remaining`;
         await fetchCategories();
 
-        if (currentCategoryId && window.currentViewName !== 'budgets.php') {
+        if (currentCategoryId) {
             loadCategory(currentCategoryId, currentCategoryName);
         } else {
             const urlParams = new URLSearchParams(window.location.search);
             const catParam = parseInt(urlParams.get('category_id'));
-            const matchedCat = (catParam && window.currentViewName !== 'budgets.php') ? categories.find(c => c.id === catParam) : null;
+            const matchedCat = catParam ? categories.find(c => c.id === catParam) : null;
             if (matchedCat) {
                 loadCategory(matchedCat.id, matchedCat.category_name);
             } else {

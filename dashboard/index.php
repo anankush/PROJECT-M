@@ -75,7 +75,7 @@ set_security_headers();
             <div class="stat-pill glass-card">
                 <div class="stat-pill-icon exp-icon"><i class="fas fa-wallet"></i></div>
                 <div class="stat-pill-info">
-                    <span class="stat-pill-label">Monthly Budget</span>
+                    <span class="stat-pill-label">Monthly Overall Budget</span>
                     <span class="stat-pill-value" id="expBudgetVal"><i
                             class="fas fa-circle-notch fa-spin fa-xs"></i></span>
                 </div>
@@ -90,26 +90,8 @@ set_security_headers();
                 </div>
             </div>
             <div class="stat-pill glass-card">
-                <div class="stat-pill-icon" style="background:rgba(16,185,129,0.15);color:#10b981;"><i
-                        class="fas fa-balance-scale"></i></div>
-                <div class="stat-pill-info">
-                    <span class="stat-pill-label">Budget Balance</span>
-                    <span class="stat-pill-value" id="expBalanceVal"><i
-                            class="fas fa-circle-notch fa-spin fa-xs"></i></span>
-                </div>
-            </div>
-            <div class="stat-pill glass-card">
-                <div class="stat-pill-icon" style="background:rgba(6,182,212,0.15);color:#06b6d4;"><i
-                        class="fas fa-piggy-bank"></i></div>
-                <div class="stat-pill-info">
-                    <span class="stat-pill-label">Total Saved</span>
-                    <span class="stat-pill-value" id="savTotalVal"><i
-                            class="fas fa-circle-notch fa-spin fa-xs"></i></span>
-                </div>
-            </div>
-            <div class="stat-pill glass-card">
                 <div class="stat-pill-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6;"><i
-                        class="fas fa-chart-line"></i></div>
+                        class="fas fa-balance-scale"></i></div>
                 <div class="stat-pill-info">
                     <span class="stat-pill-label">Net Worth</span>
                     <span class="stat-pill-value" id="netWorthVal"><i
@@ -117,10 +99,37 @@ set_security_headers();
                 </div>
             </div>
             <div class="stat-pill glass-card">
+                <div class="stat-pill-icon" style="background:rgba(239,68,68,0.15);color:#ef4444;"><i
+                        class="fas fa-shopping-bag"></i></div>
+                <div class="stat-pill-info">
+                    <span class="stat-pill-label">Lifetime Spent</span>
+                    <span class="stat-pill-value" id="lifetimeSpentVal"><i
+                            class="fas fa-circle-notch fa-spin fa-xs"></i></span>
+                </div>
+            </div>
+            <div class="stat-pill glass-card">
+                <div class="stat-pill-icon" style="background:rgba(6,182,212,0.15);color:#06b6d4;"><i
+                        class="fas fa-piggy-bank"></i></div>
+                <div class="stat-pill-info">
+                    <span class="stat-pill-label">Lifetime Saved</span>
+                    <span class="stat-pill-value" id="lifetimeSavedVal"><i
+                            class="fas fa-circle-notch fa-spin fa-xs"></i></span>
+                </div>
+            </div>
+            <div class="stat-pill glass-card">
+                <div class="stat-pill-icon" style="background:rgba(16,185,129,0.15);color:#10b981;"><i
+                        class="fas fa-hand-holding-usd"></i></div>
+                <div class="stat-pill-info">
+                    <span class="stat-pill-label">Monthly Saved</span>
+                    <span class="stat-pill-value" id="monthlySavedVal"><i
+                            class="fas fa-circle-notch fa-spin fa-xs"></i></span>
+                </div>
+            </div>
+            <div class="stat-pill glass-card">
                 <div class="stat-pill-icon" style="background:rgba(16,185,129,0.15);color:#10b981;"><i
                         class="fas fa-heartbeat"></i></div>
                 <div class="stat-pill-info">
-                    <span class="stat-pill-label">Health Score</span>
+                    <span class="stat-pill-label">Financial Health Score</span>
                     <span class="stat-pill-value" id="healthScoreVal"><i
                             class="fas fa-circle-notch fa-spin fa-xs"></i></span>
                 </div>

@@ -130,17 +130,19 @@ try {
 
     
     if ($month === 'all') {
-        
+        $overallQuery = "SELECT COALESCE(SUM(budget), 0) as overall_budget FROM monthly_overall_budgets WHERE user_id = ?";
+        $overallRes = $model->customQuery($overallQuery, [$uid]);
+        $overallBudget = floatval($overallRes[0]['overall_budget'] ?? 0);
+
         $budgetQuery = "SELECT COALESCE(SUM(budget), 0) as total_budget FROM user_categories WHERE user_id = ?";
         $budgetResult = $model->customQuery($budgetQuery, [$uid]);
         $totalBudget = floatval($budgetResult[0]['total_budget'] ?? 0);
 
-        
         $expQuery = "SELECT COALESCE(SUM(amount), 0) as total_spent FROM expenses WHERE user_id = ?";
         $expResult = $model->customQuery($expQuery, [$uid]);
         $totalSpent = floatval($expResult[0]['total_spent'] ?? 0);
+        $lifetimeSpent = $totalSpent;
 
-        
         $breakdownQuery = "
             SELECT c.id as category_id, c.category_name, COALESCE(SUM(e.amount), 0) as spent
             FROM user_categories c
@@ -151,7 +153,6 @@ try {
         ";
         $breakdown = $model->customQuery($breakdownQuery, [$uid]);
 
-        
         $curMonth = date('Y-m');
         $curBudgetQuery = "
             SELECT COALESCE(SUM(COALESCE(mb.budget, c.budget)), 0) as total_budget
@@ -166,8 +167,18 @@ try {
         $curExpResult = $model->customQuery($curExpQuery, [$uid, $curMonth]);
         $curSpent = floatval($curExpResult[0]['total_spent'] ?? 0);
 
+        $monthlySavedQuery = "
+            SELECT COALESCE(SUM(CASE WHEN type='deposit' THEN amount ELSE -amount END), 0) as monthly_saved
+            FROM savings_transactions WHERE user_id = ? AND DATE_FORMAT(transaction_date, '%Y-%m') = ?
+        ";
+        $monthlySavedResult = $model->customQuery($monthlySavedQuery, [$uid, $curMonth]);
+        $monthlySaved = floatval($monthlySavedResult[0]['monthly_saved'] ?? 0);
+
     } else {
-        
+        $overallQuery = "SELECT budget FROM monthly_overall_budgets WHERE user_id = ? AND budget_month = ?";
+        $overallRes = $model->customQuery($overallQuery, [$uid, $month]);
+        $overallBudget = floatval($overallRes[0]['budget'] ?? 0);
+
         $budgetQuery = "
             SELECT COALESCE(SUM(COALESCE(mb.budget, c.budget)), 0) as total_budget
             FROM user_categories c
@@ -181,7 +192,10 @@ try {
         $expResult = $model->customQuery($expQuery, [$uid, $month]);
         $totalSpent = floatval($expResult[0]['total_spent'] ?? 0);
 
-        
+        $lifetimeSpentQuery = "SELECT COALESCE(SUM(amount), 0) as total_spent FROM expenses WHERE user_id = ?";
+        $lifetimeSpentResult = $model->customQuery($lifetimeSpentQuery, [$uid]);
+        $lifetimeSpent = floatval($lifetimeSpentResult[0]['total_spent'] ?? 0);
+
         $breakdownQuery = "
             SELECT c.id as category_id, c.category_name, COALESCE(SUM(e.amount), 0) as spent
             FROM user_categories c
@@ -194,6 +208,13 @@ try {
 
         $curBudget = $totalBudget;
         $curSpent = $totalSpent;
+
+        $monthlySavedQuery = "
+            SELECT COALESCE(SUM(CASE WHEN type='deposit' THEN amount ELSE -amount END), 0) as monthly_saved
+            FROM savings_transactions WHERE user_id = ? AND DATE_FORMAT(transaction_date, '%Y-%m') = ?
+        ";
+        $monthlySavedResult = $model->customQuery($monthlySavedQuery, [$uid, $month]);
+        $monthlySaved = floatval($monthlySavedResult[0]['monthly_saved'] ?? 0);
     }
 
     
@@ -346,9 +367,11 @@ try {
         'status' => 'success',
         'currency' => $currency,
         'data' => [
-            'total_budget' => $totalBudget,
+            'overall_budget' => $overallBudget,
             'total_spent' => $totalSpent,
-            'total_saved' => $totalSaved,
+            'lifetime_spent' => $lifetimeSpent,
+            'lifetime_saved' => $totalSaved,
+            'monthly_saved' => $monthlySaved,
             'net_worth' => $netWorth,
             'health_score' => $healthScore,
             'breakdown' => $breakdown,
