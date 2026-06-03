@@ -649,7 +649,7 @@ function filterDashboardByMonth(month) {
     if (selectFilter) selectFilter.value = month;
 
     const resetBtn = document.getElementById('resetFilterBtn');
-    if (resetBtn) resetBtn.style.display = (month === 'all') ? 'none' : 'inline-block';
+    if (resetBtn) resetBtn.style.display = (month === 'all') ? 'none' : 'inline-flex';
 
     const curMonthLabel = document.getElementById('chartMonthLabel');
     if (curMonthLabel) {

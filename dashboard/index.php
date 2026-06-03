@@ -208,9 +208,8 @@ set_security_headers();
                     onchange="filterDashboardByMonth(this.value)">
                     <option value="all">All-Time</option>
                 </select>
-                <button id="resetFilterBtn" class="btn btn-ghost"
-                    style="font-size: 0.8rem; padding: 0.4rem 0.8rem; display:none;" onclick="resetDashboardFilter()">
-                    <i class="fas fa-times-circle"></i> Clear Filter
+                <button id="resetFilterBtn" class="btn btn-reset-filter" style="display:none;" onclick="resetDashboardFilter()">
+                    <i class="fas fa-times-circle"></i> <span class="reset-text">Clear Filter</span>
                 </button>
             </div>
         </div>
