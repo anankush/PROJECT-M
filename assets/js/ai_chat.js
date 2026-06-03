@@ -16,7 +16,7 @@
             sessionStorage.removeItem('PROJECTM_AI_CHAT');
             chatHistory = [];
             ui.messages.innerHTML = '';
-            const welcomeMsg = "Hello! 👋 I am ZNODA AI, your premium personal finance welcoming assistant. Ask me anything about Money Management features or something else!";
+            const welcomeMsg = "Hello! 👋 I am ZNODA AI, your professional personal finance assistant. I'm here to help you analyze budgets, optimize savings, and guide you through our money management tools. Ask me any financial or feature questions!";
             appendBubble('bot', welcomeMsg);
             chatHistory = [{ role: 'bot', text: welcomeMsg }];
             sessionStorage.setItem('PROJECTM_AI_CHAT', JSON.stringify(chatHistory));
@@ -56,7 +56,7 @@
         });
 
         if (chatHistory.length === 0) {
-            const welcomeMsg = "Hello! 👋 I am ZNODA AI, your premium personal finance welcoming assistant. Ask me anything about Money Management features or security!";
+            const welcomeMsg = "Hello! 👋 I am ZNODA AI, your professional personal finance assistant. I'm here to help you analyze budgets, optimize savings, and guide you through our money management tools. Ask me any financial or feature questions!";
             appendMessage('bot', welcomeMsg);
         } else {
             chatHistory.forEach(msg => appendBubble(msg.role, msg.text));
@@ -181,7 +181,7 @@
             credentials: 'same-origin',
             body: JSON.stringify({
                 message: text,
-                history: chatHistory.slice(0, -1).slice(-10)
+                history: chatHistory.slice(0, -1).slice(-30)
             })
         })
             .then(res => {
