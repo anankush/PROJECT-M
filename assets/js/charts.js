@@ -356,7 +356,7 @@ async function loadDashboardData(selectedMonth = 'all') {
                 tr.onclick = () => { filterDashboardByMonth(m); };
 
                 const isCurrentMonth = (idx === 0);
-                const budgetStr = (isCurrentMonth && budget !== null) ? `${currency}${Number(budget).toFixed(2)}` : `<span style="color:var(--text-muted)">-</span>`;
+                const budgetStr = (isCurrentMonth && overallBudget !== null) ? `${currency}${Number(overallBudget).toFixed(2)}` : `<span style="color:var(--text-muted)">-</span>`;
 
                 const expVal = expMap[m] || 0;
                 const savVal = savMap[m] || 0;
