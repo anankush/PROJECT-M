@@ -57,7 +57,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 
         <!-- Hero -->
         <div class="reveal">
-            <h1><span class="gradient-text">About PROJECT M</span></h1>
+            <h1><span class="gradient-text">About Money Management</span></h1>
             <p class="about-hero-sub">
                 A free, open-source personal finance command center — built to give you complete control over every rupee. 
                 Combining expense tracking and savings goals under one unified, security-hardened dashboard.
@@ -68,12 +68,12 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
         <div class="about-section reveal">
             <div class="about-section-title">
                 <i class="fas fa-lightbulb"></i>
-                Why PROJECT M?
+                Why Money Management?
             </div>
             <div class="about-card">
                 <p>
                     Managing money shouldn't require expensive software or complex spreadsheets. 
-                    PROJECT M was built with one goal: make personal finance tracking simple, beautiful, and accessible to everyone. 
+                    Money Management was built with one goal: make personal finance tracking simple, beautiful, and accessible to everyone. 
                     Whether you're a student tracking monthly expenses or saving toward a life goal — this platform scales with your needs.
                 </p>
             </div>
@@ -87,7 +87,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             </div>
             <div class="about-card">
                 <p>
-                    PROJECT M follows a modular architecture. Each module (Expenses, Savings) is self-contained with its own API, handlers, and UI — 
+                    Money Management follows a modular architecture. Each module (Expenses, Savings) is self-contained with its own API, handlers, and UI — 
                     but they share a unified authentication system, CSRF layer, and design language. 
                     The master dashboard pulls cross-module data to give you a complete combined financial overview in real time.
                 </p>
@@ -209,7 +209,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             </div>
             <div class="about-card">
                 <p>
-                    PROJECT M is fully open source and available on GitHub. 
+                    Money Management is fully open source and available on GitHub. 
                     Contributions, bug reports, and feature requests are always welcome.
                 </p>
                 <a href="https://github.com/anankush/PROJECT-M" target="_blank" rel="noopener" class="btn btn-outline" style="margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem;">

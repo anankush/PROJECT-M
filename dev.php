@@ -12,8 +12,8 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer | PROJECT M</title>
-    <meta name="description" content="Connect with the developer of PROJECT M — a personal finance management platform.">
+    <title>Developer | Money Management</title>
+    <meta name="description" content="Connect with the developer of Money Management — a personal finance management platform.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
@@ -62,7 +62,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
                     Developer Profile
                 </div>
                 <h1><span class="gradient-text">Say Hello 👋</span></h1>
-                <p>Connect with the developer of PROJECT M. Open to collaborations, feedback, and friendly conversations.</p>
+                <p>Connect with the developer of Money Management. Open to collaborations, feedback, and friendly conversations.</p>
             </div>
 
             <div class="dev-grid reveal visible">

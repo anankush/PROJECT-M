@@ -14,7 +14,7 @@ if (isset($_SESSION['admin_id']) && isset($_SESSION['role']) && $_SESSION['role'
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Administration | PROJECT M</title>
+    <title>System Administration | Money Management</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
@@ -180,7 +180,7 @@ if (isset($_SESSION['admin_id']) && isset($_SESSION['role']) && $_SESSION['role'
             </div>
             <h1 class="portal-title">System Administration</h1>
             <p class="portal-desc">
-                Welcome to the PROJECT M administrative command gateway. Only authorized personnel are permitted to access the database monitor and security logs.
+                Welcome to the Money Management administrative command gateway. Only authorized personnel are permitted to access the database monitor and security logs.
             </p>
             
             <div class="portal-actions">
