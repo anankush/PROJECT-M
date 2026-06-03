@@ -827,8 +827,15 @@ async function renameSection() {
     if (newName && newName.trim()) {
         const res = await fetch(`${API_URL}?action=rename_category`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN }, body: JSON.stringify({ category_id: currentCategoryId, category_name: newName.trim() }) });
         const result = await res.json();
-        if (result.status === 'success') { currentCategoryName = newName.trim(); document.getElementById('currentTableTitle').innerText = currentCategoryName; Swal.fire({ icon: 'success', title: 'Renamed!', text: `Section renamed to "${currentCategoryName}"`, timer: 1500, showConfirmButton: false }); fetchCategories(); }
-        else Swal.fire('Error', result.message, 'error');
+        if (result.status === 'success') {
+            currentCategoryName = newName.trim();
+            const titleEl = document.getElementById('currentTableTitle');
+            if (titleEl) titleEl.innerText = currentCategoryName;
+            await fetchCategories();
+            Swal.fire({ icon: 'success', title: 'Renamed!', text: `Section renamed to "${currentCategoryName}"`, timer: 1500, showConfirmButton: false });
+        } else {
+            Swal.fire('Error', result.message, 'error');
+        }
     }
 }
 
