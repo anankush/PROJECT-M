@@ -493,6 +493,9 @@ function updateBalanceCard(boxId, el, balance) {
 
 async function loadCategory(id, name) {
     if (!document.getElementById('currentTableTitle')) {
+        if (window.currentViewName && window.currentViewName.includes('budgets')) {
+            return;
+        }
         await loadView('view_expenses.php');
         return loadCategory(id, name);
     }
