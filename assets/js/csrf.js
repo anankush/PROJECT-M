@@ -1,4 +1,19 @@
 const originalFetch = window.fetch;
+
+/**
+ * Reads the server-injected path depth from a meta tag.
+ * This avoids exposing directory structure in client-side JS.
+ * Each PHP page injects: <meta name="path-depth" content="N">
+ */
+function getPathPrefix() {
+    const depth = parseInt(
+        document.querySelector('meta[name="path-depth"]')?.getAttribute('content') || '0'
+    );
+    let prefix = '';
+    for (let i = 0; i < depth; i++) prefix += '../';
+    return prefix;
+}
+
 window.fetch = async function () {
     let [resource, config] = arguments;
     if (config && (config.method === 'POST' || config.method === 'PUT' || config.method === 'DELETE')) {
@@ -23,16 +38,7 @@ window.fetch = async function () {
             }
         } catch (e) { }
 
-        let depth = 0;
-        const path = window.location.pathname;
-        if (path.includes('/admin/')) depth = 1;
-        else if (path.includes('/Exp/user/')) depth = 2;
-        else if (path.includes('/Sav/user/')) depth = 2;
-        else if (path.includes('/auth/')) depth = 1;
-        else if (path.includes('/dashboard/')) depth = 1;
-
-        let prefix = '';
-        for (let i = 0; i < depth; i++) prefix += '../';
+        const prefix = getPathPrefix();
 
         if (typeof Swal !== 'undefined') Swal.close();
         if (response.status === 403) {
@@ -60,17 +66,7 @@ if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
 
 const activeLogoutUrl = getLogoutUrl();
 if (activeLogoutUrl && activeLogoutUrl !== '#') {
-    let depth = 0;
-    const path = window.location.pathname;
-    if (path.includes('/admin/')) depth = 1;
-    else if (path.includes('/Exp/user/')) depth = 2;
-    else if (path.includes('/Sav/user/')) depth = 2;
-    else if (path.includes('/auth/')) depth = 1;
-    else if (path.includes('/dashboard/')) depth = 1;
-
-    let prefix = '';
-    for (let i = 0; i < depth; i++) prefix += '../';
-
+    const prefix = getPathPrefix();
     setInterval(() => {
         fetch(prefix + 'session_ping.php', {
             headers: { 'Accept': 'application/json' }

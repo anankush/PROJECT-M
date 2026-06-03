@@ -13,6 +13,7 @@ $base = '../../';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="path-depth" content="2">
     <title>Expense Management | Money Management</title>
     <?php echo get_csrf_meta_tag(); ?>
     <?php echo get_logout_meta_tag('../../'); ?>

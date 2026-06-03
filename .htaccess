@@ -5,13 +5,36 @@ ServerSignature Off
 # Landing page as default
 DirectoryIndex index.php
 
-# Block access to sensitive directories
+# ── Block sensitive file types ──────────────────────────────────────────────
+<FilesMatch "\.(log|bak|tmp|sql|env|sh|conf|config|ini|swp|swo|git)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ── Block sensitive directories ──────────────────────────────────────────────
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^(includes|database|\.git)/ - [F,L]
+    # Block direct access to backend/internal directories
+    RewriteRule ^(includes|api|auth|admin|dashboard|Exp|Sav|\.git|database)(/|$) - [F,L]
 </IfModule>
 
-# Force HTTPS — works with InfinityFree/Cloudflare proxy
+# ── Block direct browser access to dev.php (allow only if needed locally) ───
+<Files "dev.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# ── Block session_ping.php from direct browser requests ─────────────────────
+<Files "session_ping.php">
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{HTTP_ACCEPT} !application/json
+        RewriteCond %{HTTP:X-Requested-With} !XMLHttpRequest
+        RewriteRule ^ - [F,L]
+    </IfModule>
+</Files>
+
+# ── Force HTTPS — works with InfinityFree/Cloudflare proxy ──────────────────
 # Checks both the standard HTTPS flag and the Cloudflare forwarded-proto header
 <IfModule mod_rewrite.c>
     RewriteEngine On
@@ -22,9 +45,8 @@ DirectoryIndex index.php
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
-# Centralized Error Page Handlers
+# ── Centralized Error Page Handlers ─────────────────────────────────────────
 # (If your project is in a subdirectory on the server, e.g. /PROJECT M/, prepend it: /PROJECT M/error.php?code=...)
 ErrorDocument 404 /error.php?code=url_tamper
 ErrorDocument 403 /error.php?code=unauthorized
 ErrorDocument 500 /error.php?code=db
-
