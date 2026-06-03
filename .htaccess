@@ -11,11 +11,22 @@ DirectoryIndex index.php
     Deny from all
 </FilesMatch>
 
-# ── Block sensitive directories ──────────────────────────────────────────────
+# ── Block sensitive directories (direct browser navigation) ─────────────────
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    # Block direct access to backend/internal directories
-    RewriteRule ^(includes|api|auth|admin|dashboard|Exp|Sav|\.git|database)(/|$) - [F,L]
+    # Block direct access to purely internal directories (not API)
+    RewriteRule ^(includes|auth|admin|dashboard|Exp|Sav|\.git|database)(/|$) - [F,L]
+</IfModule>
+
+# ── Protect api/ — allow AJAX calls, block direct browser navigation ─────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Block GET requests to api/ directory (directory listing / direct browse)
+    # Allow POST (AJAX fetch calls from the app)
+    RewriteCond %{REQUEST_METHOD} GET
+    RewriteCond %{HTTP_ACCEPT} !application/json
+    RewriteCond %{HTTP:X-Requested-With} !XMLHttpRequest
+    RewriteRule ^api/$ - [F,L]
 </IfModule>
 
 # ── Block direct browser access to dev.php (allow only if needed locally) ───
