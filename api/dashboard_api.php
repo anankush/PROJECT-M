@@ -354,7 +354,7 @@ try {
     $healthScore = max(0, min(100, round($healthScore)));
 
     
-    $netWorth = $totalSaved - $lifetimeSpent;
+    $netWorth = max(0, $totalSaved - $lifetimeSpent);
     $monthlyRemaining = $overallBudget - $totalSpent;
 
     
