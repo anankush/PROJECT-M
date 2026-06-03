@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
                 exit;
             }
 
-            
+
             $check = $pdo->prepare("SELECT id FROM savings_goals WHERE id = ? AND user_id = ?");
             $check->execute([$goal_id, $uid]);
             if (!$check->fetch()) {
@@ -101,22 +101,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
             exit;
         }
     } catch (PDOException $e) {
-        
+
         error_log('[Dashboard API:quick_entry] ' . $e->getMessage());
 
-        
+
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
             setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
         }
-        if (session_status() === PHP_SESSION_ACTIVE) session_destroy();
+        if (session_status() === PHP_SESSION_ACTIVE)
+            session_destroy();
 
         $base_url = defined('BASE_URL') ? BASE_URL : '/';
         http_response_code(500);
         echo json_encode([
-            'status'   => 'error',
-            'message'  => 'A critical error occurred. Session terminated.',
+            'status' => 'error',
+            'message' => 'A critical error occurred. Session terminated.',
             'redirect' => $base_url . 'error.php?code=db'
         ]);
         exit;
@@ -128,7 +129,7 @@ $month = sanitize_input($_GET['month'] ?? 'all');
 try {
     $model = new Model($pdo, 'expenses', $uid);
 
-    
+
     if ($month === 'all') {
         $curMonth = date('Y-m');
         $overallQuery = "SELECT budget FROM monthly_overall_budgets WHERE user_id = ? AND budget_month = ?";
@@ -217,7 +218,7 @@ try {
         $monthlySaved = floatval($monthlySavedResult[0]['monthly_saved'] ?? 0);
     }
 
-    
+
     $expMonthlyQuery = "
         SELECT DATE_FORMAT(entry_date, '%Y-%m') as month, SUM(amount) as total_spent
         FROM expenses
@@ -226,7 +227,7 @@ try {
     ";
     $expMonthly = $model->customQuery($expMonthlyQuery, [$uid]);
 
-    
+
     $totalSaved = 0;
     $savMonthly = [];
     try {
@@ -245,10 +246,10 @@ try {
         ";
         $savMonthly = $model->customQuery($savMonthlyQuery, [$uid]);
     } catch (PDOException $e) {
-        
+
     }
 
-    
+
     $goals = [];
     try {
         $goalsQuery = "
@@ -262,10 +263,10 @@ try {
         ";
         $goals = $model->customQuery($goalsQuery, [$uid]);
     } catch (PDOException $e) {
-        
+
     }
 
-    
+
     $recentTransactions = [];
     try {
         if ($month === 'all') {
@@ -310,10 +311,10 @@ try {
             $recentTransactions = $model->customQuery($recentQuery, [$uid, $month, $uid, $month]);
         }
     } catch (PDOException $e) {
-        
+
     }
 
-    
+
     $healthScore = 100;
     if ($curBudget > 0) {
         $spendRatio = $curSpent / $curBudget;
@@ -353,16 +354,17 @@ try {
     $healthScore += ($achievedGoals * 5);
     $healthScore = max(0, min(100, round($healthScore)));
 
-    
-    $netWorth = $totalSaved - $lifetimeSpent;
+
+    $netWorth = $totalSaved + $lifetimeSpent;
     $monthlyRemaining = $overallBudget - $totalSpent;
 
-    
+
     $categories = [];
     try {
         $catQuery = "SELECT id, category_name FROM user_categories WHERE user_id = ? ORDER BY category_name ASC";
         $categories = $model->customQuery($catQuery, [$uid]);
-    } catch (PDOException $e) {}
+    } catch (PDOException $e) {
+    }
 
     echo json_encode([
         'status' => 'success',
