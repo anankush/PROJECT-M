@@ -12,7 +12,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer Portal | PROJECT M</title>
+    <title>Developer | PROJECT M</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
@@ -81,12 +81,7 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             color: var(--text-secondary);
             line-height: 1.5;
         }
-        
-        
-        .card-admin { background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2); }
-        .card-admin .dev-card-icon { color: #ef4444; }
-        .card-admin:hover { box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); }
-        
+
         .card-git { background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.1); }
         .card-git .dev-card-icon { color: #ffffff; }
         .card-git:hover { box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); }
@@ -112,7 +107,6 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
     <div class="noise-overlay"></div>
 
     <div class="dev-wrapper">
-        <!-- Navbar -->
         <nav class="landing-nav" id="navbar">
             <a href="index.php" class="nav-logo">PROJECT M</a>
             <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
@@ -128,33 +122,27 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
             </div>
         </nav>
 
-        <!-- Main Content -->
         <div class="dev-content">
             <div class="reveal visible dev-header">
                 <h1><span class="gradient-text">Developer Profile</span></h1>
                 <p>Connect with the developer of PROJECT M.</p>
             </div>
-            
+
             <div class="dev-grid reveal visible">
-                <!-- LinkedIn -->
                 <a href="https://www.linkedin.com/in/itznayan" target="_blank" rel="noopener" class="glass-card dev-card card-home">
                     <i class="fab fa-linkedin dev-card-icon"></i>
                     <div class="dev-card-title">LinkedIn Profile</div>
                     <div class="dev-card-desc">Connect with me professionally.</div>
                 </a>
 
-                <!-- GitHub -->
                 <a href="https://github.com/anankush/" target="_blank" rel="noopener" class="glass-card dev-card card-git">
                     <i class="fab fa-github dev-card-icon"></i>
                     <div class="dev-card-title">GitHub Profile</div>
                     <div class="dev-card-desc">Check out my open-source projects.</div>
                 </a>
-
-
             </div>
         </div>
 
-        <!-- Footer -->
         <footer class="dev-footer">
             <div class="footer-copy">
                 made with love ❤️<br>
@@ -164,7 +152,6 @@ $isLoggedIn = isset($_SESSION['user_id']) || isset($_SESSION['admin_id']);
     </div>
 
     <script>
-        
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const navLinks = document.querySelector('.nav-links');
         if (mobileMenuBtn && navLinks) {

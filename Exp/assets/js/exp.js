@@ -60,7 +60,6 @@ const allCurrencies = [
     "XAF", "XCD", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWL"
 ];
 
-// Removed aggressive popstate logout that breaks navigation and causes 404s
 
 window.addEventListener('beforeunload', function (e) {
     if (!isManualLogout) {
@@ -87,9 +86,8 @@ async function loadView(viewName) {
             if (sidebar && sidebar.classList.contains('open')) toggleSidebar();
         }
     } catch (e) {
-        console.error("Failed to load view", e);
         const mc = document.getElementById('main-content');
-        if (mc) mc.innerHTML = `<div style="text-align:center; padding: 50px;"><i class="fas fa-exclamation-triangle fa-3x" style="color:var(--danger); margin-bottom: 20px;"></i><h2 style="color:white;">Failed to load module.</h2><p style="color:var(--text-muted);">${e.message}</p></div>`;
+        if (mc) mc.innerHTML = `<div style="text-align:center; padding: 50px;"><i class="fas fa-exclamation-triangle fa-3x" style="color:var(--danger); margin-bottom: 20px;"></i><h2 style="color:white;">Failed to load module.</h2><p style="color:var(--text-muted);">Please try refreshing the page.</p></div>`;
     }
 }
 
@@ -423,7 +421,6 @@ async function checkAuth() {
             window.location.href = '../../auth/login.php';
         }
     } catch (e) {
-        console.error(e);
     }
 }
 
@@ -455,7 +452,7 @@ async function fetchCategories() {
         if (window.DataStore) {
             await DataStore.fetchAllData(monthVal);
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { }
 }
 
 function renderTabs() {
@@ -557,7 +554,7 @@ async function loadCategory(id, name) {
                     balanceEl.innerHTML = `${userCurrency}${balance.toFixed(2)}`;
                     updateBalanceCard('totalBalanceBox', balanceEl, balance);
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) { }
 
             if (data.schema) window.currentCustomSchema = data.schema;
 
@@ -1468,7 +1465,6 @@ window.selCurr = function (el, val) {
     if (lbl) lbl.textContent = val;
 };
 
-// Global settings removed to main dashboard unified settings.js
 
 async function openNoteModal() {
     if (!currentCategoryId) return;
@@ -1866,7 +1862,6 @@ async function triggerSweepToSavings() {
             }
         }
     } catch (err) {
-        console.error(err);
         Swal.fire('Error', 'Failed to process the sweep operation.', 'error');
     }
 }

@@ -205,7 +205,6 @@
                 }
             })
             .catch(err => {
-                console.error('[AI Chat Connection Error]:', err);
                 hideTyping();
                 ui.input.disabled = false;
                 ui.sendBtn.disabled = false;

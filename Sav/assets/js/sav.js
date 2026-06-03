@@ -54,7 +54,6 @@ async function loadSavView(viewName, tabId) {
             if (sidebar && sidebar.classList.contains('open')) toggleSidebar();
         }
     } catch (e) {
-        console.error("Failed to load view", e);
     }
 }
 
@@ -83,7 +82,6 @@ async function checkAuth() {
             window.location.href = '../../auth/login.php';
         }
     } catch (e) {
-        console.error(e);
     }
 }
 
@@ -106,7 +104,6 @@ async function fetchGoals() {
             }
         }
     } catch (e) {
-        console.error(e);
         if (document.getElementById('goalsLoader')) document.getElementById('goalsLoader').style.display = 'none';
     }
 }
@@ -609,7 +606,6 @@ async function fetchHistory() {
             }
         }
     } catch (e) {
-        console.error(e);
         if (loader) loader.style.display = 'none';
     }
 }

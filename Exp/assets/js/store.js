@@ -55,7 +55,6 @@ const DataStore = {
 
             this.notify();
         } catch (error) {
-            console.error("Failed to fetch unified data:", error);
         }
     }
 };

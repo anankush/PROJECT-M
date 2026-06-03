@@ -1,7 +1,3 @@
-/**
- * Email Security Shield - Client-Side Real-Time Detector
- * 100% Live, Zero Caching, with Automated Dual-Source Fallback.
- */
 
 async function isDisposableEmail(email) {
     if (!email || !email.includes('@')) {
@@ -27,7 +23,6 @@ async function isDisposableEmail(email) {
             }
         }
     } catch (err) {
-        console.warn("Kickbox Open API lookup failed or offline, falling back to live GitHub Raw Database...", err);
     }
 
     // Source 2: GitHub Community Disposable Domains Database (Live Fallback)
@@ -44,7 +39,6 @@ async function isDisposableEmail(email) {
             }
         }
     } catch (err) {
-        console.error("Live GitHub Raw Blocklist fetch failed:", err);
     }
 
     // If both live check pathways fail (e.g. offline/no-network), registration is allowed

@@ -431,7 +431,6 @@ async function loadDashboardData(selectedMonth = 'all') {
         }
 
     } catch (e) {
-        console.error('Dashboard data load failed:', e);
     } finally {
         if (refreshIcon) refreshIcon.classList.remove('fa-spin');
     }
@@ -693,7 +692,6 @@ async function navigateSecurely(module) {
             });
         }
     } catch (e) {
-        console.error('Secure navigation failed:', e);
         Swal.fire('Connection Error', 'Failed to communicate with secure gateway.', 'error');
     }
 }
