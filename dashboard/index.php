@@ -90,6 +90,15 @@ set_security_headers();
                 </div>
             </div>
             <div class="stat-pill glass-card">
+                <div class="stat-pill-icon" style="background:rgba(16,185,129,0.15);color:#10b981;"><i
+                        class="fas fa-coins"></i></div>
+                <div class="stat-pill-info">
+                    <span class="stat-pill-label">Monthly Remaining</span>
+                    <span class="stat-pill-value" id="monthlyRemainingVal"><i
+                            class="fas fa-circle-notch fa-spin fa-xs"></i></span>
+                </div>
+            </div>
+            <div class="stat-pill glass-card">
                 <div class="stat-pill-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6;"><i
                         class="fas fa-balance-scale"></i></div>
                 <div class="stat-pill-info">

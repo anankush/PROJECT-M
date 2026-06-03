@@ -130,9 +130,10 @@ try {
 
     
     if ($month === 'all') {
-        $overallQuery = "SELECT COALESCE(SUM(budget), 0) as overall_budget FROM monthly_overall_budgets WHERE user_id = ?";
-        $overallRes = $model->customQuery($overallQuery, [$uid]);
-        $overallBudget = floatval($overallRes[0]['overall_budget'] ?? 0);
+        $curMonth = date('Y-m');
+        $overallQuery = "SELECT budget FROM monthly_overall_budgets WHERE user_id = ? AND budget_month = ?";
+        $overallRes = $model->customQuery($overallQuery, [$uid, $curMonth]);
+        $overallBudget = floatval($overallRes[0]['budget'] ?? 0);
 
         $budgetQuery = "SELECT COALESCE(SUM(budget), 0) as total_budget FROM user_categories WHERE user_id = ?";
         $budgetResult = $model->customQuery($budgetQuery, [$uid]);
@@ -140,8 +141,7 @@ try {
 
         $expQuery = "SELECT COALESCE(SUM(amount), 0) as total_spent FROM expenses WHERE user_id = ?";
         $expResult = $model->customQuery($expQuery, [$uid]);
-        $totalSpent = floatval($expResult[0]['total_spent'] ?? 0);
-        $lifetimeSpent = $totalSpent;
+        $lifetimeSpent = floatval($expResult[0]['total_spent'] ?? 0);
 
         $breakdownQuery = "
             SELECT c.id as category_id, c.category_name, COALESCE(SUM(e.amount), 0) as spent
@@ -153,7 +153,6 @@ try {
         ";
         $breakdown = $model->customQuery($breakdownQuery, [$uid]);
 
-        $curMonth = date('Y-m');
         $curBudgetQuery = "
             SELECT COALESCE(SUM(COALESCE(mb.budget, c.budget)), 0) as total_budget
             FROM user_categories c
@@ -165,7 +164,8 @@ try {
 
         $curExpQuery = "SELECT COALESCE(SUM(amount), 0) as total_spent FROM expenses WHERE user_id = ? AND DATE_FORMAT(entry_date, '%Y-%m') = ?";
         $curExpResult = $model->customQuery($curExpQuery, [$uid, $curMonth]);
-        $curSpent = floatval($curExpResult[0]['total_spent'] ?? 0);
+        $totalSpent = floatval($curExpResult[0]['total_spent'] ?? 0); // Map this to totalSpent (current month spent)
+        $curSpent = $totalSpent;
 
         $monthlySavedQuery = "
             SELECT COALESCE(SUM(CASE WHEN type='deposit' THEN amount ELSE -amount END), 0) as monthly_saved
@@ -355,6 +355,7 @@ try {
 
     
     $netWorth = $totalSaved + ($totalBudget - $totalSpent);
+    $monthlyRemaining = $overallBudget - $totalSpent;
 
     
     $categories = [];
@@ -369,6 +370,7 @@ try {
         'data' => [
             'overall_budget' => $overallBudget,
             'total_spent' => $totalSpent,
+            'monthly_remaining' => $monthlyRemaining,
             'lifetime_spent' => $lifetimeSpent,
             'lifetime_saved' => $totalSaved,
             'monthly_saved' => $monthlySaved,

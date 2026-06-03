@@ -128,6 +128,7 @@ async function loadDashboardData(selectedMonth = 'all') {
         const currency = result?.currency || CURRENCY;
         const overallBudget = data ? data.overall_budget : null;
         const spent = data ? data.total_spent : null;
+        const monthlyRemaining = data ? data.monthly_remaining : null;
         const netWorth = data ? data.net_worth : null;
         const lifetimeSpent = data ? data.lifetime_spent : null;
         const lifetimeSaved = data ? data.lifetime_saved : null;
@@ -135,6 +136,7 @@ async function loadDashboardData(selectedMonth = 'all') {
 
         setStatPill('expBudgetVal', overallBudget, currency);
         setStatPill('expSpentVal', spent, currency, false);
+        setStatPill('monthlyRemainingVal', monthlyRemaining, currency, true);
         setStatPill('netWorthVal', netWorth, currency, true);
         setStatPill('lifetimeSpentVal', lifetimeSpent, currency, false);
         setStatPill('lifetimeSavedVal', lifetimeSaved, currency, false, '#06b6d4');

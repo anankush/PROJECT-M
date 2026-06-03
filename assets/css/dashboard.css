@@ -86,7 +86,8 @@
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-word;
 }
 .stat-pill-value {
     font-size: 1.25rem;
