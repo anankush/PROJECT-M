@@ -68,8 +68,12 @@ window.addEventListener('beforeunload', function (e) {
 });
 
 function toggleSidebar() {
-    document.getElementById('appSidebar').classList.toggle('open');
-    document.querySelector('.sidebar-overlay').classList.toggle('open');
+    const sidebar = document.getElementById('appSidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    const btn = document.getElementById('sidebarToggleBtn');
+    const isOpen = sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('open', isOpen);
+    if (btn) btn.classList.toggle('open', isOpen);
 }
 
 async function loadView(viewName) {

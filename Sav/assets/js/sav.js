@@ -64,8 +64,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function toggleSidebar() {
     const sidebar = document.getElementById('appSidebar');
     const overlay = document.querySelector('.sidebar-overlay');
-    if (sidebar) sidebar.classList.toggle('open');
-    if (overlay) overlay.classList.toggle('open');
+    const btn = document.getElementById('sidebarToggleBtn');
+    const isOpen = sidebar ? sidebar.classList.toggle('open') : false;
+    if (overlay) overlay.classList.toggle('open', isOpen);
+    if (btn) btn.classList.toggle('open', isOpen);
 }
 
 async function checkAuth() {

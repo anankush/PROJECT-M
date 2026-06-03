@@ -46,11 +46,11 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
     <nav class="landing-nav" id="navbar">
         <a href="index.php" class="nav-logo">Money Management</a>
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
+            <div class="hamburger-icon">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </button>
         <div class="nav-links">
             <a href="#features" class="desktop-only">Features</a>
@@ -321,13 +321,11 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
 
     <!-- ═══ SCRIPTS ═══ -->
     <script>
-        
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             navbar.classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        
         document.querySelectorAll('a[href^="#"]').forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
@@ -335,10 +333,11 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
+                navLinks.classList.remove('active');
+                mobileMenuBtn.classList.remove('open');
             });
         });
 
-        
         const revealElements = document.querySelectorAll('.reveal');
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach((entry, i) => {
@@ -353,16 +352,21 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
 
         revealElements.forEach(el => revealObserver.observe(el));
 
-        
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const navLinks = document.querySelector('.nav-links');
         if (mobileMenuBtn && navLinks) {
             mobileMenuBtn.addEventListener('click', () => {
-                navLinks.classList.toggle('active');
+                const isOpen = navLinks.classList.toggle('active');
+                mobileMenuBtn.classList.toggle('open', isOpen);
+            });
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('active');
+                    mobileMenuBtn.classList.remove('open');
+                });
             });
         }
 
-        
         const glow = document.createElement('div');
         glow.className = 'cursor-glow';
         document.body.appendChild(glow);

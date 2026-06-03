@@ -1,7 +1,7 @@
 <!-- Sav/user/history.php -->
 <div class="dashboard-header">
     <div class="header-left">
-        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <button class="mobile-menu-btn" id="sidebarToggleBtn" onclick="toggleSidebar()"><div class="hamburger-icon"><span></span><span></span><span></span></div></button>
         <h1>Deposit History</h1>
     </div>
     <div class="header-controls">

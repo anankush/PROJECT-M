@@ -1,7 +1,7 @@
 <!-- Exp/user/view_expenses.php -->
 <div class="dashboard-header">
     <div class="header-left">
-        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <button class="mobile-menu-btn" id="sidebarToggleBtn" onclick="toggleSidebar()"><div class="hamburger-icon"><span></span><span></span><span></span></div></button>
 
         <h1 id="currentTableTitle">Select a Section</h1>
         <button class="btn btn-ghost mobile-refresh-btn" id="refreshBtnMobile" onclick="refreshCurrentView()" style="display:none; margin-left:auto;">

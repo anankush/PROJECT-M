@@ -262,7 +262,7 @@ $base = '../';
             <section class="admin-view active" id="view-overview">
                 <div class="dashboard-header">
                     <div class="header-left">
-                        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                        <button class="mobile-menu-btn" id="sidebarToggleBtn" onclick="toggleSidebar()"><div class="hamburger-icon"><span></span><span></span><span></span></div></button>
                         <h1>System Overview</h1>
                     </div>
                     <div class="header-controls">
@@ -336,7 +336,7 @@ $base = '../';
             <section class="admin-view" id="view-users">
                 <div class="dashboard-header">
                     <div class="header-left">
-                        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                        <button class="mobile-menu-btn" onclick="toggleSidebar()"><div class="hamburger-icon"><span></span><span></span><span></span></div></button>
                         <h1>User Directory</h1>
                     </div>
                 </div>
@@ -377,7 +377,7 @@ $base = '../';
             <section class="admin-view" id="view-logs">
                 <div class="dashboard-header">
                     <div class="header-left">
-                        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                        <button class="mobile-menu-btn" onclick="toggleSidebar()"><div class="hamburger-icon"><span></span><span></span><span></span></div></button>
                         <h1>Security Logs</h1>
                     </div>
                 </div>
@@ -414,7 +414,7 @@ $base = '../';
             <section class="admin-view" id="view-shield">
                 <div class="dashboard-header">
                     <div class="header-left">
-                        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                        <button class="mobile-menu-btn" onclick="toggleSidebar()"><div class="hamburger-icon"><span></span><span></span><span></span></div></button>
                         <h1>Email Security Shield</h1>
                     </div>
                 </div>
@@ -490,15 +490,15 @@ $base = '../';
                     window.location.href = '../auth/admin_login.php';
                 }
             } catch (e) {
-                console.error(e);
-            }
         }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('appSidebar');
             const overlay = document.querySelector('.sidebar-overlay');
-            if (sidebar) sidebar.classList.toggle('open');
-            if (overlay) overlay.classList.toggle('open');
+            const btn = document.querySelector('.mobile-menu-btn');
+            const isOpen = sidebar ? sidebar.classList.toggle('open') : false;
+            if (overlay) overlay.classList.toggle('open', isOpen);
+            if (btn) btn.classList.toggle('open', isOpen);
         }
 
         function switchTab(tabId) {
