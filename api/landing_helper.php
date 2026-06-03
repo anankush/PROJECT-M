@@ -38,19 +38,13 @@ if (empty($apiKeyPool)) {
 // Select a random API key from the active pool to balance traffic
 $apiKey = $apiKeyPool[array_rand($apiKeyPool)];
 
-$isDebug = isset($_GET['debug']) && $_GET['debug'] === 'nayan';
-
 $input = json_decode(file_get_contents('php://input'), true);
 $userMessage = isset($input['message']) ? htmlspecialchars(strip_tags(trim($input['message'])), ENT_QUOTES, 'UTF-8') : '';
 
 if (empty($userMessage)) {
-    if ($isDebug) {
-        $userMessage = 'Hello'; // Bypasses empty check for secure debug testing
-    } else {
-        http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'Empty message']);
-        exit;
-    }
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Empty message']);
+    exit;
 }
 
 $chatHistory = $input['history'] ?? [];
@@ -247,9 +241,6 @@ if ($result === null) {
     error_log("[Gemini API Critical Error] All fallback models failed or were rate-limited.");
 
     $replyMsg = 'Failed to connect to ZNODA AI assistant. Too much load on our server. Please try again later.';
-    if ($isDebug) {
-        $replyMsg .= " (Debug Info: All fallbacks failed. Details: " . json_encode($debugLogs) . ")";
-    }
 
     echo json_encode([
         'status' => 'error',

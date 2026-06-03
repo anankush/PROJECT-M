@@ -15,8 +15,9 @@ foreach ($required_constants as $constant) {
         $missing[] = $constant;
 }
 if (!empty($missing)) {
+    error_log('DB config error: Missing definitions for ' . implode(', ', $missing));
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'System configuration error: Missing definitions for ' . implode(', ', $missing)]);
+    echo json_encode(['status' => 'error', 'message' => 'System configuration error. Please contact support.']);
     exit;
 }
 
