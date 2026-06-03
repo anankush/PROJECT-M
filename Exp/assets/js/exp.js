@@ -467,7 +467,7 @@ function renderTabs() {
         li.style.display = 'flex';
         li.style.alignItems = 'center';
         const safeName = escapeHtml(cat.category_name);
-        li.innerHTML = `<button class="category-tab ${currentCategoryId === cat.id ? 'active' : ''}" style="flex:1;" onclick="loadCategory(${cat.id}, '${escapeHtml(cat.category_name)}')"><i class="fas fa-folder"></i> <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis;">${safeName}</span></button>`;
+        li.innerHTML = `<button class="category-tab ${currentCategoryId === cat.id ? 'active' : ''}" style="flex:1;" onclick="loadCategory(${cat.id}, '${escapeHtml(cat.category_name)}', true)"><i class="fas fa-folder"></i> <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis;">${safeName}</span></button>`;
         container.appendChild(li);
     });
 }
@@ -491,13 +491,13 @@ function updateBalanceCard(boxId, el, balance) {
     }
 }
 
-async function loadCategory(id, name) {
+async function loadCategory(id, name, userInitiated = false) {
     if (!document.getElementById('currentTableTitle')) {
-        if (window.currentViewName && window.currentViewName.includes('budgets')) {
+        if (!userInitiated && window.currentViewName && window.currentViewName.includes('budgets')) {
             return;
         }
         await loadView('view_expenses.php');
-        return loadCategory(id, name);
+        return loadCategory(id, name, userInitiated);
     }
     currentCategoryId = id;
     currentCategoryName = name;
