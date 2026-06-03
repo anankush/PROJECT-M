@@ -392,3 +392,56 @@ function handle_save_note($pdo) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to save note.']);
     }
 }
+
+function handle_get_overall_budget($pdo) {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        return;
+    }
+    $uid = $_SESSION['user_id'];
+    $month = sanitize_input($_GET['month'] ?? '');
+    if (empty($month)) {
+        echo json_encode(['status' => 'error', 'message' => 'Month is required']);
+        return;
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT budget FROM monthly_overall_budgets WHERE user_id = ? AND budget_month = ?");
+        $stmt->execute([$uid, $month]);
+        $budget = $stmt->fetchColumn();
+        echo json_encode([
+            'status' => 'success',
+            'budget' => $budget !== false ? floatval($budget) : 0
+        ]);
+    } catch (PDOException $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to fetch overall budget.']);
+    }
+}
+
+function handle_update_overall_budget($pdo) {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        return;
+    }
+    $uid = $_SESSION['user_id'];
+    $input = json_decode(file_get_contents('php://input'), true);
+    $month = sanitize_input($input['month'] ?? '');
+    $budget = floatval($input['budget'] ?? 0);
+
+    if (empty($month)) {
+        echo json_encode(['status' => 'error', 'message' => 'Month is required']);
+        return;
+    }
+
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO monthly_overall_budgets (user_id, budget_month, budget)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE budget = VALUES(budget)
+        ");
+        $stmt->execute([$uid, $month, $budget]);
+        echo json_encode(['status' => 'success', 'message' => 'Overall budget updated successfully']);
+    } catch (PDOException $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to update overall budget.']);
+    }
+}

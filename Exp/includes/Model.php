@@ -11,6 +11,7 @@ class Model {
         'savings_goals',
         'savings_transactions',
         'category_monthly_budgets',
+        'monthly_overall_budgets',
         'rate_limits',
         'security_logs'
     ];

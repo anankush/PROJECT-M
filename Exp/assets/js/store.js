@@ -4,6 +4,7 @@ const DataStore = {
     state: {
         categories: [],
         totalBudget: 0,
+        overallBudget: 0,
         totalExpenditure: 0,
         currentMonth: '',
         currentCategoryId: null,
@@ -42,6 +43,14 @@ const DataStore = {
             const expData = await expRes.json();
             if (expData.status === 'success') {
                 this.state.totalExpenditure = parseFloat(expData.total) || 0;
+            }
+
+            const overallRes = await fetch(`${API_URL}?action=get_overall_budget&month=${monthVal}`);
+            const overallData = await overallRes.json();
+            if (overallData.status === 'success') {
+                this.state.overallBudget = parseFloat(overallData.budget) || 0;
+            } else {
+                this.state.overallBudget = 0;
             }
 
             this.notify();

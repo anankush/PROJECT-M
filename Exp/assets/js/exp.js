@@ -113,13 +113,19 @@ function initDashboard() {
     const urlParams = new URLSearchParams(window.location.search);
     const monthParam = urlParams.get('month');
     // Only pre-fill if coming from a month-specific link (e.g. dashboard chart click)
+    const initialMonth = monthParam || null;
     const monthInput = document.getElementById('monthFilter');
-    let initialMonth = '';
-    if (monthInput && monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
-        initialMonth = monthParam;
-    }
 
     if (monthInput) {
+        let defaultDate = initialMonth;
+        if (!defaultDate && window.DataStore && window.DataStore.state.currentMonth) {
+            defaultDate = window.DataStore.state.currentMonth;
+        }
+        if (!defaultDate) {
+            const now = new Date();
+            defaultDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        }
+
         window.monthFlatpickr = flatpickr("#monthFilter", {
             plugins: [
                 new monthSelectPlugin({
@@ -130,7 +136,7 @@ function initDashboard() {
                 })
             ],
             disableMobile: "true",
-            defaultDate: initialMonth || null,
+            defaultDate: defaultDate,
             onChange: function (selectedDates, dateStr, instance) {
                 handleMonthChange();
             }
@@ -155,34 +161,126 @@ function renderBudgetsTable() {
     tbody.innerHTML = '';
     if (categories.length === 0) {
         tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No sections found. Create one first.</td></tr>';
+    } else {
+        categories.forEach(cat => {
+            const tr = document.createElement('tr');
+            const budgetVal = parseFloat(cat.budget) || 0;
+            tr.innerHTML = `
+                        <td>${escapeHtml(cat.category_name)}</td>
+                        <td style="color:var(--aurora-2); font-weight:600;">${userCurrency}${budgetVal.toFixed(2)}</td>
+                        <td style="text-align:right;">
+                            <div class="action-btns" style="justify-content:flex-end;">
+                                <button class="icon-btn edit" title="Rename" onclick="triggerRename(${cat.id}, '${escapeHtml(cat.category_name)}')">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button class="icon-btn edit" title="Set Budget" onclick="triggerEditBudget(${cat.id}, '${escapeHtml(cat.category_name)}')" style="background:rgba(6,182,212,0.1);color:#06b6d4;border-color:rgba(6,182,212,0.2);">
+                                    <i class="fas fa-wallet"></i>
+                                </button>
+                                <button class="icon-btn edit" title="Notes" onclick="triggerNotes(${cat.id}, '${escapeHtml(cat.category_name)}')" style="background:rgba(245,158,11,0.1);color:#f59e0b;border-color:rgba(245,158,11,0.2);">
+                                    <i class="far fa-sticky-note"></i>
+                                </button>
+                                <button class="icon-btn delete" title="Delete" onclick="deleteSpecificCategory(${cat.id}, '${escapeHtml(cat.category_name)}')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Render Overall Budget Cards
+    const overallBudget = window.DataStore ? window.DataStore.state.overallBudget : 0;
+    const allocatedBudget = categories.reduce((sum, cat) => sum + (parseFloat(cat.budget) || 0), 0);
+    const unallocatedBudget = overallBudget - allocatedBudget;
+
+    const overallDisplay = document.getElementById('overallBudgetDisplay');
+    const allocatedDisplay = document.getElementById('allocatedBudgetDisplay');
+    const unallocatedDisplay = document.getElementById('unallocatedBudgetDisplay');
+    const unallocatedCard = document.getElementById('unallocatedBudgetCard');
+    const unallocatedLabel = document.getElementById('unallocatedLabel');
+
+    if (overallDisplay) {
+        overallDisplay.innerText = `${userCurrency}${overallBudget.toFixed(2)}`;
+    }
+    if (allocatedDisplay) {
+        allocatedDisplay.innerText = `${userCurrency}${allocatedBudget.toFixed(2)}`;
+    }
+    if (unallocatedDisplay) {
+        unallocatedDisplay.innerText = `${userCurrency}${Math.abs(unallocatedBudget).toFixed(2)}`;
+        if (unallocatedBudget < 0) {
+            unallocatedDisplay.innerText = `-${userCurrency}${Math.abs(unallocatedBudget).toFixed(2)}`;
+            if (unallocatedCard) {
+                unallocatedCard.style.background = 'rgba(239, 68, 68, 0.1)';
+                unallocatedCard.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                unallocatedCard.style.color = '#ef4444';
+            }
+            if (unallocatedLabel) unallocatedLabel.innerText = 'Over-Allocated';
+        } else {
+            if (unallocatedCard) {
+                unallocatedCard.style.background = 'rgba(16, 185, 129, 0.1)';
+                unallocatedCard.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                unallocatedCard.style.color = '#10b981';
+            }
+            if (unallocatedLabel) unallocatedLabel.innerText = 'Remaining to Allocate';
+        }
+    }
+}
+
+async function triggerEditOverallBudget() {
+    const monthVal = document.getElementById('monthFilter') ? document.getElementById('monthFilter').value : '';
+    if (!monthVal) {
+        Swal.fire('Error', 'Please select a month first.', 'error');
         return;
     }
 
-    categories.forEach(cat => {
-        const tr = document.createElement('tr');
-        const budgetVal = parseFloat(cat.budget) || 0;
-        tr.innerHTML = `
-                    <td>${escapeHtml(cat.category_name)}</td>
-                    <td style="color:var(--aurora-2); font-weight:600;">${userCurrency}${budgetVal.toFixed(2)}</td>
-                    <td style="text-align:right;">
-                        <div class="action-btns" style="justify-content:flex-end;">
-                            <button class="icon-btn edit" title="Rename" onclick="triggerRename(${cat.id}, '${escapeHtml(cat.category_name)}')">
-                                <i class="fas fa-pen"></i>
-                            </button>
-                            <button class="icon-btn edit" title="Set Budget" onclick="triggerEditBudget(${cat.id}, '${escapeHtml(cat.category_name)}')" style="background:rgba(6,182,212,0.1);color:#06b6d4;border-color:rgba(6,182,212,0.2);">
-                                <i class="fas fa-wallet"></i>
-                            </button>
-                            <button class="icon-btn edit" title="Notes" onclick="triggerNotes(${cat.id}, '${escapeHtml(cat.category_name)}')" style="background:rgba(245,158,11,0.1);color:#f59e0b;border-color:rgba(245,158,11,0.2);">
-                                <i class="far fa-sticky-note"></i>
-                            </button>
-                            <button class="icon-btn delete" title="Delete" onclick="deleteSpecificCategory(${cat.id}, '${escapeHtml(cat.category_name)}')">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-        tbody.appendChild(tr);
+    const [y, m] = monthVal.split('-');
+    const monthName = new Date(y, m - 1).toLocaleString('default', { month: 'long' });
+    const currentOverall = window.DataStore ? window.DataStore.state.overallBudget : 0;
+
+    const { value: newOverall } = await Swal.fire({
+        title: `Set Overall Budget for ${monthName} ${y}`,
+        html: `<div class="swal-form-container"><input id="overallBudgetInput" type="number" step="0.01" class="theme-input-select swal-input" value="${currentOverall === 0 ? '' : currentOverall}" placeholder="0.00" style="text-align:center;"></div>`,
+        width: 380,
+        showCancelButton: true,
+        confirmButtonColor: '#8b5cf6',
+        focusConfirm: false,
+        didOpen: () => {
+            const obInput = document.getElementById('overallBudgetInput');
+            if (obInput) {
+                obInput.focus();
+                obInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        Swal.clickConfirm();
+                    }
+                });
+            }
+        },
+        preConfirm: () => {
+            const v = document.getElementById('overallBudgetInput').value;
+            if (v === '') return 0; // allow setting to 0 / clearing
+            if (isNaN(parseFloat(v)) || parseFloat(v) < 0) {
+                Swal.showValidationMessage('Please enter a valid positive amount');
+                return false;
+            }
+            return parseFloat(v);
+        }
     });
+
+    if (newOverall !== undefined && newOverall !== null) {
+        const res = await fetch(`${API_URL}?action=update_overall_budget`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+            body: JSON.stringify({ month: monthVal, budget: newOverall })
+        });
+        const result = await res.json();
+        if (result.status === 'success') {
+            await fetchCategories(); // refresh data
+            Swal.fire('Saved!', 'Overall monthly budget updated successfully.', 'success');
+        } else {
+            Swal.fire('Error', result.message, 'error');
+        }
+    }
 }
 
 function triggerEditBudget(id, name) {
