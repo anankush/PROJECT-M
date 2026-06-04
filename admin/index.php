@@ -761,9 +761,12 @@ $base = '../';
                     <td>${user.total_goals}</td>
                     <td>${user.total_expenses}</td>
                     <td><span class="badge-status ${badgeClass}">${user.status}</span></td>
-                    <td style="text-align:right;">
+                    <td style="text-align:right; white-space:nowrap;">
                         <button class="btn ${actionBtnClass} btn-table-action" onclick="confirmToggleUser(${user.id}, '${escapeHtml(user.email)}', ${actionValue})">
                             ${actionText}
+                        </button>
+                        <button class="btn btn-danger btn-table-action" style="margin-left: 6px; background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #ff6b6b;" onclick="confirmDeleteUser(${user.id}, '${escapeHtml(user.email)}')">
+                            <i class="fas fa-trash-alt" style="margin-right: 4px;"></i> Delete
                         </button>
                     </td>
                 `;
@@ -827,6 +830,58 @@ $base = '../';
                 }
             } catch (e) {
                 console.error("Toggle user failed", e);
+            }
+        }
+
+        function confirmDeleteUser(userId, email) {
+            Swal.fire({
+                title: 'Delete User?',
+                text: `Are you sure you want to permanently delete user ${email} and all associated data? This action CANNOT be undone!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Delete Permanently',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-ghost'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    executeDeleteUser(userId);
+                }
+            });
+        }
+
+        async function executeDeleteUser(userId) {
+            try {
+                const res = await fetch(`${API_URL}?action=delete_user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': CSRF_TOKEN
+                    },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    fetchUsers();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
+                }
+            } catch (e) {
+                console.error("Delete user failed", e);
             }
         }
 
