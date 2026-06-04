@@ -4,6 +4,6 @@ ServerSignature Off
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    RewriteCond %{HTTP_COOKIE} !PHPSESSID [NC]
+    RewriteCond %{HTTP_COOKIE} !PROJECTM_SID [NC]
     RewriteRule \.js$ - [F,L]
 </IfModule>
