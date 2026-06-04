@@ -1,18 +1,12 @@
 # 📊 Project M — Money Management
 
-[![Website](https://img.shields.io/badge/Website-Live-success.svg?style=for-the-badge&logo=google-chrome)](http://moneymgmt.is-best.net/)
-[![PHP Version](https://img.shields.io/badge/PHP-8.0%2B-777bb4.svg?style=for-the-badge&logo=php)](https://www.php.net/)
-[![Database](https://img.shields.io/badge/Database-MySQL-4479A1.svg?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
-[![License](https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge)](#)
-[![Security](https://img.shields.io/badge/Security-Prepared%20Statements-success.svg?style=for-the-badge&logo=securityscorecard)](https://owasp.org/)
-&nbsp;
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Nayan-blue.svg?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan) &nbsp;&nbsp;&nbsp;&nbsp; [![Pentester](https://img.shields.io/badge/Pentester-0xLum3n-black.svg?style=for-the-badge&logo=github)](https://github.com/0xLum3n)
+[![Website](https://img.shields.io/badge/Website-Live-success.svg?style=for-the-badge&logo=google-chrome)](http://moneymgmt.is-best.net/) &nbsp; [![Version](https://img.shields.io/badge/Version-2.3.0-blue.svg?style=for-the-badge)](#) &nbsp; [![PHP Version](https://img.shields.io/badge/PHP-8.0%2B-777bb4.svg?style=for-the-badge&logo=php)](https://www.php.net/) &nbsp; [![Database](https://img.shields.io/badge/Database-MySQL-4479A1.svg?style=for-the-badge&logo=mysql)](https://www.mysql.com/) &nbsp; [![License](https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge)](#) &nbsp; [![Security](https://img.shields.io/badge/Security-Prepared%20Statements-success.svg?style=for-the-badge&logo=securityscorecard)](https://owasp.org/)
 
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Nayan-blue.svg?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan) &nbsp;&nbsp;&nbsp;&nbsp; [![Pentested By](https://img.shields.io/badge/Pentested%20By-0xLum3n-black.svg?style=for-the-badge&logo=github)](https://github.com/0xLum3n)
 
 **Project M** is a premium, proprietary personal finance command center designed to help users track expenses, set savings goals, and master their financial life with elegance. Featuring a custom glassmorphism user interface, the application delivers rich real-time analytics and detailed tracking metrics without compromising on security or performance.
 
 🔗 **Live Website:** [moneymgmt.is-best.net](http://moneymgmt.is-best.net/)
-
 
 ---
 
@@ -20,7 +14,7 @@
 
 ### 📈 1. Interactive Dashboard
 *   **Real-time Analytics:** Visual representation of monthly spending and savings progression using Chart.js.
-*   **Quick Insights:** Get instant summaries of total expenses, savings balances, and budget alerts at a single glance.
+*   **Quick Insights:** Get instant summaries of total expenses, savings balances, net worth, and budget alerts.
 
 ### 💸 2. Expense & Budget Tracking
 *   **Custom Categories:** Create and customize spending sections with absolute freedom.
@@ -38,23 +32,33 @@
 *   **Cryptographic Passwords:** Industry-standard `bcrypt` hashing with timing-safe verification.
 *   **CSRF Protection:** Tokens securing all forms and API endpoints.
 *   **Session Management:** Auto-timeout, session fixation prevention, and secure cookie properties.
+*   **IDOR Prevention:** Cryptographic SHA-256 HMAC signature-verified ID tokens to prevent unauthorized parameter tampering.
 
 ### 🛡️ 5. Email Security Shield
-*   **100% Real-Time Dual-Layer Validation:** Blocks temporary/disposable burner emails (Yopmail, Mailinator, etc.) during user and admin registration on both front-end (ES6 Live Fetch) and back-end (PHP Guard) layers.
+*   **100% Real-Time Dual-Layer Validation:** Blocks temporary/disposable burner emails (Yopmail, Mailinator, etc.) during registration.
 *   **Dual-Source Live Check:** Direct live browser checking via Kickbox Open API with automatic fallback to live GitHub raw community blocklist (30,000+ domains) with zero browser caching.
-*   **DNS Self-Healing Checker:** Server-side MX record validation with a self-healing check (tests `gmail.com` MX lookup dynamically) to guarantee zero false-positives for genuine users under restricted hosting providers (e.g. InfinityFree).
+*   **DNS Self-Healing Checker:** Server-side MX record validation with a self-healing check to guarantee zero false-positives under restricted hosting environments.
 *   **Security Event Logs:** Captures and logs intruder IP addresses, User-Agents, and bypass attempts in real-time.
-*   **Admin Shield Hub:** Seamless tab integrated into the Admin Desktop Sidebar & Mobile Hamburger Menu featuring total blocked count metrics, last sync status, an instant manual `[Sync Live Blocklist]` action button, and a live domain search lookup tool.
 
-### 👤 6. Real-Time Admin Controls & Cascade Deletion
-*   **Instant Real-Time Block:** Performs database user status queries on every session verification. Blocked users are immediately terminated and redirected to a custom access-denied screen.
-*   **Safe Cascade Account Deletion:** Secure, transaction-based user profile removal with try-catch protection. Cascade-deletes all associated expenses, budgets, savings ledger entries, notifications, and security logs safely.
-*   **Security Termination Landing:** Custom error page mapped for deleted accounts highlighting administrator termination for suspicious behavior.
+### 🔔 6. Pure PHP Web Push Notifications (v2.2.0)
+*   **Zero-Dependency Push Encryption:** Built using native PHP OpenSSL methods (ECDH key exchange, HKDF key derivation, and AES-128-GCM payload encryption) to deliver secure push notifications without any third-party library overhead.
+*   **Granular Preferences:** Real-time settings modal toggles to enable or disable alerts for budget warnings (80%), budget limits exceeded (100%), savings goal milestones, account logins, and automatic monthly summaries.
 
-### 🔔 7. Real-Time Web Push Notifications
-*   **VAPID Secure Protocol:** Instant browser-based alert triggers using VAPID standards and service worker push subscriptions.
-*   **Budget & Goal Alerts:** Automatic warnings sent dynamically when approaching budget thresholds or achieving savings milestones.
-*   **Granular Preferences:** Dedicated settings toggles to selectively control push notifications.
+### 🛑 7. Real-Time Admin Blocking & Cascading Deletion (v2.3.0)
+*   **Instant Session Invalidation:** Dynamic session checking checks the user's status (`status = 'blocked'`) in real-time on every page load or automatic session ping, instantly logging them out.
+*   **Transaction-Safe Cascade Deletion:** Administrators can permanently delete a user and clear all associated records (budgets, expenses, savings transactions, notes, push subscriptions, security logs, and resets) inside an error-resilient database transaction.
+*   **Account Deletion Notice:** Instantly redirecting active sessions of deleted accounts to a security-flagged termination page with a clear warning: *"Suspicious account behaviour administrator deleted your account."*
+
+### 🤖 8. Znoda AI Assistant (Gemini AI Chatbot)
+*   **High-Availability Failover Queue:** Dynamic traffic-balancing API pool utilizing multiple Google Gemini and Gemma models (Gemini 3.1 Flash Lite, Gemini 2.5 Flash, Gemma 4, etc.) with automatic failovers.
+*   **Context-Grounded Financial Advice:** Performs step-by-step mathematical calculations (e.g. 50/30/20 rule, compound interest, emergency funds) to advise users based on shared details.
+*   **Strict Security Boundaries:** Zero internal database access to protect sensitive account tables; restricts all technical disclosures about underlying PHP/SQL structures.
+
+### 🛠️ 9. Admin Portal Command Center
+*   **System Stats:** Real-time metrics for total/active users, total budget, spent, saved, and login attempts.
+*   **User Directory:** View registration details, activity status, category usage, with quick Block/Unblock and Delete actions.
+*   **Email Shield Hub:** Synced blocklist status, manual live update trigger, and dynamic search/lookup for domains.
+*   **Security Audit Logs:** Live database logs capturing actions, IP addresses, and User-Agents for the last 30 days.
 
 ---
 
@@ -64,6 +68,7 @@
 *   **Database:** MySQL (MariaDB)
 *   **Frontend UI:** Vanilla CSS (Glassmorphism design system) & JavaScript (ES6)
 *   **APIs & Data:** Kickbox Open API & GitHub Raw Disposable Email DB
+*   **AI Models:** Google Gemini & Gemma APIs
 *   **Visualization:** Chart.js, FontAwesome Icons & SweetAlert2
 
 ---
@@ -73,27 +78,31 @@
 ```text
 ├── admin/          # Admin administration dashboard & API handlers
 ├── api/            # API endpoints for data operations
-├── assets/         # CSS styles, JS assets (including email_validator.js), and images
+├── assets/         # CSS styles, JS assets, and images
 ├── auth/           # Login, registration, and session scripts
 ├── dashboard/      # User dashboard view and analytics
 ├── database/       # SQL schemas and setup files
-├── includes/       # Core functions (is_disposable_email), DB connections, and blocklist
+├── includes/       # Core functions, DB connections, and blocklist
 └── index.php       # Main application landing page
 ```
 
 ---
 
-## ✉️ Developer & Security
+## ✉️ Developer, Support & Security Audits
 
-For inquiries or professional updates:
+For inquiries, professional updates, or security reports:
 
-### Developer:
+### 👨‍💻 Developer & Support
+For networking, collaboration, or suggestions:
+
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-itznayan-blue.svg?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan)
 
 <br/>
 
-### Pentested & Secured By:
-[![GitHub](https://img.shields.io/badge/GitHub-0xLum3n-black.svg?style=for-the-badge&logo=github)](https://github.com/0xLum3n)
+### 🛡️ Security Audit & Pentesting
+The security architecture of **Project M** has been independently audited, pentested, and hardened against vulnerabilities (including SQL Injection, Cross-Site Request Forgery, Cross-Site Scripting, Session Hijacking, Concurrent Logins, and Disposable Email Bypasses) by:
+
+[![Pentested By](https://img.shields.io/badge/Pentested%20By-0xLum3n-black.svg?style=for-the-badge&logo=github)](https://github.com/0xLum3n)
 
 ---
 
@@ -101,5 +110,3 @@ Last Updated June 2026
 Made With Love ❤️  
 **PROJECT M**  
 *MONEY MANAGEMENT SYSTEM*  
-
-
