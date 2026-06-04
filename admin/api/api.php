@@ -33,23 +33,24 @@ switch ($action) {
     case 'get_system_stats':
         try {
             $uStmt = $pdo->query("SELECT COUNT(*) FROM users");
-            $total_users = (int)$uStmt->fetchColumn();
+            $total_users = (int) $uStmt->fetchColumn();
 
             $aStmt = $pdo->query("SELECT COUNT(*) FROM users WHERE last_active_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
-            $active_users = (int)$aStmt->fetchColumn();
+            $active_users = (int) $aStmt->fetchColumn();
 
             $bStmt = $pdo->query("SELECT SUM(budget) FROM user_categories");
-            $system_budget = (float)$bStmt->fetchColumn();
+            $system_budget = (float) $bStmt->fetchColumn();
 
             $eStmt = $pdo->query("SELECT SUM(amount) FROM expenses");
-            $system_spent = (float)$eStmt->fetchColumn();
+            $system_spent = (float) $eStmt->fetchColumn();
 
             $sStmt = $pdo->query("SELECT SUM(CASE WHEN type = 'deposit' THEN amount ELSE -amount END) FROM savings_transactions");
-            $system_saved = (float)$sStmt->fetchColumn();
-            if ($system_saved < 0) $system_saved = 0.00;
+            $system_saved = (float) $sStmt->fetchColumn();
+            if ($system_saved < 0)
+                $system_saved = 0.00;
 
             $fStmt = $pdo->query("SELECT COUNT(*) FROM security_logs WHERE action IN ('login_failed', 'admin_login_failed') AND created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
-            $failed_logins = (int)$fStmt->fetchColumn();
+            $failed_logins = (int) $fStmt->fetchColumn();
 
             echo json_encode([
                 'status' => 'success',
@@ -98,8 +99,8 @@ switch ($action) {
             exit;
         }
         $input = json_decode(file_get_contents('php://input'), true);
-        $user_id = (int)($input['user_id'] ?? 0);
-        $block = (bool)($input['block'] ?? false);
+        $user_id = (int) ($input['user_id'] ?? 0);
+        $block = (bool) ($input['block'] ?? false);
 
         if (!$user_id) {
             echo json_encode(['status' => 'error', 'message' => 'User ID is required']);
@@ -107,7 +108,7 @@ switch ($action) {
         }
 
         try {
-            
+
             $uStmt = $pdo->prepare("SELECT email FROM users WHERE id = ? LIMIT 1");
             $uStmt->execute([$user_id]);
             $user = $uStmt->fetch();
@@ -120,7 +121,7 @@ switch ($action) {
             $stmt = $pdo->prepare("UPDATE users SET status = ? WHERE id = ?");
             $stmt->execute([$new_status, $user_id]);
 
-            
+
             $log_action = $block ? 'user_blocked' : 'user_unblocked';
             log_security_event($pdo, $user['email'], $log_action, $_SESSION['admin_id']);
 
@@ -191,13 +192,13 @@ switch ($action) {
         $exists = file_exists($cache_file);
         $count = 0;
         $last_sync = 'Never';
-        
+
         if ($exists) {
             $lines = file($cache_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             $count = is_array($lines) ? count($lines) : 0;
             $last_sync = date('Y-m-d H:i:s', filemtime($cache_file));
         }
-        
+
         echo json_encode([
             'status' => 'success',
             'exists' => $exists,
@@ -211,10 +212,10 @@ switch ($action) {
             echo json_encode(['status' => 'error', 'message' => 'POST method required']);
             exit;
         }
-        
+
         $cache_file = __DIR__ . '/../../includes/disposable_domains.txt';
         $url = 'https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/master/disposable_email_blocklist.conf';
-        
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -222,7 +223,7 @@ switch ($action) {
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
+
         $list = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -232,10 +233,10 @@ switch ($action) {
             if ($bytes !== false) {
                 $lines = file($cache_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                 echo json_encode([
-                     'status' => 'success', 
-                     'message' => 'Live blocklist synced successfully!',
-                     'count' => is_array($lines) ? count($lines) : 0,
-                     'last_sync' => date('Y-m-d H:i:s', filemtime($cache_file))
+                    'status' => 'success',
+                    'message' => 'Live blocklist synced successfully!',
+                    'count' => is_array($lines) ? count($lines) : 0,
+                    'last_sync' => date('Y-m-d H:i:s', filemtime($cache_file))
                 ]);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Failed to save blocklist locally. Permission error?']);

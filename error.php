@@ -5,13 +5,13 @@ date_default_timezone_set('Asia/Kolkata');
 
 
 if (session_status() === PHP_SESSION_NONE) {
-    
+
     session_set_cookie_params(
-        900,                    
-        '/',                    
-        '',                     
-        false,                  
-        true                    
+        900,
+        '/',
+        '',
+        false,
+        true
     );
     session_name('PROJECTM_SID');
     session_start();
@@ -177,7 +177,8 @@ if (array_key_exists($code, $errors)) {
             <div class="auth-logo">
                 <h1 class="gradient-text-error"><?php echo $error_type; ?></h1>
                 <p style="margin-top: 15px; font-size: 1.05rem; line-height: 1.5; color: var(--text-primary);">
-                    <?php echo $error_msg; ?></p>
+                    <?php echo $error_msg; ?>
+                </p>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted);">The session has been
                     terminated for your safety.</p>
             </div>

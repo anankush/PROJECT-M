@@ -19,9 +19,30 @@ function session_start_secure()
         global $pdo;
         $session_invalid = false;
         if (isset($_SESSION['user_id'])) {
-            $stmt = $pdo->prepare("SELECT active_session_id FROM users WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT active_session_id, status FROM users WHERE id = ?");
             $stmt->execute([$_SESSION['user_id']]);
-            if ($stmt->fetchColumn() !== session_id()) {
+            $user_row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$user_row) {
+                $session_invalid = true;
+            } elseif ($user_row['status'] === 'blocked') {
+                $_SESSION = [];
+                if (ini_get('session.use_cookies')) {
+                    $params = session_get_cookie_params();
+                    setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+                }
+                session_destroy();
+                if (
+                    strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
+                    || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false
+                    || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest')
+                ) {
+                    http_response_code(403);
+                    echo json_encode(['status' => 'error', 'message' => 'Your account has been blocked by the administrator.', 'redirect' => BASE_URL . 'error.php?code=user_blocked']);
+                    exit;
+                }
+                header('Location: ' . BASE_URL . 'error.php?code=user_blocked');
+                exit;
+            } elseif ($user_row['active_session_id'] !== session_id()) {
                 $session_invalid = true;
             }
         } elseif (isset($_SESSION['admin_id'])) {
