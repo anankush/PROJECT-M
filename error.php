@@ -95,7 +95,7 @@ $errors = [
     ],
     'user_deleted' => [
         'type' => 'Suspicious Behaviour',
-        'msg' => 'Suspicious account behaviour: administrator deleted your account.'
+        'msg' => 'Suspicious account behaviour administrator deleted your account.'
     ],
     'rate_limit' => [
         'type' => 'Too Many Requests',
