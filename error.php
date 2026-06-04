@@ -93,6 +93,10 @@ $errors = [
         'type' => 'Access Denied',
         'msg' => 'Your account has been blocked by the administrator.'
     ],
+    'user_deleted' => [
+        'type' => 'Suspicious Behaviour',
+        'msg' => 'Suspicious account behaviour: administrator deleted your account.'
+    ],
     'rate_limit' => [
         'type' => 'Too Many Requests',
         'msg' => 'We have detected unusual activity from your connection. Please wait a moment before trying again.'

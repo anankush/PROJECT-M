@@ -23,7 +23,23 @@ function session_start_secure()
             $stmt->execute([$_SESSION['user_id']]);
             $user_row = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$user_row) {
-                $session_invalid = true;
+                $_SESSION = [];
+                if (ini_get('session.use_cookies')) {
+                    $params = session_get_cookie_params();
+                    setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+                }
+                session_destroy();
+                if (
+                    strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false
+                    || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false
+                    || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest')
+                ) {
+                    http_response_code(403);
+                    echo json_encode(['status' => 'error', 'message' => 'Suspicious account behaviour: administrator deleted your account.', 'redirect' => BASE_URL . 'error.php?code=user_deleted']);
+                    exit;
+                }
+                header('Location: ' . BASE_URL . 'error.php?code=user_deleted');
+                exit;
             } elseif ($user_row['status'] === 'blocked') {
                 $_SESSION = [];
                 if (ini_get('session.use_cookies')) {
