@@ -356,7 +356,8 @@ try {
 
 
     $netWorth = $totalSaved + $lifetimeSpent;
-    $monthlyRemaining = $overallBudget - $totalSpent;
+    $displayBudget = $overallBudget > 0 ? $overallBudget : $curBudget;
+    $monthlyRemaining = $displayBudget - $totalSpent;
 
 
     $categories = [];
@@ -370,7 +371,7 @@ try {
         'status' => 'success',
         'currency' => $currency,
         'data' => [
-            'overall_budget' => $overallBudget,
+            'overall_budget' => $displayBudget,
             'total_spent' => $totalSpent,
             'monthly_remaining' => $monthlyRemaining,
             'lifetime_spent' => $lifetimeSpent,
