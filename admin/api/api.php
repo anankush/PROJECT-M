@@ -132,6 +132,74 @@ switch ($action) {
         }
         break;
 
+    case 'delete_user':
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'POST method required']);
+            exit;
+        }
+        $input = json_decode(file_get_contents('php://input'), true);
+        $user_id = (int)($input['user_id'] ?? 0);
+
+        if (!$user_id) {
+            echo json_encode(['status' => 'error', 'message' => 'User ID is required']);
+            exit;
+        }
+
+        try {
+            $uStmt = $pdo->prepare("SELECT email FROM users WHERE id = ? LIMIT 1");
+            $uStmt->execute([$user_id]);
+            $user = $uStmt->fetch();
+            if (!$user) {
+                echo json_encode(['status' => 'error', 'message' => 'User not found']);
+                exit;
+            }
+
+            $pdo->beginTransaction();
+
+            $queries = [
+                "DELETE FROM category_monthly_budgets WHERE user_id = ?",
+                "DELETE FROM monthly_overall_budgets WHERE user_id = ?",
+                "DELETE FROM expenses WHERE user_id = ?",
+                "DELETE FROM savings_transactions WHERE user_id = ?",
+                "DELETE FROM savings_goals WHERE user_id = ?",
+                "DELETE FROM user_categories WHERE user_id = ?",
+                "DELETE FROM user_notes WHERE user_id = ?",
+                "DELETE FROM push_subscriptions WHERE user_id = ?",
+                "DELETE FROM push_preferences WHERE user_id = ?",
+                "DELETE FROM security_logs WHERE user_id = ?"
+            ];
+
+            foreach ($queries as $query) {
+                try {
+                    $stmt = $pdo->prepare($query);
+                    $stmt->execute([$user_id]);
+                } catch (Exception $e) {
+                    // Safe execution if tables are missing or not matching schema
+                }
+            }
+
+            try {
+                $stmt = $pdo->prepare("DELETE FROM password_resets WHERE email = ?");
+                $stmt->execute([$user['email']]);
+            } catch (Exception $e) {}
+
+            $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
+            $stmt->execute([$user_id]);
+
+            $pdo->commit();
+
+            log_security_event($pdo, $user['email'], 'user_deleted_by_admin', $_SESSION['admin_id']);
+
+            echo json_encode(['status' => 'success', 'message' => 'User and all associated data deleted successfully']);
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('[Admin API:delete_user] ' . $e->getMessage());
+            echo json_encode(['status' => 'error', 'message' => 'Failed to delete user and associated data.']);
+        }
+        break;
+
     case 'get_security_logs':
         try {
             $pdo->query("DELETE FROM security_logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)");
