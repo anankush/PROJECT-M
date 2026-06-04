@@ -466,6 +466,7 @@ async function renderPushSettingsUI() {
             align-items: center;
             padding: 10px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 12px;
         }
         .push-row:last-child {
             border-bottom: none;
@@ -474,6 +475,8 @@ async function renderPushSettingsUI() {
             display: flex;
             flex-direction: column;
             text-align: left;
+            flex: 1;
+            min-width: 0;
         }
         .push-title {
             font-size: 0.9rem;
@@ -489,6 +492,7 @@ async function renderPushSettingsUI() {
             display: inline-block;
             width: 44px;
             height: 22px;
+            flex-shrink: 0;
         }
         .switch input {
             opacity: 0;
