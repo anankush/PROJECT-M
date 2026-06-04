@@ -180,7 +180,7 @@ function handle_add_deposit($pdo) {
                     }
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
         
         echo json_encode(['status' => 'success', 'message' => 'Transaction recorded successfully.']);
     } catch (PDOException $e) {

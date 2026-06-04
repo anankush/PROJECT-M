@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     $ip = trim($ip);
                     sendLoginAlert($pdo, intval($user['id']), $browser, $ip);
-                } catch (Exception $e) {}
+                } catch (Throwable $e) {}
 
                 echo json_encode(['status' => 'success', 'redirect' => '../dashboard/index.php']);
                 exit;
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         log_security_event($pdo, $email, 'login_failed');
         password_verify('dummy', '$2y$10$dummyhashtopreventtimingattacks.......');
         echo json_encode(['status' => 'error', 'message' => 'Invalid credentials']);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         log_security_event($pdo, $email, 'login_failed');
         echo json_encode(['status' => 'error', 'message' => 'Login failed. Please try again.']);
     }

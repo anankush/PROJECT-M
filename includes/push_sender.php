@@ -230,7 +230,7 @@ function sendPush(PDO $pdo, int $userId, string $title, string $body, string $ur
                 $del->execute([$userId, $ep]);
             }
         }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         error_log('sendPush error: ' . $e->getMessage());
     }
 }
@@ -241,7 +241,7 @@ function getUserPushPref(PDO $pdo, int $userId, string $pref): bool {
         $stmt->execute([$userId]);
         $row = $stmt->fetch();
         return $row ? (bool)$row[$pref] : true;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         return true;
     }
 }
@@ -335,7 +335,7 @@ function checkAndTriggerBudgetAlert(PDO $pdo, int $userId, int $categoryId, floa
         } elseif ($prevPercent < 100 && $newPercent >= 100) {
             sendBudgetAlert($pdo, $userId, $categoryName, $newPercent, true);
         }
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         error_log('checkAndTriggerBudgetAlert error: ' . $e->getMessage());
     }
 }

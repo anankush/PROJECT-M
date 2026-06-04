@@ -109,7 +109,7 @@ function handle_add_record($pdo) {
         try {
             require_once __DIR__ . '/../../../includes/push_sender.php';
             checkAndTriggerBudgetAlert($pdo, $uid, intval($category_id), floatval($amount), $entry_date);
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
 
         echo json_encode(['status' => 'success', 'message' => 'Record added successfully']);
     } catch (PDOException $e) {
