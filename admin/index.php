@@ -490,6 +490,7 @@ $base = '../';
                     window.location.href = '../auth/admin_login.php';
                 }
             } catch (e) {
+            }
         }
 
         function toggleSidebar() {
