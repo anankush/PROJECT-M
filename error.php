@@ -89,6 +89,10 @@ $errors = [
         'type' => 'Session Terminated',
         'msg' => 'You have been logged out because this account was logged in from another device or browser.'
     ],
+    'user_blocked' => [
+        'type' => 'Access Denied',
+        'msg' => 'Your account has been blocked by the administrator.'
+    ],
     'rate_limit' => [
         'type' => 'Too Many Requests',
         'msg' => 'We have detected unusual activity from your connection. Please wait a moment before trying again.'
