@@ -206,7 +206,7 @@ function handle_import_data($pdo) {
     }
 
     $input = json_decode($raw, true);
-    if (!is_array($input) || (empty($input['categories']) && empty($input['savings_goals']))) {
+    if (!is_array($input) || (empty($input['categories']) && empty($input['savings_goals']) && empty($input['monthly_overall_budgets']))) {
         echo json_encode(['status' => 'error', 'message' => 'Invalid import data format.']);
         return;
     }
@@ -224,6 +224,7 @@ function handle_import_data($pdo) {
             try { $pdo->prepare("DELETE FROM user_categories WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
             try { $pdo->prepare("DELETE FROM savings_transactions WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
             try { $pdo->prepare("DELETE FROM savings_goals WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
+            try { $pdo->prepare("DELETE FROM monthly_overall_budgets WHERE user_id = ?")->execute([$uid]); } catch (PDOException $e) {}
         }
         if (!empty($input['categories']) && is_array($input['categories'])) {
             foreach ($input['categories'] as $cat) {
@@ -381,6 +382,37 @@ function handle_import_data($pdo) {
                 }
             }
         }
+        // Import Monthly Overall Budgets
+        if (!empty($input['monthly_overall_budgets']) && is_array($input['monthly_overall_budgets'])) {
+            $stmt_ob = $pdo->prepare("INSERT INTO monthly_overall_budgets (user_id, budget_month, budget) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE budget = VALUES(budget)");
+            foreach ($input['monthly_overall_budgets'] as $ob) {
+                if (!empty($ob['budget_month']) && isset($ob['budget'])) {
+                    $stmt_ob->execute([$uid, sanitize_input($ob['budget_month']), floatval($ob['budget'])]);
+                }
+            }
+        }
+
+        // Import Push Preferences
+        if (!empty($input['push_preferences']) && is_array($input['push_preferences'])) {
+            $pp = $input['push_preferences'];
+            $pdo->prepare("
+                INSERT INTO push_preferences (user_id, budget_alert, budget_exceeded, savings_goal, monthly_summary, login_alert)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    budget_alert = VALUES(budget_alert),
+                    budget_exceeded = VALUES(budget_exceeded),
+                    savings_goal = VALUES(savings_goal),
+                    monthly_summary = VALUES(monthly_summary),
+                    login_alert = VALUES(login_alert)
+            ")->execute([
+                $uid,
+                isset($pp['budget_alert']) ? (int)$pp['budget_alert'] : 1,
+                isset($pp['budget_exceeded']) ? (int)$pp['budget_exceeded'] : 1,
+                isset($pp['savings_goal']) ? (int)$pp['savings_goal'] : 1,
+                isset($pp['monthly_summary']) ? (int)$pp['monthly_summary'] : 1,
+                isset($pp['login_alert']) ? (int)$pp['login_alert'] : 1
+            ]);
+        }
 
         $pdo->commit();
         echo json_encode(['status' => 'success', 'message' => 'Data imported successfully', 'skipped_duplicates' => $skipped_duplicates]);
@@ -473,13 +505,29 @@ function handle_export_data($pdo) {
                 }
                 $savings_export[] = $goal_data;
             }
-        } catch (PDOException $e) {
-        }
+        } catch (PDOException $e) {}
+        
+        $overall_export = [];
+        try {
+            $stmt_overall = $pdo->prepare("SELECT budget_month, budget FROM monthly_overall_budgets WHERE user_id = ?");
+            $stmt_overall->execute([$uid]);
+            $overall_export = $stmt_overall->fetchAll();
+        } catch (PDOException $e) {}
+
+        $push_prefs_export = null;
+        try {
+            $stmt_push = $pdo->prepare("SELECT budget_alert, budget_exceeded, savings_goal, monthly_summary, login_alert FROM push_preferences WHERE user_id = ?");
+            $stmt_push->execute([$uid]);
+            $push_prefs_export = $stmt_push->fetch() ?: null;
+        } catch (PDOException $e) {}
+
         $export_data = [
-            'version' => '1.1',
+            'version' => '1.2',
             'exported_at' => date('Y-m-d H:i:s'),
             'categories' => $categories_export,
-            'savings_goals' => $savings_export
+            'savings_goals' => $savings_export,
+            'monthly_overall_budgets' => $overall_export,
+            'push_preferences' => $push_prefs_export
         ];
 
         header('Content-Type: application/json');

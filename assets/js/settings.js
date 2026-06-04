@@ -384,7 +384,7 @@ async function handleImport(event) {
             const jsonText = decrypted.toString(CryptoJS.enc.Utf8);
             if (!jsonText) throw new Error('Wrong password');
             const data = JSON.parse(jsonText);
-            if (!data.categories && !data.savings_goals) throw new Error("Invalid format");
+            if (!data.categories && !data.savings_goals && !data.monthly_overall_budgets) throw new Error("Invalid format");
 
             let hasExistingData = false;
             try {
