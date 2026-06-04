@@ -5,7 +5,9 @@
 [![Database](https://img.shields.io/badge/Database-MySQL-4479A1.svg?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge)](#)
 [![Security](https://img.shields.io/badge/Security-Prepared%20Statements-success.svg?style=for-the-badge&logo=securityscorecard)](https://owasp.org/)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Nayan-blue.svg?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan)
+&nbsp;
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Nayan-blue.svg?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan) &nbsp;&nbsp;&nbsp;&nbsp; [![Pentester](https://img.shields.io/badge/Pentester-0xLum3n-black.svg?style=for-the-badge&logo=github)](https://github.com/0xLum3n)
+
 
 **Project M** is a premium, proprietary personal finance command center designed to help users track expenses, set savings goals, and master their financial life with elegance. Featuring a custom glassmorphism user interface, the application delivers rich real-time analytics and detailed tracking metrics without compromising on security or performance.
 
@@ -44,6 +46,16 @@
 *   **Security Event Logs:** Captures and logs intruder IP addresses, User-Agents, and bypass attempts in real-time.
 *   **Admin Shield Hub:** Seamless tab integrated into the Admin Desktop Sidebar & Mobile Hamburger Menu featuring total blocked count metrics, last sync status, an instant manual `[Sync Live Blocklist]` action button, and a live domain search lookup tool.
 
+### 👤 6. Real-Time Admin Controls & Cascade Deletion
+*   **Instant Real-Time Block:** Performs database user status queries on every session verification. Blocked users are immediately terminated and redirected to a custom access-denied screen.
+*   **Safe Cascade Account Deletion:** Secure, transaction-based user profile removal with try-catch protection. Cascade-deletes all associated expenses, budgets, savings ledger entries, notifications, and security logs safely.
+*   **Security Termination Landing:** Custom error page mapped for deleted accounts highlighting administrator termination for suspicious behavior.
+
+### 🔔 7. Real-Time Web Push Notifications
+*   **VAPID Secure Protocol:** Instant browser-based alert triggers using VAPID standards and service worker push subscriptions.
+*   **Budget & Goal Alerts:** Automatic warnings sent dynamically when approaching budget thresholds or achieving savings milestones.
+*   **Granular Preferences:** Dedicated settings toggles to selectively control push notifications.
+
 ---
 
 ## 🛠️ Tech Stack
@@ -71,11 +83,17 @@
 
 ---
 
-## ✉️ Developer & Support
+## ✉️ Developer & Security
 
 For inquiries or professional updates:
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-itznayan-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan)
+### Developer:
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-itznayan-blue.svg?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/itznayan)
+
+<br/>
+
+### Pentested & Secured By:
+[![GitHub](https://img.shields.io/badge/GitHub-0xLum3n-black.svg?style=for-the-badge&logo=github)](https://github.com/0xLum3n)
 
 ---
 
