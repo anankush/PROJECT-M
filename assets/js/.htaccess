@@ -7,6 +7,6 @@ ServerSignature Off
     RewriteCond %{REQUEST_FILENAME} settings\.js$ [OR]
     RewriteCond %{REQUEST_FILENAME} charts\.js$ [OR]
     RewriteCond %{REQUEST_FILENAME} push\.js$
-    RewriteCond %{HTTP_COOKIE} !PHPSESSID [NC]
+    RewriteCond %{HTTP_COOKIE} !PROJECTM_SID [NC]
     RewriteRule ^ - [F,L]
 </IfModule>

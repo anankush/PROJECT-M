@@ -539,26 +539,26 @@ async function renderPushSettingsUI() {
     `;
 
     const html = `
-        \${styles}
+        ${styles}
         <div class="push-row">
             <div class="push-label">
                 <span class="push-title">Enable Push Notifications</span>
                 <span class="push-desc">Receive real-time notifications on this device</span>
             </div>
             <label class="switch">
-                <input type="checkbox" id="push-master-toggle" \${enabled ? 'checked' : ''}>
+                <input type="checkbox" id="push-master-toggle" ${enabled ? 'checked' : ''}>
                 <span class="slider"></span>
             </label>
         </div>
         
-        <div class="push-sub-settings \${enabled ? '' : 'disabled'}" id="push-sub-settings-container">
+        <div class="push-sub-settings ${enabled ? '' : 'disabled'}" id="push-sub-settings-container">
             <div class="push-row">
                 <div class="push-label">
                     <span class="push-title">Budget Warn Alert</span>
                     <span class="push-desc">Notify when a category budget reaches 80% used</span>
                 </div>
                 <label class="switch">
-                    <input type="checkbox" class="push-pref-toggle" data-pref="budget_alert" \${prefs.budget_alert ? 'checked' : ''} \${enabled ? '' : 'disabled'}>
+                    <input type="checkbox" class="push-pref-toggle" data-pref="budget_alert" ${prefs.budget_alert ? 'checked' : ''} ${enabled ? '' : 'disabled'}>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -568,7 +568,7 @@ async function renderPushSettingsUI() {
                     <span class="push-desc">Notify when you exceed a category budget</span>
                 </div>
                 <label class="switch">
-                    <input type="checkbox" class="push-pref-toggle" data-pref="budget_exceeded" \${prefs.budget_exceeded ? 'checked' : ''} \${enabled ? '' : 'disabled'}>
+                    <input type="checkbox" class="push-pref-toggle" data-pref="budget_exceeded" ${prefs.budget_exceeded ? 'checked' : ''} ${enabled ? '' : 'disabled'}>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -578,7 +578,7 @@ async function renderPushSettingsUI() {
                     <span class="push-desc">Notify when a savings target is fully achieved</span>
                 </div>
                 <label class="switch">
-                    <input type="checkbox" class="push-pref-toggle" data-pref="savings_goal" \${prefs.savings_goal ? 'checked' : ''} \${enabled ? '' : 'disabled'}>
+                    <input type="checkbox" class="push-pref-toggle" data-pref="savings_goal" ${prefs.savings_goal ? 'checked' : ''} ${enabled ? '' : 'disabled'}>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -588,7 +588,7 @@ async function renderPushSettingsUI() {
                     <span class="push-desc">Receive an end-of-month review of spent vs saved</span>
                 </div>
                 <label class="switch">
-                    <input type="checkbox" class="push-pref-toggle" data-pref="monthly_summary" \${prefs.monthly_summary ? 'checked' : ''} \${enabled ? '' : 'disabled'}>
+                    <input type="checkbox" class="push-pref-toggle" data-pref="monthly_summary" ${prefs.monthly_summary ? 'checked' : ''} ${enabled ? '' : 'disabled'}>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -598,7 +598,7 @@ async function renderPushSettingsUI() {
                     <span class="push-desc">Instant alert when a new login occurs</span>
                 </div>
                 <label class="switch">
-                    <input type="checkbox" class="push-pref-toggle" data-pref="login_alert" \${prefs.login_alert ? 'checked' : ''} \${enabled ? '' : 'disabled'}>
+                    <input type="checkbox" class="push-pref-toggle" data-pref="login_alert" ${prefs.login_alert ? 'checked' : ''} ${enabled ? '' : 'disabled'}>
                     <span class="slider"></span>
                 </label>
             </div>
