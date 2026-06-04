@@ -1,0 +1,9 @@
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{HTTP_COOKIE} !PHPSESSID [NC]
+    RewriteRule \.js$ - [F,L]
+</IfModule>

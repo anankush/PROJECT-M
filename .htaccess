@@ -29,6 +29,12 @@ DirectoryIndex index.php
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
+# Explicitly allow service worker script
+<Files "sw.js">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
 ErrorDocument 404 /error.php?code=url_tamper
 ErrorDocument 403 /error.php?code=unauthorized
 ErrorDocument 500 /error.php?code=db

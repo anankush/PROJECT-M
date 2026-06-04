@@ -60,9 +60,20 @@ async function openGlobalSettings() {
             </div>
         </div>`;
 
+    const pushSectionHtml = `
+        <hr style="border-color:rgba(255,255,255,0.1); margin:20px 0;">
+        <div style="text-align:left; margin-bottom:15px;">
+            <label style="font-weight:600; color:var(--text-primary);">🔔 Push Notifications</label>
+            <div id="push-settings-area" style="margin-top:12px;">
+                <div style="font-size:0.85rem; color:var(--text-muted); text-align:center;">
+                    <i class="fas fa-circle-notch fa-spin"></i> Loading...
+                </div>
+            </div>
+        </div>`;
+
     const { value: formValues } = await Swal.fire({
         title: 'Global Settings', width: 600,
-        html: currencySection +
+        html: currencySection + pushSectionHtml +
             `<hr style="border-color:rgba(255,255,255,0.1); margin:20px 0;">
              <div style="text-align:left; margin-bottom:15px;">
                  <label style="font-weight:600; color:var(--text-primary);">Security</label>
@@ -90,12 +101,14 @@ async function openGlobalSettings() {
                  </div>
              </div>`,
         focusConfirm: false, showCancelButton: true, confirmButtonText: 'Save Changes', confirmButtonColor: '#8b5cf6',
-        didOpen: () => {
+        didOpen: async () => {
             const s = document.getElementById('currencySearch');
             if (s) setTimeout(() => s.focus(), 50);
+            await renderPushSettingsUI();
         },
         preConfirm: () => { return { currency: window.tempCurrency, language: 'en' }; }
     });
+
 
     if (formValues) {
         const res = await fetch(`${API_URL}?action=update_settings`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN }, body: JSON.stringify(formValues) });
@@ -415,3 +428,227 @@ async function handleImport(event) {
     };
     reader.readAsText(file);
 }
+
+async function renderPushSettingsUI() {
+    const area = document.getElementById('push-settings-area');
+    if (!area) return;
+
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        area.innerHTML = `
+            <div style="font-size:0.85rem; color:var(--danger); text-align:center; padding:10px; background:rgba(239, 68, 68, 0.1); border-radius:var(--radius-sm); border:1px solid rgba(239, 68, 68, 0.2);">
+                <i class="fas fa-exclamation-triangle"></i> Push notifications are not supported by this browser.
+            </div>`;
+        return;
+    }
+
+    const data = await loadPushPrefs();
+    
+    const permission = Notification.permission;
+    let enabled = false;
+    let prefs = {
+        budget_alert: 1,
+        budget_exceeded: 1,
+        savings_goal: 1,
+        monthly_summary: 1,
+        login_alert: 1
+    };
+
+    if (data && data.status === 'success') {
+        enabled = data.has_subscription && permission === 'granted';
+        prefs = data.prefs;
+    }
+
+    const styles = `
+        <style>
+        .push-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .push-row:last-child {
+            border-bottom: none;
+        }
+        .push-label {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        .push-title {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .push-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .3s ease;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: #fff;
+            transition: .3s ease;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        input:checked + .slider {
+            background-color: var(--aurora-1);
+            border-color: var(--aurora-1);
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+        }
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        .push-sub-settings {
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            padding-left: 10px;
+            border-left: 2px solid rgba(139, 92, 246, 0.2);
+        }
+        .push-sub-settings.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            border-left-color: rgba(255,255,255,0.05);
+        }
+        </style>
+    `;
+
+    const html = `
+        \${styles}
+        <div class="push-row">
+            <div class="push-label">
+                <span class="push-title">Enable Push Notifications</span>
+                <span class="push-desc">Receive real-time notifications on this device</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="push-master-toggle" \${enabled ? 'checked' : ''}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="push-sub-settings \${enabled ? '' : 'disabled'}" id="push-sub-settings-container">
+            <div class="push-row">
+                <div class="push-label">
+                    <span class="push-title">Budget Warn Alert</span>
+                    <span class="push-desc">Notify when a category budget reaches 80% used</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" class="push-pref-toggle" data-pref="budget_alert" \${prefs.budget_alert ? 'checked' : ''} \${enabled ? '' : 'disabled'}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="push-row">
+                <div class="push-label">
+                    <span class="push-title">Budget Exceeded Alert</span>
+                    <span class="push-desc">Notify when you exceed a category budget</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" class="push-pref-toggle" data-pref="budget_exceeded" \${prefs.budget_exceeded ? 'checked' : ''} \${enabled ? '' : 'disabled'}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="push-row">
+                <div class="push-label">
+                    <span class="push-title">Savings Goal Completed</span>
+                    <span class="push-desc">Notify when a savings target is fully achieved</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" class="push-pref-toggle" data-pref="savings_goal" \${prefs.savings_goal ? 'checked' : ''} \${enabled ? '' : 'disabled'}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="push-row">
+                <div class="push-label">
+                    <span class="push-title">Monthly Spending Summary</span>
+                    <span class="push-desc">Receive an end-of-month review of spent vs saved</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" class="push-pref-toggle" data-pref="monthly_summary" \${prefs.monthly_summary ? 'checked' : ''} \${enabled ? '' : 'disabled'}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="push-row">
+                <div class="push-label">
+                    <span class="push-title">Security Login Alert</span>
+                    <span class="push-desc">Instant alert when a new login occurs</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" class="push-pref-toggle" data-pref="login_alert" \${prefs.login_alert ? 'checked' : ''} \${enabled ? '' : 'disabled'}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    `;
+
+    area.innerHTML = html;
+
+    const master = document.getElementById('push-master-toggle');
+    const container = document.getElementById('push-sub-settings-container');
+    const subToggles = document.querySelectorAll('.push-pref-toggle');
+
+    master.addEventListener('change', async () => {
+        master.disabled = true;
+        if (master.checked) {
+            if (Notification.permission === 'denied') {
+                Swal.showValidationMessage('Permission was previously blocked. Please enable notification permissions in browser settings.');
+                master.checked = false;
+                master.disabled = false;
+                return;
+            }
+            await requestPushPermission();
+            const currentSub = await swRegistration?.pushManager?.getSubscription();
+            if (currentSub && Notification.permission === 'granted') {
+                container.classList.remove('disabled');
+                subToggles.forEach(t => t.disabled = false);
+            } else {
+                master.checked = false;
+                if (Notification.permission === 'denied') {
+                    Swal.showValidationMessage('Notification permission denied by user.');
+                }
+            }
+        } else {
+            await disablePushNotifications();
+            container.classList.add('disabled');
+            subToggles.forEach(t => {
+                t.disabled = true;
+            });
+        }
+        master.disabled = false;
+    });
+
+    subToggles.forEach(toggle => {
+        toggle.addEventListener('change', async () => {
+            const newPrefs = {};
+            document.querySelectorAll('.push-pref-toggle').forEach(t => {
+                newPrefs[t.getAttribute('data-pref')] = t.checked;
+            });
+            await savePushPrefs(newPrefs);
+        });
+    });
+}
+

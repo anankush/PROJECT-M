@@ -58,6 +58,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['last_activity'] = time();
                 $_SESSION['logout_token'] = bin2hex(random_bytes(16));
                 log_security_event($pdo, $email, 'login_success', $user['id']);
+
+                // Trigger VAPID login alert
+                try {
+                    require_once __DIR__ . '/../includes/push_sender.php';
+                    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+                    $browser = 'Unknown Browser';
+                    if (preg_match('/edge|edg/i', $ua)) { $browser = 'Edge'; }
+                    elseif (preg_match('/chrome/i', $ua)) { $browser = 'Chrome'; }
+                    elseif (preg_match('/firefox/i', $ua)) { $browser = 'Firefox'; }
+                    elseif (preg_match('/safari/i', $ua)) { $browser = 'Safari'; }
+                    elseif (preg_match('/opera/i', $ua)) { $browser = 'Opera'; }
+                    
+                    $ip = $_SERVER['HTTP_CLIENT_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+                    if (strpos($ip, ',') !== false) {
+                        $ip = explode(',', $ip)[0];
+                    }
+                    $ip = trim($ip);
+                    sendLoginAlert($pdo, intval($user['id']), $browser, $ip);
+                } catch (Exception $e) {}
+
                 echo json_encode(['status' => 'success', 'redirect' => '../dashboard/index.php']);
                 exit;
             }

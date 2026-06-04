@@ -1,0 +1,17 @@
+name: Push Notifications Cron
+
+on:
+  schedule:
+    - cron: '30 14 * * *'   # Daily 8:00 PM IST (14:30 UTC)
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger notification cron
+        run: |
+          URL="${{ secrets.APP_URL }}"
+          CLEANED_URL="${URL%/}"
+          curl -X POST \
+            -H "X-Cron-Secret: ${{ secrets.PUSH_CRON_SECRET }}" \
+            "$CLEANED_URL/cron/notify_cron.php"

@@ -36,6 +36,10 @@ jobs:
         define('AI_API_KEY_4', '${{ secrets.AI_API_KEY_4 }}');
         define('SESSION_LIFETIME', 900);
         define('BASE_URL', '/');
+        define('VAPID_PUBLIC_KEY', '${{ secrets.VAPID_PUBLIC_KEY }}');
+        define('VAPID_PRIVATE_KEY', '${{ secrets.VAPID_PRIVATE_KEY }}');
+        define('VAPID_SUBJECT', '${{ secrets.VAPID_SUBJECT }}');
+        define('PUSH_CRON_SECRET', '${{ secrets.PUSH_CRON_SECRET }}');
         ?>
         ENDOFFILE
 

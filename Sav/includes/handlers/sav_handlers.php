@@ -153,6 +153,34 @@ function handle_add_deposit($pdo) {
 
         $stmt = $pdo->prepare("INSERT INTO savings_transactions (goal_id, user_id, amount, type, transaction_date, notes) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$goal_id, $uid, $amount, $type, $date, $notes]);
+
+        // Trigger push notification goal completion check
+        try {
+            if ($type === 'deposit') {
+                $stmtGoal = $pdo->prepare("SELECT goal_name, target_amount FROM savings_goals WHERE id = ? AND user_id = ?");
+                $stmtGoal->execute([$goal_id, $uid]);
+                $goal = $stmtGoal->fetch();
+                if ($goal) {
+                    $goalName = $goal['goal_name'];
+                    $targetAmount = floatval($goal['target_amount']);
+
+                    $stmtNew = $pdo->prepare("
+                        SELECT COALESCE(SUM(CASE WHEN type='deposit' THEN amount ELSE -amount END), 0) 
+                        FROM savings_transactions 
+                        WHERE goal_id = ? AND user_id = ?
+                    ");
+                    $stmtNew->execute([$goal_id, $uid]);
+                    $newTotal = floatval($stmtNew->fetchColumn());
+
+                    $prevTotal = $newTotal - $amount;
+
+                    if ($prevTotal < $targetAmount && $newTotal >= $targetAmount) {
+                        require_once __DIR__ . '/../../../includes/push_sender.php';
+                        sendGoalAchieved($pdo, $uid, $goalName, $targetAmount);
+                    }
+                }
+            }
+        } catch (Exception $e) {}
         
         echo json_encode(['status' => 'success', 'message' => 'Transaction recorded successfully.']);
     } catch (PDOException $e) {

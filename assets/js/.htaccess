@@ -1,0 +1,12 @@
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{REQUEST_FILENAME} settings\.js$ [OR]
+    RewriteCond %{REQUEST_FILENAME} charts\.js$ [OR]
+    RewriteCond %{REQUEST_FILENAME} push\.js$
+    RewriteCond %{HTTP_COOKIE} !PHPSESSID [NC]
+    RewriteRule ^ - [F,L]
+</IfModule>

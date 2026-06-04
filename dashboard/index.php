@@ -278,12 +278,14 @@ set_security_headers();
         const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         let userCurrency = '<?php echo htmlspecialchars($_SESSION['currency'] ?? "₹"); ?>';
         let email = '<?php echo htmlspecialchars($_SESSION['user_email'] ?? ""); ?>';
+        window.VAPID_PUBLIC_KEY = '<?php echo defined('VAPID_PUBLIC_KEY') ? htmlspecialchars(VAPID_PUBLIC_KEY) : ''; ?>';
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
     <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
     <script src="../assets/js/charts.js?v=<?php echo time(); ?>"></script>
     <script src="../assets/js/settings.js?v=<?php echo time(); ?>"></script>
+    <script src="../assets/js/push.js?v=<?php echo time(); ?>"></script>
 </body>
 
 </html>

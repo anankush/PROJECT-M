@@ -104,6 +104,13 @@ function handle_add_record($pdo) {
             'description' => $description,
             'custom_data' => $custom_data
         ]);
+
+        // Trigger push notification budget check
+        try {
+            require_once __DIR__ . '/../../../includes/push_sender.php';
+            checkAndTriggerBudgetAlert($pdo, $uid, intval($category_id), floatval($amount), $entry_date);
+        } catch (Exception $e) {}
+
         echo json_encode(['status' => 'success', 'message' => 'Record added successfully']);
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to add record.']);
