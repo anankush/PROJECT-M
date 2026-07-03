@@ -5,7 +5,7 @@
  * Secured via X-Cron-Secret header verification.
  */
 
-$secret = $_SERVER['HTTP_X_CRON_SECRET'] ?? '';
+$secret = $_SERVER['HTTP_X_CRON_SECRET'] ?? $_GET['secret'] ?? '';
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/push_sender.php';
