@@ -49,12 +49,17 @@
 *   **Transaction-Safe Cascade Deletion:** Administrators can permanently delete a user and clear all associated records (budgets, expenses, savings transactions, notes, push subscriptions, security logs, and resets) inside an error-resilient database transaction.
 *   **Account Deletion Notice:** Instantly redirecting active sessions of deleted accounts to a security-flagged termination page with a clear warning: *"Suspicious account behaviour administrator deleted your account."*
 
-### 🤖 8. Znoda AI Assistant (Gemini AI Chatbot)
+### 📬 8. Automated Monthly Summary Reports (v2.4.0)
+*   **Detailed Financial Digests:** Automatically compiles previous month's category-wise expenses (Outflow Breakdown) and goals-wise savings (Stored Goals Activity) into structured tables.
+*   **Security & Anti-Spam Shield:** Completely link-free HTML email template using generic/statistical terminology (Outflow, Stored, Difference) to bypass mail service spam filters and deliver directly to the user's Inbox.
+*   **Secure Virtual Trigger:** Triggered monthly on the 1st day at 6:00 AM IST via a headless Puppeteer browser running in GitHub Actions, verified by a custom HTTP header (`X-Cron-Secret`) to prevent URL parameter backdoors.
+
+### 🤖 9. Znoda AI Assistant (Gemini AI Chatbot)
 *   **High-Availability Failover Queue:** Dynamic traffic-balancing API pool utilizing multiple Google Gemini and Gemma models (Gemini 3.1 Flash Lite, Gemini 2.5 Flash, Gemma 4, etc.) with automatic failovers.
 *   **Context-Grounded Financial Advice:** Performs step-by-step mathematical calculations (e.g. 50/30/20 rule, compound interest, emergency funds) to advise users based on shared details.
 *   **Strict Security Boundaries:** Zero internal database access to protect sensitive account tables; restricts all technical disclosures about underlying PHP/SQL structures.
 
-### 🛠️ 9. Admin Portal Command Center
+### 🛠️ 10. Admin Portal Command Center
 *   **System Stats:** Real-time metrics for total/active users, total budget, spent, saved, and login attempts.
 *   **User Directory:** View registration details, activity status, category usage, with quick Block/Unblock and Delete actions.
 *   **Email Shield Hub:** Synced blocklist status, manual live update trigger, and dynamic search/lookup for domains.
@@ -106,7 +111,7 @@ The security architecture of **Project M** has been independently audited, pente
 
 ---
 
-Last Updated June 2026  
+Last Updated July 2026  
 Made With Love ❤️  
 **PROJECT M**  
 *MONEY MANAGEMENT SYSTEM*  
