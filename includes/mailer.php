@@ -135,6 +135,20 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#030014;padding:20px 0;">
     <tr>
       <td align="center">
+        <!-- Header Text Outside of the Card -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:480px;margin-bottom:15px;text-align:left;">
+          <tr>
+            <td style="padding:0 10px;">
+              <h2 style="margin:0 0 8px 0;font-size:18px;font-weight:600;color:#ffffff;font-family:\'Outfit\',sans-serif;">Monthly Stats Overview</h2>
+              <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.8);line-height:1.5;font-family:\'Inter\',sans-serif;">
+                Hello <strong>' . htmlspecialchars($userName) . '</strong>,<br>
+                Here is your detailed statistics overview for the month of <strong>' . htmlspecialchars($monthName) . '</strong>.
+              </p>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Main Card Container -->
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:480px;background:rgba(20,14,50,0.65);border:1px solid rgba(139,92,246,0.3);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
           <tr>
             <td style="padding:24px 24px 15px 24px;text-align:center;background:linear-gradient(135deg,#1e1b4b 0%,#0f172a 100%);border-bottom:1px solid rgba(139,92,246,0.15);">
@@ -143,11 +157,6 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
           </tr>
           <tr>
             <td style="padding:24px;">
-              <h2 style="margin:0 0 10px 0;font-size:18px;font-weight:600;color:#ffffff;font-family:\'Outfit\',sans-serif;text-align:center;">Monthly Stats Overview</h2>
-              <p style="margin:0 0 20px 0;font-size:14px;color:rgba(255,255,255,0.8);line-height:1.5;font-family:\'Inter\',sans-serif;">
-                Hello <strong>' . htmlspecialchars($userName) . '</strong>,<br>
-                Here is your detailed statistics overview for the month of <strong>' . htmlspecialchars($monthName) . '</strong>.
-              </p>
               
               <!-- Total Spent and Saved Cards -->
               <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:20px;">
