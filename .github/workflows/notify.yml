@@ -19,9 +19,8 @@ jobs:
 
       - name: Install Puppeteer
         run: npm install puppeteer
-
       - name: Trigger notification cron via headless browser
         run: |
           URL="${{ secrets.APP_URL }}"
           CLEANED_URL="${URL%/}"
-          node cron/trigger.js "$CLEANED_URL/cron/notify_cron.php?secret=${{ secrets.PUSH_CRON_SECRET }}"
+          node cron/trigger.js "$CLEANED_URL/cron/notify_cron.php" "${{ secrets.PUSH_CRON_SECRET }}"

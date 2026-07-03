@@ -5,7 +5,7 @@
  * Secured via X-Cron-Secret header verification.
  */
 
-$secret = $_SERVER['HTTP_X_CRON_SECRET'] ?? $_GET['secret'] ?? '';
+$secret = $_SERVER['HTTP_X_CRON_SECRET'] ?? '';
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/push_sender.php';
@@ -22,7 +22,6 @@ header('Content-Type: application/json');
 $today = date('Y-m-d');
 $tomorrow = date('Y-m-d', strtotime('+1 day'));
 $isMonthEnd = (date('m', strtotime($today)) !== date('m', strtotime($tomorrow)));
-$force = isset($_GET['force']) && $_GET['force'] === '1';
 
 $response = [
     'status' => 'success',
@@ -30,7 +29,7 @@ $response = [
 ];
 
 try {
-    if ($isMonthEnd || $force) {
+    if ($isMonthEnd) {
         $monthName = date('F Y');
         $monthQuery = date('Y-m');
 

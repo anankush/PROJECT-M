@@ -2,8 +2,9 @@ const puppeteer = require('puppeteer');
 
 (async () => {
   const url = process.argv[2];
-  if (!url) {
-    console.error('Error: URL argument is required.');
+  const secret = process.argv[3];
+  if (!url || !secret) {
+    console.error('Error: URL and Secret arguments are required.');
     process.exit(1);
   }
 
@@ -15,6 +16,13 @@ const puppeteer = require('puppeteer');
 
   try {
     const page = await browser.newPage();
+    
+    // Inject the secret key securely as an HTTP header
+    console.log('Setting custom headers...');
+    await page.setExtraHTTPHeaders({
+      'X-Cron-Secret': secret
+    });
+    
     console.log(`Navigating to: ${url}`);
     
     // Set a common User-Agent to look like a standard browser
