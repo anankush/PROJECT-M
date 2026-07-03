@@ -77,13 +77,13 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
         $netSign = '+';
         $netBg = 'rgba(16, 185, 129, 0.08)';
         $netBorder = 'rgba(16, 185, 129, 0.2)';
-        $netText = 'Superb! You saved more than you spent this month. Keep up the great work!';
+        $netText = 'Great! Stored amount was higher than outflow this month.';
     } else {
         $netColor = '#f87171'; // Red/Pink
         $netSign = '-';
         $netBg = 'rgba(239, 68, 68, 0.08)';
         $netBorder = 'rgba(239, 68, 68, 0.2)';
-        $netText = 'Caution: You spent more than you saved this month. Review your budget.';
+        $netText = 'Notice: Outflow was higher than stored amount this month.';
     }
 
     // Build Expenses Breakdown Table Rows
@@ -96,7 +96,7 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
             $expenseRows .= '</tr>';
         }
     } else {
-        $expenseRows = '<tr><td colspan="2" style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;padding:15px;font-family:\'Inter\',sans-serif;">No expenses logged this month.</td></tr>';
+        $expenseRows = '<tr><td colspan="2" style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;padding:15px;font-family:\'Inter\',sans-serif;">No activity logged this period.</td></tr>';
     }
 
     // Build Savings Breakdown Table Rows
@@ -112,7 +112,7 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
             $savingsRows .= '</tr>';
         }
     } else {
-        $savingsRows = '<tr><td colspan="2" style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;padding:15px;font-family:\'Inter\',sans-serif;">No savings goals activity this month.</td></tr>';
+        $savingsRows = '<tr><td colspan="2" style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;padding:15px;font-family:\'Inter\',sans-serif;">No target activity this period.</td></tr>';
     }
 
     return '<!DOCTYPE html>
@@ -133,10 +133,10 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
           </tr>
           <tr>
             <td style="padding:24px;">
-              <h2 style="margin:0 0 10px 0;font-size:18px;font-weight:600;color:#ffffff;font-family:\'Outfit\',sans-serif;text-align:center;">Monthly Financial Report</h2>
+              <h2 style="margin:0 0 10px 0;font-size:18px;font-weight:600;color:#ffffff;font-family:\'Outfit\',sans-serif;text-align:center;">Monthly Stats Overview</h2>
               <p style="margin:0 0 20px 0;font-size:14px;color:rgba(255,255,255,0.8);line-height:1.5;font-family:\'Inter\',sans-serif;">
                 Hello <strong>' . htmlspecialchars($userName) . '</strong>,<br>
-                Here is your detailed financial summary report for the month of <strong>' . htmlspecialchars($monthName) . '</strong>.
+                Here is your detailed statistics overview for the month of <strong>' . htmlspecialchars($monthName) . '</strong>.
               </p>
               
               <!-- Total Spent and Saved Cards -->
@@ -144,7 +144,7 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
                 <tr>
                   <td style="padding:6px 0;">
                     <div style="padding:14px;background:rgba(239, 68, 68, 0.08);border:1px solid rgba(239, 68, 68, 0.2);border-radius:12px;">
-                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Total Expenses</div>
+                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Total Outflow</div>
                       <div style="font-size:20px;font-weight:700;color:#f87171;font-family:\'Outfit\',sans-serif;">-' . $currency . $spentFormatted . '</div>
                     </div>
                   </td>
@@ -152,7 +152,7 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
                 <tr>
                   <td style="padding:6px 0;">
                     <div style="padding:14px;background:rgba(16, 185, 129, 0.08);border:1px solid rgba(16, 185, 129, 0.2);border-radius:12px;">
-                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Total Savings</div>
+                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Total Stored</div>
                       <div style="font-size:20px;font-weight:700;color:#34d399;font-family:\'Outfit\',sans-serif;">+' . $currency . $savedFormatted . '</div>
                     </div>
                   </td>
@@ -160,7 +160,7 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
                 <tr>
                   <td style="padding:6px 0;">
                     <div style="padding:14px;background:' . $netBg . ';border:1px solid ' . $netBorder . ';border-radius:12px;">
-                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Net Cashflow</div>
+                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Difference</div>
                       <div style="font-size:20px;font-weight:700;color:' . $netColor . ';font-family:\'Outfit\',sans-serif;">' . $netSign . $currency . $netFormatted . '</div>
                       <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:6px;line-height:1.4;font-family:\'Inter\',sans-serif;">' . $netText . '</div>
                     </div>
@@ -169,12 +169,12 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
               </table>
 
               <!-- Detailed Expenses Breakdown Table -->
-              <h3 style="font-size:14px;font-weight:600;color:#a78bfa;margin:25px 0 10px 0;font-family:\'Outfit\',sans-serif;border-bottom:1px solid rgba(139,92,246,0.15);padding-bottom:6px;">📈 Expense Breakdown by Category</h3>
+              <h3 style="font-size:14px;font-weight:600;color:#a78bfa;margin:25px 0 10px 0;font-family:\'Outfit\',sans-serif;border-bottom:1px solid rgba(139,92,246,0.15);padding-bottom:6px;">📈 Outflow Breakdown</h3>
               <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:20px;">
                 <thead>
                   <tr style="background-color:rgba(139,92,246,0.1);border-bottom:1px solid rgba(139,92,246,0.25);">
-                    <th align="left" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Category</th>
-                    <th align="right" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Amount</th>
+                    <th align="left" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Section</th>
+                    <th align="right" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Value</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -183,12 +183,12 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
               </table>
 
               <!-- Detailed Savings Breakdown Table -->
-              <h3 style="font-size:14px;font-weight:600;color:#a78bfa;margin:25px 0 10px 0;font-family:\'Outfit\',sans-serif;border-bottom:1px solid rgba(139,92,246,0.15);padding-bottom:6px;">🎯 Savings Goals Activity</h3>
+              <h3 style="font-size:14px;font-weight:600;color:#a78bfa;margin:25px 0 10px 0;font-family:\'Outfit\',sans-serif;border-bottom:1px solid rgba(139,92,246,0.15);padding-bottom:6px;">🎯 Stored Goals Activity</h3>
               <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
                 <thead>
                   <tr style="background-color:rgba(139,92,246,0.1);border-bottom:1px solid rgba(139,92,246,0.25);">
-                    <th align="left" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Goal</th>
-                    <th align="right" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Amount</th>
+                    <th align="left" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Target</th>
+                    <th align="right" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Value</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -95,7 +95,7 @@ try {
             // 2. Send Beautiful Summary Email
             $userName = explode('@', $email)[0];
             $emailBody = get_monthly_summary_email_body($userName, $monthName, $totalSpent, $totalSaved, $expensesBreakdown, $savingsBreakdown);
-            $ok = send_email($email, "Monthly Financial Summary - " . $monthName, $emailBody);
+            $ok = send_email($email, "Monthly Activity Update - " . $monthName, $emailBody);
             if ($ok) {
                 $emailsSent++;
             }
