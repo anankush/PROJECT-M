@@ -73,17 +73,11 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
     $savedFormatted = number_format($totalSaved, 2);
 
     if ($net >= 0) {
-        $netColor = '#34d399'; // Emerald green
-        $netSign = '+';
-        $netBg = 'rgba(16, 185, 129, 0.08)';
-        $netBorder = 'rgba(16, 185, 129, 0.2)';
-        $netText = 'Superb! You saved more than you spent this month. Keep up the great work!';
+        $statusMsg = "Saved: +" . $currency . $savedFormatted . "  |  Spent: -" . $currency . $spentFormatted;
+        $netDisplay = "Net: +" . $currency . $netFormatted;
     } else {
-        $netColor = '#f87171'; // Red/Pink
-        $netSign = '-';
-        $netBg = 'rgba(239, 68, 68, 0.08)';
-        $netBorder = 'rgba(239, 68, 68, 0.2)';
-        $netText = 'Caution: You spent more than you saved this month. Review your budget.';
+        $statusMsg = "Saved: +" . $currency . $savedFormatted . "  |  Spent: -" . $currency . $spentFormatted;
+        $netDisplay = "Net: -" . $currency . $netFormatted;
     }
 
     return '<!DOCTYPE html>
@@ -96,57 +90,28 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#030014;padding:20px 0;">
     <tr>
       <td align="center">
-        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:480px;background:rgba(20,14,50,0.65);border:1px solid rgba(139,92,246,0.3);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:420px;background:rgba(20,14,50,0.65);border:1px solid rgba(139,92,246,0.3);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
           <tr>
             <td style="padding:24px 24px 15px 24px;text-align:center;background:linear-gradient(135deg,#1e1b4b 0%,#0f172a 100%);border-bottom:1px solid rgba(139,92,246,0.15);">
               <div style="font-size:20px;font-weight:700;color:#a78bfa;letter-spacing:1px;font-family:\'Outfit\',sans-serif;">MONEY MANAGEMENT</div>
             </td>
           </tr>
           <tr>
-            <td style="padding:24px;">
-              <h2 style="margin:0 0 10px 0;font-size:18px;font-weight:600;color:#ffffff;font-family:\'Outfit\',sans-serif;text-align:center;">📊 Monthly Financial Report</h2>
-              <p style="margin:0 0 20px 0;font-size:14px;color:rgba(255,255,255,0.8);line-height:1.5;font-family:\'Inter\',sans-serif;">
-                Hello <strong>' . htmlspecialchars($userName) . '</strong>,<br>
-                Here is your financial summary report for the month of <strong>' . htmlspecialchars($monthName) . '</strong>.
-              </p>
+            <td style="padding:24px;text-align:center;">
+              <h2 style="margin:0 0 10px 0;font-size:18px;font-weight:600;color:#ffffff;font-family:\'Outfit\',sans-serif;">Monthly Financial Report</h2>
+              <p style="margin:0 0 5px 0;font-size:14px;color:rgba(255,255,255,0.7);line-height:1.5;font-family:\'Inter\',sans-serif;">' . $monthName . '</p>
+              <p style="margin:0 0 20px 0;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5;font-family:\'Inter\',sans-serif;">' . $statusMsg . '</p>
               
-              <!-- Financial Cards -->
-              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:16px;">
-                <tr>
-                  <td style="padding:8px 0;">
-                    <div style="padding:16px;background:rgba(239, 68, 68, 0.08);border:1px solid rgba(239, 68, 68, 0.2);border-radius:12px;">
-                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Total Expenses</div>
-                      <div style="font-size:22px;font-weight:700;color:#f87171;font-family:\'Outfit\',sans-serif;">-' . $currency . $spentFormatted . '</div>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:8px 0;">
-                    <div style="padding:16px;background:rgba(16, 185, 129, 0.08);border:1px solid rgba(16, 185, 129, 0.2);border-radius:12px;">
-                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Total Savings</div>
-                      <div style="font-size:22px;font-weight:700;color:#34d399;font-family:\'Outfit\',sans-serif;">+' . $currency . $savedFormatted . '</div>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:8px 0;">
-                    <div style="padding:16px;background:' . $netBg . ';border:1px solid ' . $netBorder . ';border-radius:12px;">
-                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Net Cashflow</div>
-                      <div style="font-size:22px;font-weight:700;color:' . $netColor . ';font-family:\'Outfit\',sans-serif;">' . $netSign . $currency . $netFormatted . '</div>
-                      <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:6px;line-height:1.4;font-family:\'Inter\',sans-serif;">' . $netText . '</div>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-              
-              <div style="text-align:center;margin:24px 0 10px 0;font-size:13px;color:rgba(255,255,255,0.5);font-family:\'Inter\',sans-serif;">
-                You can view full details on your dashboard.
+              <div style="display:inline-block;margin:10px 0;padding:12px 30px;background:linear-gradient(135deg,rgba(139,92,246,0.2) 0%,rgba(59,130,246,0.2) 100%);border:1px solid rgba(139,92,246,0.4);border-radius:12px;">
+                <span style="font-family:\'Outfit\',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;color:#ffffff;text-shadow:0 0 10px rgba(139,92,246,0.5);">' . $netDisplay . '</span>
               </div>
+              
+              <p style="margin:20px 0 0 0;font-size:12px;color:rgba(255,255,255,0.4);font-family:\'Inter\',sans-serif;">You can view the full details on your personal dashboard.</p>
             </td>
           </tr>
           <tr>
             <td style="padding:16px 24px;background-color:rgba(10,10,26,0.8);text-align:center;border-top:1px solid rgba(139,92,246,0.15);">
-              <span style="font-size:11px;color:rgba(255,255,255,0.35);font-family:\'Inter\',sans-serif;">&copy; ' . date('Y') . ' Money Management. All rights reserved.</span>
+              <span style="font-size:11px;color:rgba(255,255,255,0.35);font-family:\'Inter\',sans-serif;">&copy; 2026 Money Management. Secured Portal.</span>
             </td>
           </tr>
         </table>
