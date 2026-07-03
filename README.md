@@ -52,7 +52,7 @@
 ### 📬 8. Automated Monthly Summary Reports (v2.4.0)
 *   **Detailed Financial Digests:** Automatically compiles previous month's category-wise expenses (Outflow Breakdown) and goals-wise savings (Stored Goals Activity) into structured tables.
 *   **Security & Anti-Spam Shield:** Completely link-free HTML email template using generic/statistical terminology (Outflow, Stored, Difference) to bypass mail service spam filters and deliver directly to the user's Inbox.
-*   **Secure Virtual Trigger:** Triggered monthly on the 1st day at 6:00 AM IST via a headless Puppeteer browser running in GitHub Actions, verified by a custom HTTP header (`X-Cron-Secret`) to prevent URL parameter backdoors.
+*   **Automated Trigger:** Triggered on the 1st day of every month via GitHub Actions using a secure access key.
 
 ### 🤖 9. Znoda AI Assistant (Gemini AI Chatbot)
 *   **High-Availability Failover Queue:** Dynamic traffic-balancing API pool utilizing multiple Google Gemini and Gemma models (Gemini 3.1 Flash Lite, Gemini 2.5 Flash, Gemma 4, etc.) with automatic failovers.
