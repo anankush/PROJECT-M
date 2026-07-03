@@ -2,7 +2,7 @@ name: Push Notifications Cron
 
 on:
   schedule:
-    - cron: '30 14 * * *'   # Daily 8:00 PM IST (14:30 UTC)
+    - cron: '30 0 1 * *'   # Monthly on the 1st day at 6:00 AM IST (00:30 UTC)
   workflow_dispatch:
 
 jobs:
@@ -19,6 +19,7 @@ jobs:
 
       - name: Install Puppeteer
         run: npm install puppeteer
+
       - name: Trigger notification cron via headless browser
         run: |
           URL="${{ secrets.APP_URL }}"
