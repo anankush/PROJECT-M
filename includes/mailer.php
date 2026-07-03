@@ -77,13 +77,23 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
         $netSign = '+';
         $netBg = 'rgba(16, 185, 129, 0.08)';
         $netBorder = 'rgba(16, 185, 129, 0.2)';
-        $netText = 'Great! Stored amount was higher than outflow this month.';
+        $netText = '<strong>Great! Stored amount was higher than outflow this month.</strong>';
+        
+        $outflowLabelStyle = 'font-weight:400;color:rgba(255,255,255,0.4);';
+        $storedLabelStyle = 'font-weight:700;color:rgba(255,255,255,0.95);';
+        $outflowValueWeight = '400';
+        $storedValueWeight = '700';
     } else {
         $netColor = '#f87171'; // Red/Pink
         $netSign = '-';
         $netBg = 'rgba(239, 68, 68, 0.08)';
         $netBorder = 'rgba(239, 68, 68, 0.2)';
-        $netText = 'Notice: Outflow was higher than stored amount this month.';
+        $netText = '<strong>Notice: Outflow was higher than stored amount this month.</strong>';
+        
+        $outflowLabelStyle = 'font-weight:700;color:rgba(255,255,255,0.95);';
+        $storedLabelStyle = 'font-weight:400;color:rgba(255,255,255,0.4);';
+        $outflowValueWeight = '700';
+        $storedValueWeight = '400';
     }
 
     // Build Expenses Breakdown Table Rows
@@ -144,16 +154,16 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
                 <tr>
                   <td style="padding:6px 0;">
                     <div style="padding:14px;background:rgba(239, 68, 68, 0.08);border:1px solid rgba(239, 68, 68, 0.2);border-radius:12px;">
-                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Total Outflow</div>
-                      <div style="font-size:20px;font-weight:700;color:#f87171;font-family:\'Outfit\',sans-serif;">-' . $currency . $spentFormatted . '</div>
+                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:\'Inter\',sans-serif;' . $outflowLabelStyle . '">Total Outflow</div>
+                      <div style="font-size:20px;color:#f87171;font-family:\'Outfit\',sans-serif;font-weight:' . $outflowValueWeight . ';">-' . $currency . $spentFormatted . '</div>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:6px 0;">
                     <div style="padding:14px;background:rgba(16, 185, 129, 0.08);border:1px solid rgba(16, 185, 129, 0.2);border-radius:12px;">
-                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Total Stored</div>
-                      <div style="font-size:20px;font-weight:700;color:#34d399;font-family:\'Outfit\',sans-serif;">+' . $currency . $savedFormatted . '</div>
+                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:\'Inter\',sans-serif;' . $storedLabelStyle . '">Total Stored</div>
+                      <div style="font-size:20px;color:#34d399;font-family:\'Outfit\',sans-serif;font-weight:' . $storedValueWeight . ';">+' . $currency . $savedFormatted . '</div>
                     </div>
                   </td>
                 </tr>
