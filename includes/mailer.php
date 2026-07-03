@@ -150,6 +150,13 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
                 Here is your detailed statistics overview for the month of <strong>' . htmlspecialchars($monthName) . '</strong>.
               </p>
               
+              <!-- Status Highlight Alert Box -->
+              <div style="margin: 0 0 20px 0; padding: 12px 14px; background:' . $netBg . '; border: 1px solid ' . $netBorder . '; border-left: 4px solid ' . $netColor . '; border-radius: 8px; text-align: left;">
+                <span style="font-size: 13px; color:' . $netColor . '; font-family:\'Inter\',sans-serif; line-height: 1.4;">
+                  ' . $netText . '
+                </span>
+              </div>
+              
               <!-- Total Spent and Saved Cards -->
               <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:20px;">
                 <tr>
@@ -173,7 +180,6 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
                     <div style="padding:14px;background:' . $netBg . ';border:1px solid ' . $netBorder . ';border-radius:12px;">
                       <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Difference</div>
                       <div style="font-size:20px;font-weight:700;color:' . $netColor . ';font-family:\'Outfit\',sans-serif;">' . $netSign . $currency . $netFormatted . '</div>
-                      <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:6px;line-height:1.4;font-family:\'Inter\',sans-serif;">' . $netText . '</div>
                     </div>
                   </td>
                 </tr>
