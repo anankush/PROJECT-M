@@ -66,18 +66,53 @@ function get_otp_email_body($otp, $is_reset = false) {
 </html>';
 }
 
-function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $totalSaved, $currency = '₹') {
+function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $totalSaved, $expensesBreakdown = [], $savingsBreakdown = [], $currency = '₹') {
     $net = $totalSaved - $totalSpent;
     $netFormatted = number_format(abs($net), 2);
     $spentFormatted = number_format($totalSpent, 2);
     $savedFormatted = number_format($totalSaved, 2);
 
     if ($net >= 0) {
-        $statusMsg = "Saved: +" . $currency . $savedFormatted . "  |  Spent: -" . $currency . $spentFormatted;
-        $netDisplay = "Net: +" . $currency . $netFormatted;
+        $netColor = '#34d399'; // Emerald green
+        $netSign = '+';
+        $netBg = 'rgba(16, 185, 129, 0.08)';
+        $netBorder = 'rgba(16, 185, 129, 0.2)';
+        $netText = 'Superb! You saved more than you spent this month. Keep up the great work!';
     } else {
-        $statusMsg = "Saved: +" . $currency . $savedFormatted . "  |  Spent: -" . $currency . $spentFormatted;
-        $netDisplay = "Net: -" . $currency . $netFormatted;
+        $netColor = '#f87171'; // Red/Pink
+        $netSign = '-';
+        $netBg = 'rgba(239, 68, 68, 0.08)';
+        $netBorder = 'rgba(239, 68, 68, 0.2)';
+        $netText = 'Caution: You spent more than you saved this month. Review your budget.';
+    }
+
+    // Build Expenses Breakdown Table Rows
+    $expenseRows = '';
+    if (!empty($expensesBreakdown)) {
+        foreach ($expensesBreakdown as $row) {
+            $expenseRows .= '<tr style="border-bottom:1px solid rgba(255,255,255,0.08);">';
+            $expenseRows .= '  <td style="font-size:13px;color:rgba(255,255,255,0.85);padding:10px 8px;font-family:\'Inter\',sans-serif;">' . htmlspecialchars($row['category_name']) . '</td>';
+            $expenseRows .= '  <td align="right" style="font-size:13px;font-weight:600;color:#f87171;padding:10px 8px;font-family:\'Inter\',sans-serif;">-' . $currency . number_format($row['spent'], 2) . '</td>';
+            $expenseRows .= '</tr>';
+        }
+    } else {
+        $expenseRows = '<tr><td colspan="2" style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;padding:15px;font-family:\'Inter\',sans-serif;">No expenses logged this month.</td></tr>';
+    }
+
+    // Build Savings Breakdown Table Rows
+    $savingsRows = '';
+    if (!empty($savingsBreakdown)) {
+        foreach ($savingsBreakdown as $row) {
+            $val = floatval($row['net_saved']);
+            $color = $val >= 0 ? '#34d399' : '#f87171';
+            $sign = $val >= 0 ? '+' : '-';
+            $savingsRows .= '<tr style="border-bottom:1px solid rgba(255,255,255,0.08);">';
+            $savingsRows .= '  <td style="font-size:13px;color:rgba(255,255,255,0.85);padding:10px 8px;font-family:\'Inter\',sans-serif;">' . htmlspecialchars($row['goal_name']) . '</td>';
+            $savingsRows .= '  <td align="right" style="font-size:13px;font-weight:600;color:' . $color . ';padding:10px 8px;font-family:\'Inter\',sans-serif;">' . $sign . $currency . number_format(abs($val), 2) . '</td>';
+            $savingsRows .= '</tr>';
+        }
+    } else {
+        $savingsRows = '<tr><td colspan="2" style="font-size:12px;color:rgba(255,255,255,0.4);text-align:center;padding:15px;font-family:\'Inter\',sans-serif;">No savings goals activity this month.</td></tr>';
     }
 
     return '<!DOCTYPE html>
@@ -90,23 +125,80 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#030014;padding:20px 0;">
     <tr>
       <td align="center">
-        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:420px;background:rgba(20,14,50,0.65);border:1px solid rgba(139,92,246,0.3);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:480px;background:rgba(20,14,50,0.65);border:1px solid rgba(139,92,246,0.3);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
           <tr>
             <td style="padding:24px 24px 15px 24px;text-align:center;background:linear-gradient(135deg,#1e1b4b 0%,#0f172a 100%);border-bottom:1px solid rgba(139,92,246,0.15);">
               <div style="font-size:20px;font-weight:700;color:#a78bfa;letter-spacing:1px;font-family:\'Outfit\',sans-serif;">MONEY MANAGEMENT</div>
             </td>
           </tr>
           <tr>
-            <td style="padding:24px;text-align:center;">
-              <h2 style="margin:0 0 10px 0;font-size:18px;font-weight:600;color:#ffffff;font-family:\'Outfit\',sans-serif;">Monthly Financial Report</h2>
-              <p style="margin:0 0 5px 0;font-size:14px;color:rgba(255,255,255,0.7);line-height:1.5;font-family:\'Inter\',sans-serif;">' . $monthName . '</p>
-              <p style="margin:0 0 20px 0;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5;font-family:\'Inter\',sans-serif;">' . $statusMsg . '</p>
+            <td style="padding:24px;">
+              <h2 style="margin:0 0 10px 0;font-size:18px;font-weight:600;color:#ffffff;font-family:\'Outfit\',sans-serif;text-align:center;">Monthly Financial Report</h2>
+              <p style="margin:0 0 20px 0;font-size:14px;color:rgba(255,255,255,0.8);line-height:1.5;font-family:\'Inter\',sans-serif;">
+                Hello <strong>' . htmlspecialchars($userName) . '</strong>,<br>
+                Here is your detailed financial summary report for the month of <strong>' . htmlspecialchars($monthName) . '</strong>.
+              </p>
               
-              <div style="display:inline-block;margin:10px 0;padding:12px 30px;background:linear-gradient(135deg,rgba(139,92,246,0.2) 0%,rgba(59,130,246,0.2) 100%);border:1px solid rgba(139,92,246,0.4);border-radius:12px;">
-                <span style="font-family:\'Outfit\',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;color:#ffffff;text-shadow:0 0 10px rgba(139,92,246,0.5);">' . $netDisplay . '</span>
+              <!-- Total Spent and Saved Cards -->
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:20px;">
+                <tr>
+                  <td style="padding:6px 0;">
+                    <div style="padding:14px;background:rgba(239, 68, 68, 0.08);border:1px solid rgba(239, 68, 68, 0.2);border-radius:12px;">
+                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Total Expenses</div>
+                      <div style="font-size:20px;font-weight:700;color:#f87171;font-family:\'Outfit\',sans-serif;">-' . $currency . $spentFormatted . '</div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 0;">
+                    <div style="padding:14px;background:rgba(16, 185, 129, 0.08);border:1px solid rgba(16, 185, 129, 0.2);border-radius:12px;">
+                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Total Savings</div>
+                      <div style="font-size:20px;font-weight:700;color:#34d399;font-family:\'Outfit\',sans-serif;">+' . $currency . $savedFormatted . '</div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 0;">
+                    <div style="padding:14px;background:' . $netBg . ';border:1px solid ' . $netBorder . ';border-radius:12px;">
+                      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-family:\'Inter\',sans-serif;">Net Cashflow</div>
+                      <div style="font-size:20px;font-weight:700;color:' . $netColor . ';font-family:\'Outfit\',sans-serif;">' . $netSign . $currency . $netFormatted . '</div>
+                      <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:6px;line-height:1.4;font-family:\'Inter\',sans-serif;">' . $netText . '</div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Detailed Expenses Breakdown Table -->
+              <h3 style="font-size:14px;font-weight:600;color:#a78bfa;margin:25px 0 10px 0;font-family:\'Outfit\',sans-serif;border-bottom:1px solid rgba(139,92,246,0.15);padding-bottom:6px;">📈 Expense Breakdown by Category</h3>
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;margin-bottom:20px;">
+                <thead>
+                  <tr style="background-color:rgba(139,92,246,0.1);border-bottom:1px solid rgba(139,92,246,0.25);">
+                    <th align="left" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Category</th>
+                    <th align="right" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ' . $expenseRows . '
+                </tbody>
+              </table>
+
+              <!-- Detailed Savings Breakdown Table -->
+              <h3 style="font-size:14px;font-weight:600;color:#a78bfa;margin:25px 0 10px 0;font-family:\'Outfit\',sans-serif;border-bottom:1px solid rgba(139,92,246,0.15);padding-bottom:6px;">🎯 Savings Goals Activity</h3>
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+                <thead>
+                  <tr style="background-color:rgba(139,92,246,0.1);border-bottom:1px solid rgba(139,92,246,0.25);">
+                    <th align="left" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Goal</th>
+                    <th align="right" style="font-size:11px;font-weight:600;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;padding:8px;font-family:\'Inter\',sans-serif;">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ' . $savingsRows . '
+                </tbody>
+              </table>
+
+              <div style="text-align:center;margin:30px 0 10px 0;font-size:12px;color:rgba(255,255,255,0.4);font-family:\'Inter\',sans-serif;">
+                You can view full details on your dashboard.
               </div>
-              
-              <p style="margin:20px 0 0 0;font-size:12px;color:rgba(255,255,255,0.4);font-family:\'Inter\',sans-serif;">You can view the full details on your personal dashboard.</p>
             </td>
           </tr>
           <tr>

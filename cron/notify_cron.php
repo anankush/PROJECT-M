@@ -63,13 +63,38 @@ try {
             $stmtSaved->execute([$userId, $monthQuery . '-%']);
             $totalSaved = floatval($stmtSaved->fetchColumn());
 
+            // Fetch expense breakdown for this month
+            $stmtBreakdown = $pdo->prepare("
+                SELECT c.category_name, COALESCE(SUM(e.amount), 0) as spent
+                FROM user_categories c
+                LEFT JOIN expenses e ON c.id = e.category_id AND e.entry_date LIKE ?
+                WHERE c.user_id = ?
+                GROUP BY c.id
+                HAVING spent > 0
+            ");
+            $stmtBreakdown->execute([$monthQuery . '-%', $userId]);
+            $expensesBreakdown = $stmtBreakdown->fetchAll(PDO::FETCH_ASSOC);
+
+            // Fetch savings breakdown for this month
+            $stmtSavingsBreakdown = $pdo->prepare("
+                SELECT g.goal_name,
+                       COALESCE(SUM(CASE WHEN t.type='deposit' THEN t.amount ELSE -t.amount END), 0) as net_saved
+                FROM savings_goals g
+                INNER JOIN savings_transactions t ON g.id = t.goal_id
+                WHERE g.user_id = ? AND t.transaction_date LIKE ?
+                GROUP BY g.id
+                HAVING net_saved != 0
+            ");
+            $stmtSavingsBreakdown->execute([$userId, $monthQuery . '-%']);
+            $savingsBreakdown = $stmtSavingsBreakdown->fetchAll(PDO::FETCH_ASSOC);
+
             // 1. Send Push Notification (if subscription exists)
             sendMonthlySummary($pdo, $userId, $totalSpent, $totalSaved, $monthName);
             $pushesSent++;
 
             // 2. Send Beautiful Summary Email
             $userName = explode('@', $email)[0];
-            $emailBody = get_monthly_summary_email_body($userName, $monthName, $totalSpent, $totalSaved);
+            $emailBody = get_monthly_summary_email_body($userName, $monthName, $totalSpent, $totalSaved, $expensesBreakdown, $savingsBreakdown);
             $ok = send_email($email, "Monthly Financial Summary - " . $monthName, $emailBody);
             if ($ok) {
                 $emailsSent++;
