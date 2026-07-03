@@ -33,6 +33,7 @@
 *   **CSRF Protection:** Tokens securing all forms and API endpoints.
 *   **Session Management:** Auto-timeout, session fixation prevention, and secure cookie properties.
 *   **IDOR Prevention:** Cryptographic SHA-256 HMAC signature-verified ID tokens to prevent unauthorized parameter tampering.
+*   **Secure Cron Endpoint:** Cron handlers are secured via custom HTTP header verification (`X-Cron-Secret`), completely eliminating URL parameter backdoors and unauthorized triggers.
 
 ### 🛡️ 5. Email Security Shield
 *   **100% Real-Time Dual-Layer Validation:** Blocks temporary/disposable burner emails (Yopmail, Mailinator, etc.) during registration.
@@ -52,7 +53,7 @@
 ### 📬 8. Automated Monthly Summary Reports (v2.4.0)
 *   **Detailed Financial Digests:** Automatically compiles previous month's category-wise expenses (Outflow Breakdown) and goals-wise savings (Stored Goals Activity) into structured tables.
 *   **Security & Anti-Spam Shield:** Completely link-free HTML email template using generic/statistical terminology (Outflow, Stored, Difference) to bypass mail service spam filters and deliver directly to the user's Inbox.
-*   **Automated Trigger:** Triggered on the 1st day of every month via GitHub Actions using a secure access key.
+*   **Automated Trigger:** Runs automatically on the 1st day of every month at 6:00 AM IST.
 
 ### 🤖 9. Znoda AI Assistant (Gemini AI Chatbot)
 *   **High-Availability Failover Queue:** Dynamic traffic-balancing API pool utilizing multiple Google Gemini and Gemma models (Gemini 3.1 Flash Lite, Gemini 2.5 Flash, Gemma 4, etc.) with automatic failovers.
