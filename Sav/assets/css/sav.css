@@ -417,3 +417,9 @@
         margin: 0 !important;
     }
 }
+
+/* Align button icons properly with text on desktop and tablet */
+.btn:not(#mobileAddGoalBtn) i, .add-category-btn i {
+    position: relative !important;
+    top: 2.5px !important;
+}
