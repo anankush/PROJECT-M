@@ -139,8 +139,8 @@ function get_monthly_summary_email_body($userName, $monthName, $totalSpent, $tot
                 </tr>
               </table>
               
-              <div style="text-align:center;margin:24px 0 10px 0;">
-                <a href="http://moneymgmt.is-best.net/" style="display:inline-block;padding:12px 30px;background:linear-gradient(135deg,#8b5cf6 0%,#3b82f6 100%);color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;border-radius:12px;box-shadow:0 4px 15px rgba(139,92,246,0.3);font-family:\'Outfit\',sans-serif;">View Full Analytics</a>
+              <div style="text-align:center;margin:24px 0 10px 0;font-size:13px;color:rgba(255,255,255,0.6);font-family:\'Inter\',sans-serif;">
+                You can view full details on your Money Management Portal dashboard.
               </div>
             </td>
           </tr>

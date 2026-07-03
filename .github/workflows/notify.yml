@@ -9,10 +9,19 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger notification cron
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Puppeteer
+        run: npm install puppeteer
+
+      - name: Trigger notification cron via headless browser
         run: |
           URL="${{ secrets.APP_URL }}"
           CLEANED_URL="${URL%/}"
-          curl -X POST \
-            -H "X-Cron-Secret: ${{ secrets.PUSH_CRON_SECRET }}" \
-            "$CLEANED_URL/cron/notify_cron.php"
+          node cron/trigger.js "$CLEANED_URL/cron/notify_cron.php?secret=${{ secrets.PUSH_CRON_SECRET }}"
