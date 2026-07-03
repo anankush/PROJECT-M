@@ -501,11 +501,8 @@ pre,
 }
 
 .btn i {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     position: relative;
-    top: 1px;
+    top: 1.5px;
 }
 
 .btn:active {

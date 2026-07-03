@@ -42,7 +42,7 @@
     <div id="goalsEmptyState" class="empty-state" style="display:none; text-align:center; padding:3rem; background:rgba(255,255,255,0.02); border-radius:15px; border:1px dashed rgba(255,255,255,0.1);">
         <i class="fas fa-bullseye fa-3x" style="margin-bottom:1rem; opacity:0.5; color:var(--text-muted);"></i>
         <p style="color:var(--text-muted);">You haven't set any savings goals yet.</p>
-        <button class="btn btn-primary hide-mobile" style="margin-top:1rem;" onclick="addNewGoal()"><i class="fas fa-plus"></i> Create Goal</button>
+        <button class="btn btn-primary hide-mobile" style="margin-top:1rem;" onclick="addNewGoal()"><i class="fas fa-plus"></i> <span>Create Goal</span></button>
     </div>
 </div>
 
