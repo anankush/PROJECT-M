@@ -185,7 +185,7 @@ if (isset($_SESSION['admin_id']) && isset($_SESSION['role']) && $_SESSION['role'
             
             <div class="portal-actions">
                 <a href="auth/admin_login.php" class="btn-portal-primary">
-                    <i class="fas fa-lock-open"></i> Secure Access Login
+                    <i class="fas fa-lock-close"></i> Secure Access Login
                 </a>
                 <a href="index.php" class="btn-portal-secondary">
                     <i class="fas fa-arrow-left"></i> Return Home
