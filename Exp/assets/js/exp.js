@@ -694,7 +694,7 @@ function addCustomFieldRow(key = '', val = '', readonly = false, type = 'text') 
             flatpickr(valEl, { altInput: true, altFormat: "d-m-Y", dateFormat: "Y-m-d", allowInput: false, defaultDate: val });
         } else if (type === 'time') {
             valEl.type = 'text';
-            flatpickr(valEl, { enableTime: true, noCalendar: true, dateFormat: "h:i K", time_24hr: false, allowInput: false, defaultHour: 12, defaultDate: val });
+            flatpickr(valEl, { enableTime: true, noCalendar: true, dateFormat: "H:i", altInput: true, altFormat: "h:i K", time_24hr: false, allowInput: false, defaultHour: 12, defaultDate: val });
         }
     } else {
         div.innerHTML = `<div class="swal-field"><div style="display:flex; gap:10px; align-items:center;"><input type="text" class="cf-key theme-input-select swal-input" placeholder="Field Name" value="${key}" style="flex:1;"><select class="cf-type theme-input-select swal-input" style="flex:1;"><option value="text" style="background:var(--bg-deep); color:var(--text-primary);" ${type === 'text' ? 'selected' : ''}>Text</option><option value="number" style="background:var(--bg-deep); color:var(--text-primary);" ${type === 'number' ? 'selected' : ''}>Number</option><option value="currency" style="background:var(--bg-deep); color:var(--text-primary);" ${type === 'currency' ? 'selected' : ''}>Currency</option><option value="date" style="background:var(--bg-deep); color:var(--text-primary);" ${type === 'date' ? 'selected' : ''}>Date</option><option value="time" style="background:var(--bg-deep); color:var(--text-primary);" ${type === 'time' ? 'selected' : ''}>Time</option></select><input type="${inputType}" ${stepAttr} class="cf-val theme-input-select swal-input" placeholder="Value" value="${val}" style="flex:1.5;"><i class="fas fa-times cf-remove" onclick="confirmRemoveCustomField('${div.id}')" style="cursor:pointer; color:var(--danger); font-size:1.2rem; padding:10px;"></i></div></div>`;
@@ -711,7 +711,7 @@ function addCustomFieldRow(key = '', val = '', readonly = false, type = 'text') 
             if (t === 'date') {
                 fpInstance = flatpickr(valEl, { altInput: true, altFormat: "d-m-Y", dateFormat: "Y-m-d", allowInput: false });
             } else if (t === 'time') {
-                fpInstance = flatpickr(valEl, { enableTime: true, noCalendar: true, dateFormat: "h:i K", time_24hr: false, allowInput: false, defaultHour: 12 });
+                fpInstance = flatpickr(valEl, { enableTime: true, noCalendar: true, dateFormat: "H:i", altInput: true, altFormat: "h:i K", time_24hr: false, allowInput: false, defaultHour: 12 });
             }
         }
         setupFlatpickr(type);
