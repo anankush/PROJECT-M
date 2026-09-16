@@ -1,0 +1,27 @@
+name: Push Notifications Cron
+
+on:
+  schedule:
+    - cron: '30 0 1 * *'   # Monthly on the 1st day at 6:00 AM IST (00:30 UTC)
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Puppeteer
+        run: npm install puppeteer
+
+      - name: Trigger notification cron via headless browser
+        run: |
+          URL="${{ secrets.APP_URL }}"
+          CLEANED_URL="${URL%/}"
+          node cron/trigger.js "$CLEANED_URL/cron/notify_cron.php" "${{ secrets.PUSH_CRON_SECRET }}"

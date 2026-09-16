@@ -1,0 +1,40 @@
+Options -Indexes
+ServerSignature Off
+
+DirectoryIndex index.php
+
+<FilesMatch "\.(log|bak|tmp|sql|env|sh|conf|config|ini|swp|swo|git|php~|php_bak|md|txt|gitignore|gitattributes)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(includes|database|\.git)(/|$) - [F,L]
+</IfModule>
+
+<Files "session_ping.php">
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{HTTP_ACCEPT} !application/json
+        RewriteCond %{HTTP:X-Requested-With} !XMLHttpRequest
+        RewriteRule ^ - [F,L]
+    </IfModule>
+</Files>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Explicitly allow service worker script
+<Files "sw.js">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+ErrorDocument 404 /error.php?code=url_tamper
+ErrorDocument 403 /error.php?code=unauthorized
+ErrorDocument 500 /error.php?code=db
