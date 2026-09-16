@@ -124,7 +124,7 @@ The security architecture of **Project M** has been independently audited, pente
 
 ---
 
-Last Updated July 2026  
+Last Updated 16th September 2026  
 Made With Love ❤️  
 **PROJECT M**  
 *MONEY MANAGEMENT SYSTEM*  
