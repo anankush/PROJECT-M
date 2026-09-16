@@ -101,5 +101,6 @@ try {
     echo json_encode($response);
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    error_log('[Cron] Monthly summary failed: ' . $e->getMessage());
+    echo json_encode(['status' => 'error', 'message' => 'Monthly summary processing failed.']);
 }

@@ -10,6 +10,19 @@ window.selCurr = function (el, val) {
     if (lbl) lbl.textContent = val;
 };
 
+function renderCurrencyGrid(list) {
+    const grid = document.getElementById('currencyGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    list.forEach((currency) => {
+        const card = document.createElement('div');
+        card.className = `set-card curr-card${window.tempCurrency === currency ? ' active' : ''}`;
+        card.textContent = currency;
+        card.addEventListener('click', () => window.selCurr(card, currency));
+        grid.appendChild(card);
+    });
+}
+
 window.filterCurrencies = function (q) {
     const grid = document.getElementById('currencyGrid');
     if (!grid) return;
@@ -17,9 +30,7 @@ window.filterCurrencies = function (q) {
         ? allCurrencies.filter(c => c.toLowerCase().includes(q.toLowerCase()))
         : allCurrencies.slice(0, 20);
     const list = matches.includes(window.tempCurrency) ? matches : [window.tempCurrency, ...matches];
-    grid.innerHTML = list.map(c =>
-        `<div class="set-card curr-card${window.tempCurrency === c ? ' active' : ''}" onclick="selCurr(this,'${c}')">${c}</div>`
-    ).join('');
+    renderCurrencyGrid(list);
 };
 
 const allCurrencies = [
@@ -42,10 +53,6 @@ async function openGlobalSettings() {
         ? allCurrencies.slice(0, 20)
         : [userCurrency, ...allCurrencies.slice(0, 20)];
 
-    const initialGrid = defaultList.map(c =>
-        `<div class="set-card curr-card${userCurrency === c ? ' active' : ''}" onclick="selCurr(this,'${c}')">${c}</div>`
-    ).join('');
-
     const currencySection = `
         <div style="text-align:left; margin-bottom:15px;">
             <label style="font-weight:600; color:var(--text-primary);">Regional Settings</label>
@@ -54,7 +61,7 @@ async function openGlobalSettings() {
                 class="theme-input-select"
                 style="width:100%; box-sizing:border-box; margin-bottom:10px; font-size:0.9rem;"
                 oninput="filterCurrencies(this.value)">
-            <div id="currencyGrid" class="set-grid">${initialGrid}</div>
+            <div id="currencyGrid" class="set-grid"></div>
             <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px; text-align:right;">
                 Selected: <strong id="selCurrLabel" style="color:var(--aurora-1);">${userCurrency}</strong>
             </div>
@@ -104,6 +111,7 @@ async function openGlobalSettings() {
         didOpen: async () => {
             const s = document.getElementById('currencySearch');
             if (s) setTimeout(() => s.focus(), 50);
+            renderCurrencyGrid(defaultList);
             await renderPushSettingsUI();
         },
         preConfirm: () => { return { currency: window.tempCurrency, language: 'en' }; }

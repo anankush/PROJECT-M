@@ -14,7 +14,8 @@ function send_email($to, $subject, $body) {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_TIMEOUT        => 15,
         CURLOPT_POSTFIELDS     => http_build_query(['email' => $to, 'subject' => $subject, 'body' => $body])
     ]);

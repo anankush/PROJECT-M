@@ -16,6 +16,10 @@ if (!isset($_SESSION['user_id']) && !isset($_SESSION['admin_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
 }
+if (isset($_SESSION['admin_id']) && !isset($_SESSION['user_id'])) {
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+    exit;
+}
 check_session_timeout();
 
 if (!isset($_SESSION['sav_db_migrated'])) {
