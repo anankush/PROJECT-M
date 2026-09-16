@@ -13,6 +13,7 @@
 ## ✨ What's New
 
 *   Clickable expense record details
+*   Compact expense record list
 *   Scrollable custom-field record popup
 *   Popup Edit and Delete controls
 *   Savings deposit history details

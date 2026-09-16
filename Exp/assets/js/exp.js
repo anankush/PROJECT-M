@@ -654,28 +654,13 @@ function renderTableData(records) {
     let customSchema = window.currentCustomSchema || {};
     let customKeys = Object.keys(customSchema);
 
-    let headHtml = `<tr><th>Serial No</th><th>Date</th><th>Time</th><th>Amount</th><th>Description</th>`;
-    customKeys.forEach(k => { headHtml += `<th>${escapeHtml(k)}</th>`; });
-    headHtml += `<th>Timestamp</th></tr>`;
+    const headHtml = `<tr><th>Serial No</th><th>Date</th><th>Time</th><th>Amount</th></tr>`;
     thead.innerHTML = headHtml;
 
     tbody.innerHTML = '';
     records.forEach((row) => {
         const tr = document.createElement('tr');
-        let rowHtml = `<td>${escapeHtml(row.serial_no)}</td><td>${escapeHtml(row.entry_date)}</td><td>${escapeHtml(formatTime12Hour(row.entry_time))}</td><td style="color:var(--success); font-weight:600;">${escapeHtml(userCurrency)}${escapeHtml(row.amount)}</td><td>${escapeHtml(row.description)}</td>`;
-        customKeys.forEach(k => {
-            let val = '-';
-            if (row.custom_data && row.custom_data[k] !== undefined) {
-                if (typeof row.custom_data[k] === 'object' && row.custom_data[k] !== null) {
-                    val = row.custom_data[k].value;
-                    if (row.custom_data[k].type === 'currency' && val !== '') val = `<span style="color:var(--success); font-weight:500;">${escapeHtml(userCurrency)}${escapeHtml(val)}</span>`;
-                    else if (row.custom_data[k].type === 'time' && val !== '') val = escapeHtml(formatTime12Hour(val));
-                    else val = escapeHtml(val);
-                } else { val = escapeHtml(row.custom_data[k]); }
-            }
-            rowHtml += `<td>${val}</td>`;
-        });
-        rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td>`;
+        const rowHtml = `<td>${escapeHtml(row.serial_no)}</td><td>${escapeHtml(row.entry_date)}</td><td>${escapeHtml(formatTime12Hour(row.entry_time))}</td><td style="color:var(--success); font-weight:600;">${escapeHtml(userCurrency)}${escapeHtml(row.amount)}</td>`;
         tr.innerHTML = rowHtml;
         tr.classList.add('record-row');
         tr.addEventListener('click', () => showRecordDetails(row));
