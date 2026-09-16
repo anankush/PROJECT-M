@@ -25,6 +25,7 @@ $time_left = $otp_record ? max(0, (int) $otp_record['time_left']) : 0;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf_token($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
     check_rate_limit($pdo, 'otp_verify', 5, 5);
+    check_rate_limit($pdo, 'otp_verify_email_' . substr(hash('sha256', strtolower($email)), 0, 16), 5, 5);
     $input = json_decode(file_get_contents('php://input'), true);
     $otp = trim($input['otp'] ?? '');
 
