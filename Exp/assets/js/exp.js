@@ -162,31 +162,17 @@ function renderBudgetsTable() {
     if (!tbody) return;
     tbody.innerHTML = '';
     if (categories.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No sections found. Create one first.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;">No sections found. Create one first.</td></tr>';
     } else {
         categories.forEach(cat => {
             const tr = document.createElement('tr');
             const budgetVal = parseFloat(cat.budget) || 0;
             tr.innerHTML = `
                         <td>${escapeHtml(cat.category_name)}</td>
-                        <td style="color:var(--aurora-2); font-weight:600;">${userCurrency}${budgetVal.toFixed(2)}</td>
-                        <td style="text-align:right;">
-                            <div class="action-btns" style="justify-content:flex-end;">
-                                <button class="icon-btn edit" title="Rename" onclick="triggerRename(${cat.id}, '${escapeHtml(cat.category_name)}')">
-                                    <i class="fas fa-pen"></i>
-                                </button>
-                                <button class="icon-btn edit" title="Set Budget" onclick="triggerEditBudget(${cat.id}, '${escapeHtml(cat.category_name)}')" style="background:rgba(6,182,212,0.1);color:#06b6d4;border-color:rgba(6,182,212,0.2);">
-                                    <i class="fas fa-wallet"></i>
-                                </button>
-                                <button class="icon-btn edit" title="Notes" onclick="triggerNotes(${cat.id}, '${escapeHtml(cat.category_name)}')" style="background:rgba(245,158,11,0.1);color:#f59e0b;border-color:rgba(245,158,11,0.2);">
-                                    <i class="far fa-sticky-note"></i>
-                                </button>
-                                <button class="icon-btn delete" title="Delete" onclick="deleteSpecificCategory(${cat.id}, '${escapeHtml(cat.category_name)}')">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        </td>
+                        <td style="color:var(--aurora-2); font-weight:600;">${escapeHtml(userCurrency)}${budgetVal.toFixed(2)}</td>
                     `;
+            tr.className = 'budget-record-row';
+            tr.addEventListener('click', () => showBudgetDetails(cat));
             tbody.appendChild(tr);
         });
     }
@@ -227,6 +213,36 @@ function renderBudgetsTable() {
             if (unallocatedLabel) unallocatedLabel.innerText = 'Remaining to Allocate';
         }
     }
+}
+
+function showBudgetDetails(category) {
+    const budgetValue = parseFloat(category.budget) || 0;
+    const detailRows = [
+        ['Section', escapeHtml(category.category_name)],
+        ['Current Budget', `${escapeHtml(userCurrency)}${budgetValue.toFixed(2)}`]
+    ].map(([label, value]) => `<div class="budget-detail-item"><span class="budget-detail-label">${escapeHtml(label)}</span><span class="budget-detail-value">${value}</span></div>`).join('');
+    const actionHtml = `<div class="budget-detail-actions"><button type="button" class="budget-detail-action rename" id="budgetRename"><i class="fas fa-pen"></i><span>Rename</span></button><button type="button" class="budget-detail-action set" id="budgetSet"><i class="fas fa-wallet"></i><span>Set Budget</span></button><button type="button" class="budget-detail-action notes" id="budgetNotes"><i class="far fa-sticky-note"></i><span>Notes</span></button><button type="button" class="budget-detail-action delete" id="budgetDelete"><i class="fas fa-trash-alt"></i><span>Delete</span></button></div>`;
+
+    Swal.fire({
+        title: 'Budget Details',
+        html: `<div class="budget-detail-popup"><div class="budget-detail-list">${detailRows}</div>${actionHtml}</div>`,
+        showConfirmButton: false,
+        showCloseButton: true,
+        width: 620,
+        customClass: { popup: 'budget-detail-swal' },
+        didOpen: () => {
+            const closeAndRun = (handler) => {
+                Swal.close();
+                currentCategoryId = category.id;
+                currentCategoryName = category.category_name;
+                handler();
+            };
+            document.getElementById('budgetRename').addEventListener('click', () => closeAndRun(renameSection));
+            document.getElementById('budgetSet').addEventListener('click', () => closeAndRun(editSectionBudget));
+            document.getElementById('budgetNotes').addEventListener('click', () => closeAndRun(openNoteModal));
+            document.getElementById('budgetDelete').addEventListener('click', () => closeAndRun(() => deleteSpecificCategory(category.id, category.category_name)));
+        }
+    });
 }
 
 async function triggerEditOverallBudget() {

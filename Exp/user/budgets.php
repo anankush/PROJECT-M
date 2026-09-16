@@ -33,7 +33,6 @@
             <tr>
                 <th>Section Name</th>
                 <th>Current Budget</th>
-                <th style="text-align:right;">Action</th>
             </tr>
         </thead>
         <tbody id="budgetsTableBody">

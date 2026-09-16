@@ -18,6 +18,7 @@
 *   Savings deposit history details
 *   Savings transaction Edit and Delete
 *   Savings goal details popup
+*   Budget management details popup with four actions
 *   Responsive desktop and mobile popup layouts
 
 ---
