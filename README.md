@@ -10,6 +10,18 @@
 
 ---
 
+## ✨ What's New
+
+*   Clickable expense record details
+*   Scrollable custom-field record popup
+*   Popup Edit and Delete controls
+*   Savings deposit history details
+*   Savings transaction Edit and Delete
+*   Savings goal details popup
+*   Responsive desktop and mobile popup layouts
+
+---
+
 ## ✨ Key Modules & Features
 
 ### 📈 1. Interactive Dashboard
