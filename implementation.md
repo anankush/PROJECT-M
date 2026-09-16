@@ -11,10 +11,15 @@ The record detail popup is implemented in the `Exp` module.
 - Long values wrap safely, and the detail list has its own vertical scroll area.
 - `Exp/assets/css/exp.css` provides the bounded popup layout and bottom pill-shaped Edit/Delete controls.
 - The popup reuses the existing `editRecord(row)` and `deleteRecord(id)` flows, so no new API or database change is required.
+- The standalone Expense Actions column has been removed; row actions are now available from the detail popup only.
+- Savings Deposit History and Manage Savings Goals use the same scrollable detail-popup pattern with bottom pill-shaped Edit/Delete controls.
+- Savings transaction editing and deletion use CSRF-protected endpoints with both transaction and goal ownership checks.
 
 ### User Behavior
 
 For sections such as `ROOM RENT`, a user can click anywhere on a saved record to open its complete details. Even when the record contains many Add Field values, the user can scroll up and down inside the popup to see everything. The Edit and Delete controls stay at the bottom of the popup and remain usable on desktop and mobile.
+
+The same interaction is available for Savings Deposit History and Manage Savings Goals. Deposit transactions can be edited or deleted from their detail popup, and the related goal total is recalculated from the remaining transactions. Manage Savings Goals no longer has a separate Actions column; its Edit and Delete controls are inside the goal detail popup.
 
 ### Validation Status
 

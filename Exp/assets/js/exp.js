@@ -640,7 +640,7 @@ function renderTableData(records) {
 
     let headHtml = `<tr><th>Serial No</th><th>Date</th><th>Time</th><th>Amount</th><th>Description</th>`;
     customKeys.forEach(k => { headHtml += `<th>${escapeHtml(k)}</th>`; });
-    headHtml += `<th>Timestamp</th><th style="text-align:right;">Actions</th></tr>`;
+    headHtml += `<th>Timestamp</th></tr>`;
     thead.innerHTML = headHtml;
 
     tbody.innerHTML = '';
@@ -659,20 +659,10 @@ function renderTableData(records) {
             }
             rowHtml += `<td>${val}</td>`;
         });
-        rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td><td style="text-align:right;"><div class="action-btns" style="justify-content:flex-end;"><button class="icon-btn edit" type="button" title="Edit"><i class="fas fa-pen" style="font-size:0.85rem; pointer-events:none;"></i></button><button class="icon-btn delete" type="button" title="Delete"><i class="fas fa-trash-alt" style="font-size:0.85rem; pointer-events:none;"></i></button></div></td>`;
+        rowHtml += `<td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(row.created_at)}</td>`;
         tr.innerHTML = rowHtml;
         tr.classList.add('record-row');
-        tr.querySelector('.icon-btn.edit').addEventListener('click', (event) => {
-            event.stopPropagation();
-            editRecord(row);
-        });
-        tr.querySelector('.icon-btn.delete').addEventListener('click', (event) => {
-            event.stopPropagation();
-            deleteRecord(row.id);
-        });
-        tr.addEventListener('click', (event) => {
-            if (!event.target.closest('.action-btns')) showRecordDetails(row);
-        });
+        tr.addEventListener('click', () => showRecordDetails(row));
         tbody.appendChild(tr);
     });
 }

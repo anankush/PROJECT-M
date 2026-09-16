@@ -14,7 +14,6 @@
                 <th>Category</th>
                 <th>Priority</th>
                 <th>Target Amount</th>
-                <th style="text-align:right;">Actions</th>
             </tr>
         </thead>
         <tbody id="manageGoalsTableBody">

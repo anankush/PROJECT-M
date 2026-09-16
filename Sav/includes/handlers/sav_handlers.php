@@ -221,6 +221,64 @@ function handle_get_history($pdo) {
     }
 }
 
+function handle_update_transaction($pdo) {
+    $uid = $_SESSION['user_id'];
+    $input = json_decode(file_get_contents('php://input'), true);
+    $id = intval($input['id'] ?? 0);
+    $amount = floatval($input['amount'] ?? 0);
+    $type = $input['type'] ?? '';
+    $date = $input['date'] ?? '';
+    $notes = trim(htmlspecialchars($input['notes'] ?? '', ENT_QUOTES, 'UTF-8'));
+    if ($notes === '') $notes = null;
+
+    if ($id <= 0 || $amount <= 0 || !in_array($type, ['deposit', 'withdraw'], true) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+        echo json_encode(['status' => 'error', 'message' => 'Valid transaction details are required.']);
+        return;
+    }
+
+    try {
+        $ownership = $pdo->prepare('SELECT goal_id FROM savings_transactions WHERE id = ? AND user_id = ?');
+        $ownership->execute([$id, $uid]);
+        $transaction = $ownership->fetch();
+        if (!$transaction || !verify_ownership($pdo, 'savings_goals', $transaction['goal_id'], $uid, 'update_transaction')) {
+            echo json_encode(['status' => 'error', 'message' => 'Transaction not found.']);
+            return;
+        }
+
+        $stmt = $pdo->prepare('UPDATE savings_transactions SET amount = ?, type = ?, transaction_date = ?, notes = ? WHERE id = ? AND user_id = ?');
+        $stmt->execute([$amount, $type, $date, $notes, $id, $uid]);
+        echo json_encode(['status' => 'success', 'message' => 'Transaction updated successfully.']);
+    } catch (PDOException $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to update transaction.']);
+    }
+}
+
+function handle_delete_transaction($pdo) {
+    $uid = $_SESSION['user_id'];
+    $input = json_decode(file_get_contents('php://input'), true);
+    $id = intval($input['id'] ?? 0);
+    if ($id <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid transaction ID.']);
+        return;
+    }
+
+    try {
+        $ownership = $pdo->prepare('SELECT goal_id FROM savings_transactions WHERE id = ? AND user_id = ?');
+        $ownership->execute([$id, $uid]);
+        $transaction = $ownership->fetch();
+        if (!$transaction || !verify_ownership($pdo, 'savings_goals', $transaction['goal_id'], $uid, 'delete_transaction')) {
+            echo json_encode(['status' => 'error', 'message' => 'Transaction not found.']);
+            return;
+        }
+
+        $stmt = $pdo->prepare('DELETE FROM savings_transactions WHERE id = ? AND user_id = ?');
+        $stmt->execute([$id, $uid]);
+        echo json_encode(['status' => 'success', 'message' => 'Transaction deleted successfully.']);
+    } catch (PDOException $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to delete transaction.']);
+    }
+}
+
 function handle_get_average_expense($pdo) {
     $uid = $_SESSION['user_id'];
     try {

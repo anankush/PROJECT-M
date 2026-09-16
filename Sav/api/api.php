@@ -45,6 +45,12 @@ switch ($action) {
     case 'get_history':
         handle_get_history($pdo);
         break;
+    case 'update_transaction':
+        handle_update_transaction($pdo);
+        break;
+    case 'delete_transaction':
+        handle_delete_transaction($pdo);
+        break;
     case 'get_average_expense':
         handle_get_average_expense($pdo);
         break;

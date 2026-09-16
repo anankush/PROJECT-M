@@ -600,6 +600,8 @@ async function fetchHistory() {
                         <td style="font-weight:bold; color: ${r.type === 'deposit' ? '#10b981' : '#ef4444'}">${userCurrency}${parseFloat(r.amount).toFixed(2)}</td>
                         <td>${notesHtml}</td>
                     `;
+                    tr.className = 'sav-record-row';
+                    tr.addEventListener('click', () => showTransactionDetails(r));
                     if (tbody) tbody.appendChild(tr);
                 });
                 if (table) table.style.display = 'table';
@@ -610,6 +612,82 @@ async function fetchHistory() {
     } catch (e) {
         if (loader) loader.style.display = 'none';
     }
+}
+
+function formatSavDetailValue(value) {
+    return value === null || value === undefined || value === '' ? '-' : escapeHtml(String(value));
+}
+
+function showTransactionDetails(transaction) {
+    const isDeposit = transaction.type === 'deposit';
+    const typeLabel = isDeposit ? 'Deposit' : 'Withdraw';
+    const typeColor = isDeposit ? '#10b981' : '#ef4444';
+    const detailRows = [
+        ['Date', formatSavDetailValue(new Date(transaction.transaction_date).toLocaleDateString())],
+        ['Goal', formatSavDetailValue(transaction.goal_name)],
+        ['Type', `<strong style="color:${typeColor};">${typeLabel}</strong>`],
+        ['Amount', `${escapeHtml(userCurrency)}${escapeHtml(parseFloat(transaction.amount).toFixed(2))}`],
+        ['Notes', formatSavDetailValue(transaction.notes)]
+    ].map(([label, value]) => `<div class="sav-detail-item"><span class="sav-detail-label">${escapeHtml(label)}</span><span class="sav-detail-value">${value}</span></div>`).join('');
+
+    Swal.fire({
+        title: 'Transaction Details',
+        html: `<div class="sav-detail-popup"><div class="sav-detail-list">${detailRows}</div><div class="sav-detail-actions"><button type="button" class="sav-detail-action edit" id="transactionEdit"><i class="fas fa-pen"></i><span>Edit</span></button><button type="button" class="sav-detail-action delete" id="transactionDelete"><i class="fas fa-trash-alt"></i><span>Delete</span></button></div></div>`,
+        showConfirmButton: false,
+        showCloseButton: true,
+        width: 560,
+        customClass: { popup: 'sav-detail-swal' },
+        didOpen: () => {
+            document.getElementById('transactionEdit').addEventListener('click', () => {
+                Swal.close();
+                editTransaction(transaction);
+            });
+            document.getElementById('transactionDelete').addEventListener('click', () => {
+                Swal.close();
+                deleteTransaction(transaction.id);
+            });
+        }
+    });
+}
+
+async function editTransaction(transaction) {
+    const { value: formValues } = await Swal.fire({
+        title: 'Edit Transaction',
+        html: `<div class="swal-form-container"><div class="swal-field"><label class="swal-label">Amount (${escapeHtml(userCurrency)})</label><input id="edit-st-amt" type="number" step="0.01" class="theme-input-select swal-input" value="${escapeHtml(transaction.amount)}"></div><div class="swal-field"><label class="swal-label">Date</label><input id="edit-st-date" type="date" class="theme-input-select swal-input" value="${escapeHtml(transaction.transaction_date)}"></div><div class="swal-field"><label class="swal-label">Type</label><select id="edit-st-type" class="theme-input-select swal-input"><option value="deposit" ${transaction.type === 'deposit' ? 'selected' : ''}>Deposit</option><option value="withdraw" ${transaction.type === 'withdraw' ? 'selected' : ''}>Withdraw</option></select></div><div class="swal-field"><label class="swal-label">Notes / Remarks</label><input id="edit-st-notes" type="text" class="theme-input-select swal-input" maxlength="255" value="${escapeHtml(transaction.notes || '')}"></div></div>`,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Save Changes',
+        confirmButtonColor: '#8b5cf6',
+        preConfirm: () => {
+            const amount = document.getElementById('edit-st-amt').value;
+            const date = document.getElementById('edit-st-date').value;
+            if (!amount || parseFloat(amount) <= 0 || !date) {
+                Swal.showValidationMessage('Valid amount and date are required.');
+                return false;
+            }
+            return { id: transaction.id, amount, date, type: document.getElementById('edit-st-type').value, notes: document.getElementById('edit-st-notes').value };
+        }
+    });
+    if (!formValues) return;
+    const res = await fetch(`${API_URL}?action=update_transaction`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN }, body: JSON.stringify(formValues) });
+    const result = await res.json();
+    if (result.status === 'success') {
+        Swal.fire('Saved!', result.message, 'success');
+        fetchHistory();
+        fetchGoals();
+    } else Swal.fire('Error', result.message, 'error');
+}
+
+async function deleteTransaction(id) {
+    const confirmation = await Swal.fire({ title: 'Delete Transaction?', text: 'This will update the related goal balance.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Yes, delete it!' });
+    if (!confirmation.isConfirmed) return;
+    const res = await fetch(`${API_URL}?action=delete_transaction`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN }, body: JSON.stringify({ id }) });
+    const result = await res.json();
+    if (result.status === 'success') {
+        Swal.fire('Deleted!', result.message, 'success');
+        fetchHistory();
+        fetchGoals();
+    } else Swal.fire('Error', result.message, 'error');
 }
 
 function escapeHtml(unsafe) {
@@ -829,7 +907,7 @@ function renderManageGoalsTable() {
     tbody.innerHTML = '';
 
     if (!goals || goals.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No goals found. Create one first.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No goals found. Create one first.</td></tr>';
         return;
     }
 
@@ -850,18 +928,44 @@ function renderManageGoalsTable() {
             </td>
             <td>${catName}</td>
             <td><span class="priority-badge ${pClass}">${pLabel}</span></td>
-            <td style="color:var(--aurora-2); font-weight:600;">${userCurrency}${target.toFixed(2)}</td>
-            <td style="text-align:right;">
-                <div class="action-btns" style="justify-content:flex-end; gap:8px;">
-                    <button class="icon-btn edit" title="Edit Goal" onclick="editGoal(${g.id})" style="background:rgba(139, 92, 246, 0.1); color:#a78bfa; border-color:rgba(139, 92, 246, 0.2);">
-                        <i class="fas fa-pen"></i>
-                    </button>
-                    <button class="icon-btn delete" title="Delete Goal" onclick="deleteGoal(${g.id})">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
-            </td>
+            <td style="color:var(--aurora-2); font-weight:600;">${escapeHtml(userCurrency)}${target.toFixed(2)}</td>
         `;
+        tr.className = 'sav-record-row';
+        tr.addEventListener('click', () => showGoalDetails(g));
         tbody.appendChild(tr);
+    });
+}
+
+function showGoalDetails(goal) {
+    const target = parseFloat(goal.target_amount) || 0;
+    const current = parseFloat(goal.current_amount) || 0;
+    const category = categoryNames[goal.category || 'others'] || 'Others';
+    const priority = (goal.priority || 'medium').toUpperCase();
+    const detailRows = [
+        ['Goal', escapeHtml(goal.goal_name)],
+        ['Category', escapeHtml(category)],
+        ['Priority', escapeHtml(priority)],
+        ['Target Amount', `${escapeHtml(userCurrency)}${target.toFixed(2)}`],
+        ['Saved Amount', `${escapeHtml(userCurrency)}${current.toFixed(2)}`],
+        ['Deadline', formatSavDetailValue(goal.deadline ? new Date(goal.deadline).toLocaleDateString() : 'No Deadline')]
+    ].map(([label, value]) => `<div class="sav-detail-item"><span class="sav-detail-label">${escapeHtml(label)}</span><span class="sav-detail-value">${value}</span></div>`).join('');
+
+    Swal.fire({
+        title: 'Savings Goal Details',
+        html: `<div class="sav-detail-popup"><div class="sav-detail-list">${detailRows}</div><div class="sav-detail-actions"><button type="button" class="sav-detail-action edit" id="goalDetailEdit"><i class="fas fa-pen"></i><span>Edit</span></button><button type="button" class="sav-detail-action delete" id="goalDetailDelete"><i class="fas fa-trash-alt"></i><span>Delete</span></button></div></div>`,
+        showConfirmButton: false,
+        showCloseButton: true,
+        width: 560,
+        customClass: { popup: 'sav-detail-swal' },
+        didOpen: () => {
+            document.getElementById('goalDetailEdit').addEventListener('click', () => {
+                Swal.close();
+                editGoal(goal.id);
+            });
+            document.getElementById('goalDetailDelete').addEventListener('click', () => {
+                Swal.close();
+                deleteGoal(goal.id);
+            });
+        }
     });
 }
